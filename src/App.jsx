@@ -310,6 +310,8 @@ const CSS = `
 .mu-billing-toggle{display:inline-flex; align-items:center; background:var(--card); border:1px solid var(--border); border-radius:999px; padding:5px;}
 .mu-billing-toggle button{border:0; background:transparent; padding:9px 18px; border-radius:999px; cursor:pointer; font:inherit; font-weight:600; font-size:14.5px; color:var(--muted); display:inline-flex; align-items:center; gap:8px;}
 .mu-billing-toggle button.on{background:var(--emerald); color:#fff;}
+.mu-billing-label{font-size:13px; font-weight:600; letter-spacing:.02em; color:var(--muted);}
+.mu-fromlbl{font-size:15px; font-weight:600; color:var(--muted);}
 .mu-save-badge{font-size:11px; font-weight:800; letter-spacing:.03em; color:#231d05; background:var(--gold); padding:3px 8px; border-radius:999px;}
 
 /* ---------- comparison table ---------- */
@@ -824,39 +826,70 @@ const TESTIMONIALS = [
   { q:"Structured, professional, and genuinely warm. Best language investment I've made.", a:"Aisha B., Australia" },
 ];
 
+const CLASS_TIERS = [4, 8, 12];
+
 const PLANS = [
-  { name:"Starter", m:49, tagline:"For casual learners.", pop:false, cta:"Start Learning",
-    incl:["2 group classes/week (max 4 students)","Homework & worksheets","Class recordings","WhatsApp support"] },
-  { name:"Standard", m:99, tagline:"Our most balanced plan.", pop:true, cta:"Choose Standard",
-    incl:["3 classes/week including 1 private 1:1","Personalized study plan","Weekly progress reports","Priority scheduling","Everything in Starter"] },
-  { name:"Premium", m:179, tagline:"Fastest results.", pop:false, cta:"Go Premium",
-    incl:["5 fully private 1:1 classes/week","Custom curriculum","Certificate on completion","Direct teacher access","Everything in Standard"] },
+  {
+    id: "gcse", kind: "group", name: "GCSE Exam Prep",
+    tagline: "Group course · monthly subscription", price: 45, pop: false,
+    cta: "Join the group",
+    incl: [
+      "4 live group sessions every month",
+      "60 minutes per session",
+      "Sundays — choose 10 AM or 6 PM GMT",
+      "Exam-focused practice and revision",
+      "Every session recorded to rewatch",
+    ],
+  },
+  {
+    id: "kids", kind: "private", name: "Kids 1:1",
+    tagline: "Private lessons for young learners", minutes: 30,
+    prices: { 4: 32, 8: 64, 12: 96 }, pop: false,
+    cta: "Start kids 1:1",
+    incl: [
+      "One-to-one with a dedicated teacher",
+      "30 minutes per class",
+      "Pick 4, 8, or 12 classes a month",
+      "Lessons paced around your child",
+      "Homework and recordings after class",
+    ],
+  },
+  {
+    id: "adults", kind: "private", name: "Adults & Women 1:1",
+    tagline: "Private lessons for adult learners", minutes: 50,
+    prices: { 4: 48, 8: 96, 12: 144 }, pop: false,
+    cta: "Start adult 1:1",
+    incl: [
+      "One-to-one with a dedicated teacher",
+      "50 minutes per class",
+      "Pick 4, 8, or 12 classes a month",
+      "Conversation, reading, or exam focus",
+      "Homework and recordings after class",
+    ],
+  },
 ];
 
 const COMPARE = [
-  { cat:"Classes & teaching", rows:[
-    { f:"Classes per week", s:"2 group", st:"3 (incl. 1 private)", p:"5 private" },
-    { f:"Private 1:1 classes", s:false, st:"1 / week", p:"5 / week" },
-    { f:"Max group size", s:"4 students", st:"4 students", p:"Private" },
-    { f:"Personalized study plan", s:false, st:true, p:"Custom" },
-    { f:"Custom curriculum", s:false, st:false, p:true },
+  { cat:"Format", rows:[
+    { f:"Teaching format", g:"Live group", k:"Private 1:1", a:"Private 1:1" },
+    { f:"Minutes per class", g:"60 min", k:"30 min", a:"50 min" },
+    { f:"Classes per month", g:"4 (fixed)", k:"4 · 8 · 12", a:"4 · 8 · 12" },
+    { f:"Best for", g:"GCSE exam students", k:"Children (5+)", a:"Adults & women" },
   ]},
-  { cat:"Materials & practice", rows:[
-    { f:"Homework & worksheets", s:true, st:true, p:true },
-    { f:"Class recordings", s:true, st:true, p:true },
-    { f:"Student dashboard", s:true, st:true, p:true },
-    { f:"Weekly progress reports", s:false, st:true, p:true },
-    { f:"Certificate on completion", s:false, st:false, p:true },
+  { cat:"Schedule", rows:[
+    { f:"Scheduling", g:"Set weekly times", k:"Flexible, your timezone", a:"Flexible, your timezone" },
+    { f:"Time slots", g:"Sun 10 AM / 6 PM GMT", k:"Booked with your teacher", a:"Booked with your teacher" },
   ]},
-  { cat:"Support & scheduling", rows:[
-    { f:"WhatsApp support", s:true, st:true, p:true },
-    { f:"Priority scheduling", s:false, st:true, p:true },
-    { f:"Direct teacher access", s:false, st:false, p:true },
-    { f:"Reschedule flexibility", s:"Standard", st:"Priority", p:"Anytime" },
+  { cat:"What's included", rows:[
+    { f:"Dedicated teacher", g:false, k:true, a:true },
+    { f:"Personalized study plan", g:false, k:true, a:true },
+    { f:"Homework & worksheets", g:true, k:true, a:true },
+    { f:"Class recordings", g:true, k:true, a:true },
+    { f:"Progress updates", g:true, k:true, a:true },
   ]},
   { cat:"Every plan includes", rows:[
-    { f:"Free trial class", s:true, st:true, p:true },
-    { f:"Cancel anytime", s:true, st:true, p:true },
+    { f:"Free trial class", g:true, k:true, a:true },
+    { f:"Cancel anytime", g:true, k:true, a:true },
   ]},
 ];
 
@@ -865,11 +898,13 @@ const FAQ = [
   { q:"How do I book my free trial?", a:"Pick a course, tell us your timezone and a time that suits you, and we'll match you with a teacher for one complete class." },
   { q:"What if I've never seen Urdu before?", a:"Perfect. Most students start from the alphabet; we assess and place you correctly." },
   { q:"Can I choose my class times?", a:"Yes. Tell us your timezone and availability and we schedule around you." },
-  { q:"Can I reschedule a class?", a:"Yes. With reasonable notice we'll move your class; Standard and Premium plans get priority rescheduling." },
+  { q:"Can I reschedule a class?", a:"Yes. With reasonable notice we'll move a 1:1 class to another slot that suits you. GCSE group sessions follow the fixed Sunday schedule, but every session is recorded so you never miss the material." },
+  { q:"When is the GCSE group class?", a:"Sundays. Each month includes four 60-minute sessions, and you choose the 10 AM or 6 PM GMT slot that works for you." },
+  { q:"How do the 1:1 bundles work?", a:"Pick 4, 8, or 12 classes a month — 30 minutes each for kids, 50 minutes each for adults and women. The more you book, the faster you progress, and your teacher plans each month around your goals." },
   { q:"Are classes recorded?", a:"Every class is recorded and saved to your dashboard to rewatch anytime." },
   { q:"What are your teachers' qualifications?", a:"Every teacher is a native Urdu speaker with a formal qualification — in Urdu literature, linguistics, or education — plus years of online teaching experience." },
-  { q:"Do I get a certificate?", a:"Yes. Premium students receive a certificate on completing their course, and your progress is tracked throughout every plan." },
-  { q:"What payment methods do you accept?", a:"We accept major credit and debit cards and popular local options. Plans can be billed monthly or annually." },
+  { q:"Do I get a certificate?", a:"Yes. We track your progress throughout, and learners receive a certificate on completing their course." },
+  { q:"What payment methods do you accept?", a:"We accept major credit and debit cards and popular local options. Every plan is a simple monthly subscription." },
   { q:"Do you offer refunds?", a:"If you're not satisfied after your first paid class, contact us within 7 days and we'll refund that month in full." },
   { q:"Is there a minimum age to start?", a:"Our Kids course welcomes learners from age 5; teen and adult courses have no upper age limit." },
   { q:"Do you teach children?", a:"Yes, from age 5, with teachers who specialize in young learners." },
@@ -1226,21 +1261,30 @@ function SectionHeader({ eyebrow, title, lead, center = true, id }) {
 }
 
 /* shared PlanCard used on landing + pricing page */
-function PlanCard({ plan, annual, onCta, headingTag = "h3" }) {
+function PlanCard({ plan, classes = 8, from = false, onCta, headingTag = "h3" }) {
   const Tag = headingTag;
-  const price = annual ? plan.m * 10 : plan.m;
-  const unit = annual ? "/yr" : "/mo";
+  const group = plan.kind === "group";
+  let price, note;
+  if (group) {
+    price = plan.price;
+    note = "Monthly subscription · 4 sessions included";
+  } else {
+    const perClass = Math.round(plan.prices[4] / 4);
+    price = from ? plan.prices[4] : plan.prices[classes];
+    note = from
+      ? `From $${perClass}/class · ${plan.minutes} min each`
+      : `${classes} classes/month · $${perClass}/class · ${plan.minutes} min`;
+  }
   return (
     <div className={`mu-plan ${plan.pop ? "pop" : ""}`}>
       {plan.pop && <span className="mu-popbadge"><Sparkles size={13} /> Most Popular</span>}
       <Tag>{plan.name}</Tag>
       <p className="tagline">{plan.tagline}</p>
-      <div className="mu-planprice">${price}<small>{unit}</small></div>
-      <p className="mu-annnote">
-        {annual
-          ? <>${(plan.m * 10 / 12).toFixed(2)}/mo billed yearly · <span className="save">Save ${plan.m * 2}</span></>
-          : <>Billed monthly</>}
-      </p>
+      <div className="mu-planprice">
+        {from && !group && <span className="mu-fromlbl">from</span>}
+        ${price}<small>/mo</small>
+      </div>
+      <p className="mu-annnote">{note}</p>
       <ul className="incl">
         {plan.incl.map((x) => <li key={x}><Check size={17} strokeWidth={2.4} /> {x}</li>)}
       </ul>
@@ -1685,17 +1729,17 @@ function PricingSection() {
     <section className="mu-section" id="pricing" style={{ background:"var(--card)", borderTop:"1px solid var(--border)", borderBottom:"1px solid var(--border)" }} aria-labelledby="price-h">
       <div className="mu-wrap">
         <SectionHeader eyebrow="Pricing" title="Simple plans, real teachers."
-          lead="Every plan includes a free trial and cancel-anytime billing. Upgrade or downgrade whenever you like." />
+          lead="A GCSE group course and private 1:1 tuition for kids and adults — each with a free trial and cancel-anytime billing." />
         <div className="mu-pricing-grid">
           {PLANS.map((p, i) => (
-            <Reveal key={p.name} delay={i * 90}>
-              <PlanCard plan={p} annual={false} onCta={() => goRoute("pricing")} headingTag={i===0 ? "h3" : "h3"} />
+            <Reveal key={p.id} delay={i * 90}>
+              <PlanCard plan={p} from onCta={() => goRoute("pricing")} headingTag="h3" />
             </Reveal>
           ))}
         </div>
         <Reveal className="mu-center">
           <div style={{ marginTop:32 }}>
-            <button className="mu-textlink" onClick={() => goRoute("pricing")}>Compare all plans & features <ArrowRight size={16} /></button>
+            <button className="mu-textlink" onClick={() => goRoute("pricing")}>See bundles & compare plans <ArrowRight size={16} /></button>
           </div>
         </Reveal>
       </div>
@@ -2024,21 +2068,21 @@ function Cell({ v, pop }) {
 
 function PricingPage() {
   const { goSection, goTrial } = useNav();
-  const [annual, setAnnual] = useState(false);
+  const [classes, setClasses] = useState(8);
   return (
     <>
       <PageHero
         crumb={[{ label:"Pricing" }]}
         eyebrow="Pricing"
         title="One academy, three ways to learn."
-        lead="Every plan includes a free trial and cancel-anytime billing. Switch to annual and get two months free."
+        lead="A GCSE group course, plus private 1:1 tuition for kids and adults. Every plan includes a free trial and cancel-anytime billing."
       >
         <div className="mu-billing">
-          <div className="mu-billing-toggle" role="group" aria-label="Billing period">
-            <button className={!annual ? "on" : ""} onClick={() => setAnnual(false)} aria-pressed={!annual}>Monthly</button>
-            <button className={annual ? "on" : ""} onClick={() => setAnnual(true)} aria-pressed={annual}>
-              Annual <span className="mu-save-badge">2 months free</span>
-            </button>
+          <span className="mu-billing-label">Classes per month for 1:1 plans</span>
+          <div className="mu-billing-toggle" role="group" aria-label="Classes per month for one-to-one plans">
+            {CLASS_TIERS.map((n) => (
+              <button key={n} className={classes === n ? "on" : ""} onClick={() => setClasses(n)} aria-pressed={classes === n}>{n} classes</button>
+            ))}
           </div>
         </div>
       </PageHero>
@@ -2047,8 +2091,8 @@ function PricingPage() {
         <div className="mu-wrap">
           <div className="mu-pricing-grid" style={{ marginTop:0 }}>
             {PLANS.map((p, i) => (
-              <Reveal key={p.name} delay={i * 90}>
-                <PlanCard plan={p} annual={annual} onCta={() => goSection("final")} headingTag="h2" />
+              <Reveal key={p.id} delay={i * 90}>
+                <PlanCard plan={p} classes={classes} onCta={() => goSection("final")} headingTag="h2" />
               </Reveal>
             ))}
           </div>
@@ -2057,18 +2101,18 @@ function PricingPage() {
 
       <section className="mu-section" style={{ paddingTop:0 }} aria-labelledby="cmp-h">
         <div className="mu-wrap">
-          <SectionHeader eyebrow="Full comparison" title="Compare every feature." lead={null} />
+          <SectionHeader eyebrow="Full comparison" title="Compare every plan." lead={null} />
           <span id="cmp-h" className="mu-sr">Feature comparison across plans</span>
           <Reveal>
             <div className="mu-compare-wrap">
               <table className="mu-compare">
-                <caption className="mu-sr">A comparison of features across the Starter, Standard, and Premium plans.</caption>
+                <caption className="mu-sr">A comparison of the GCSE group course and the Kids and Adults 1:1 plans, at {classes} classes per month.</caption>
                 <thead>
                   <tr>
                     <th className="feat" scope="col"><span className="mu-sr">Feature</span></th>
-                    <th scope="col"><span className="pname">Starter</span><span className="pprice">${annual ? PLANS[0].m*10 : PLANS[0].m}{annual ? "/yr" : "/mo"}</span></th>
-                    <th scope="col" className="pop pop-col"><span className="pill">Most Popular</span><span className="pname">Standard</span><span className="pprice">${annual ? PLANS[1].m*10 : PLANS[1].m}{annual ? "/yr" : "/mo"}</span></th>
-                    <th scope="col"><span className="pname">Premium</span><span className="pprice">${annual ? PLANS[2].m*10 : PLANS[2].m}{annual ? "/yr" : "/mo"}</span></th>
+                    <th scope="col"><span className="pname">GCSE Exam Prep</span><span className="pprice">$45/mo</span></th>
+                    <th scope="col"><span className="pname">Kids 1:1</span><span className="pprice">${PLANS[1].prices[classes]}/mo</span></th>
+                    <th scope="col"><span className="pname">Adults &amp; Women 1:1</span><span className="pprice">${PLANS[2].prices[classes]}/mo</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -2078,9 +2122,9 @@ function PricingPage() {
                       {group.rows.map((r) => (
                         <tr key={r.f}>
                           <th className="feat" scope="row" style={{ fontWeight:500 }}>{r.f}</th>
-                          <Cell v={r.s} />
-                          <Cell v={r.st} pop />
-                          <Cell v={r.p} />
+                          <Cell v={r.g} />
+                          <Cell v={r.k} />
+                          <Cell v={r.a} />
                         </tr>
                       ))}
                     </React.Fragment>
@@ -2089,7 +2133,7 @@ function PricingPage() {
               </table>
             </div>
           </Reveal>
-          <p className="mu-scrollhint">All plans include a free trial and cancel anytime. Annual billing saves you two months.</p>
+          <p className="mu-scrollhint">1:1 prices shown for {classes} classes per month. Every plan includes a free trial and cancel-anytime monthly billing.</p>
           <Reveal className="mu-center">
             <div style={{ marginTop:28 }}>
               <button className="mu-btn mu-btn-lg mu-btn-primary" onClick={goTrial}>Start with a free trial <ArrowRight size={18} /></button>
@@ -2644,8 +2688,8 @@ function seoFor(route) {
       return { title: t(`${c.name} — Online Urdu Course`), desc: c.desc, ld: [orgLD(), courseLD(c)] };
     }
     case "pricing":
-      return { title: t("Pricing & Plans — Urdu Classes from $12/class"),
-        desc: "Simple monthly plans for live 1-on-1 Urdu classes. Compare Starter, Standard, and Premium — every plan starts with a free trial class.",
+      return { title: t("Pricing & Plans — GCSE Group & 1:1 Urdu Classes"),
+        desc: "GCSE Exam Prep group course at $45/mo, plus private 1:1 Urdu tuition for kids (from $32/mo) and adults (from $48/mo). Every plan starts with a free trial class.",
         ld: [orgLD(), { "@type": "FAQPage", mainEntity: FAQ.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }] };
     case "teachers":
       return { title: t("Meet Our Native Urdu Teachers"),
