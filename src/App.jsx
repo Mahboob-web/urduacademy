@@ -1,41 +1,43 @@
 import React, { useState, useEffect, useRef, useCallback, useContext, createContext, useId } from "react";
+import logoFullWhite from "./assets/brand/logo-full-white.png";
 import {
   Mic, UserCheck, Route, CalendarClock, Repeat, TrendingUp,
-  Star, Check, ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ArrowLeft,
-  BookOpen, MessagesSquare, Feather, Baby, Plane, Briefcase,
+  Star, Check, ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ArrowLeft, ArrowUp,
+  BookOpen, Feather, Baby,
   GraduationCap, Globe, Sparkles, Menu, X, Award, Quote,
-  Instagram, Facebook, Youtube, Linkedin, Video, Clock, Target,
-  ListChecks, PlayCircle, Minus, NotebookPen,
-  Mail, Phone, MapPin, MessageCircle, Send, Users, Compass, Heart,
+  Instagram, Facebook, Youtube, Linkedin, Video, Clock,
+  Mail, Phone, MapPin, Send, Users, Compass, Heart,
   Calendar, Tag, ShieldCheck, Languages, Handshake, ArrowUpRight
 } from "lucide-react";
 
 /* ================================================================== *
- *  Master Urdu Academy — multi-route site
+ *  Speak in Urdu — multi-route site
  *  Routes (hash-based):  #/  ·  #/courses  ·  #/courses/<slug>  ·  #/pricing
  *  Shared design tokens live once in <Styles/>.
  * ================================================================== */
 
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;500;700&display=swap');
 
+html,body{margin:0; padding:0;}
+body{overflow-x:hidden;}
 .mu-root *{box-sizing:border-box;}
 .mu-root{
-  --paper:#FBFAF7; --card:#FFFFFF;
-  --emerald:#0B6E4F; --emerald-mid:#0F8A63; --emerald-tint:#EAF3EF;
-  --gold:#C9A227; --gold-soft:#F3EAC9;
-  --ink:#14201B; --muted:#5B6B63; --border:#E7E3DA;
+  --paper:#EEF3EA; --card:#FFFFFF;
+  --emerald:#3F562E; --emerald-mid:#52713D; --emerald-tint:#E5EBE0;
+  --gold:#7A5A43; --gold-soft:#C9A45A;
+  --ink:#2F2F2F; --muted:#6B5F52; --border:#DCE6D6;
   --rc:18px; --rb:12px;
-  --sh-sm:0 1px 2px rgba(20,32,27,.04), 0 6px 16px -8px rgba(20,32,27,.10);
-  --sh-md:0 2px 6px rgba(20,32,27,.05), 0 22px 48px -18px rgba(20,32,27,.18);
+  --sh-sm:0 1px 2px rgba(47,47,47,.05), 0 6px 16px -8px rgba(47,47,47,.12);
+  --sh-md:0 2px 6px rgba(47,47,47,.06), 0 22px 48px -18px rgba(47,47,47,.22);
   --maxw:1200px;
   background:var(--paper); color:var(--ink);
-  font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  font-family:"Manrope",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
   font-size:17px; line-height:1.62; -webkit-font-smoothing:antialiased;
   letter-spacing:-0.003em;
 }
 .mu-root h1,.mu-root h2,.mu-root h3,.mu-root h4{
-  font-family:"Plus Jakarta Sans","Inter",sans-serif;
+  font-family:"Plus Jakarta Sans","Manrope",sans-serif;
   color:var(--ink); line-height:1.1; margin:0; letter-spacing:-0.02em;
 }
 .mu-root p{margin:0;}
@@ -62,10 +64,10 @@ const CSS = `
 .mu-btn-ghost{background:#fff; color:var(--ink); border-color:var(--border);}
 .mu-btn-ghost:hover{border-color:var(--emerald); color:var(--emerald); transform:translateY(-1px);}
 .mu-btn-block{width:100%;}
-.mu-btn-gold{background:var(--gold); color:#231d05;}
+.mu-btn-gold{background:var(--gold-soft); color:#2F2F2F;}
 .mu-btn-gold:hover{background:#d8b43a; transform:translateY(-1px);}
 .mu-root :focus-visible{outline:2.5px solid var(--emerald); outline-offset:3px; border-radius:6px;}
-.mu-on-dark :focus-visible{outline-color:var(--gold);}
+.mu-on-dark :focus-visible{outline-color:var(--gold-soft);}
 
 .mu-linkbtn{background:none; border:0; padding:0; margin:0; font:inherit; cursor:pointer; color:inherit; text-align:left;}
 .mu-textlink{display:inline-flex; align-items:center; gap:6px; color:var(--emerald); font-weight:600; font-size:14.5px; background:none; border:0; cursor:pointer; padding:0; font-family:inherit;}
@@ -79,26 +81,23 @@ const CSS = `
 .mu-pattern{position:absolute; inset:0; width:100%; height:100%; color:var(--emerald); opacity:.05; pointer-events:none;}
 
 /* ---------- header ---------- */
-.mu-header{position:sticky; top:0; z-index:60; background:rgba(251,250,247,.82); backdrop-filter:saturate(140%) blur(10px); border-bottom:1px solid transparent; transition:border-color .25s ease, box-shadow .25s ease;}
-.mu-header.is-stuck{border-color:var(--border); box-shadow:0 8px 24px -20px rgba(20,32,27,.5);}
-.mu-nav{display:flex; align-items:center; justify-content:space-between; height:72px; gap:20px;}
-.mu-brand{display:flex; align-items:baseline; gap:9px; font-family:"Plus Jakarta Sans"; font-weight:800; font-size:19px; letter-spacing:-0.02em; background:none; border:0; cursor:pointer; color:inherit;}
-.mu-brand .mu-mark{font-size:22px; color:var(--emerald);}
+.mu-header{position:sticky; top:0; z-index:60; background:var(--emerald); border-bottom:1px solid transparent; transition:box-shadow .25s ease;}
+.mu-header.is-stuck{box-shadow:0 8px 24px -20px rgba(20,40,32,.55);}
+.mu-nav{display:flex; align-items:center; justify-content:space-between; height:72px; gap:20px; color:#fff;}
+.mu-brand{display:flex; align-items:center; gap:9px; font-family:"Plus Jakarta Sans"; font-weight:800; font-size:19px; letter-spacing:-0.02em; background:none; border:0; cursor:pointer; color:inherit;}
+.mu-brand-full{display:block; flex-shrink:0; object-fit:contain;}
 .mu-navlinks{display:none; align-items:center; gap:26px;}
-.mu-navlinks button{font-family:inherit; background:none; border:0; cursor:pointer; font-size:14.5px; font-weight:500; color:var(--muted); position:relative; padding:6px 0; transition:color .2s;}
-.mu-navlinks button:hover{color:var(--ink);}
-.mu-navlinks button::after{content:""; position:absolute; left:0; bottom:0; height:2px; width:0; background:var(--gold); transition:width .25s ease;}
+.mu-navlinks button{font-family:inherit; background:none; border:0; cursor:pointer; font-size:14.5px; font-weight:500; color:rgba(255,255,255,.72); position:relative; padding:6px 0; transition:color .2s;}
+.mu-navlinks button:hover{color:#fff;}
+.mu-navlinks button::after{content:""; position:absolute; left:0; bottom:0; height:2px; width:0; background:var(--gold-soft); transition:width .25s ease;}
 .mu-navlinks button:hover::after, .mu-navlinks button.active::after{width:100%;}
-.mu-navlinks button.active{color:var(--ink);}
+.mu-navlinks button.active{color:#fff;}
 .mu-navright{display:flex; align-items:center; gap:14px;}
-.mu-toggle{display:none; align-items:center; background:var(--card); border:1px solid var(--border); border-radius:999px; padding:3px; font-size:13px; font-weight:600;}
-.mu-toggle button{border:0; background:transparent; padding:5px 12px; border-radius:999px; cursor:pointer; color:var(--muted); font:inherit;}
-.mu-toggle button.on{background:var(--emerald-tint); color:var(--emerald);}
-.mu-toggle .mu-urdu{font-size:15px;}
-.mu-burger{display:inline-flex; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:9px; cursor:pointer; color:var(--ink);}
-.mu-mobile{display:none; border-top:1px solid var(--border); background:var(--paper); padding:14px 0 20px;}
+.mu-burger{display:inline-flex; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.28); border-radius:12px; padding:9px; cursor:pointer; color:#fff;}
+.mu-mobile{display:none; border-top:1px solid rgba(255,255,255,.16); background:var(--emerald); padding:14px 0 20px;}
 .mu-mobile.open{display:block;}
-.mu-mobile button.ml{display:block; width:100%; text-align:left; background:none; border:0; border-bottom:1px solid var(--border); font:inherit; font-weight:500; color:var(--ink); padding:12px 4px; cursor:pointer;}
+.mu-mobile button.ml{display:block; width:100%; text-align:left; background:none; border:0; border-bottom:1px solid rgba(255,255,255,.16); font:inherit; font-weight:500; color:rgba(255,255,255,.85); padding:12px 4px; cursor:pointer; transition:color .15s ease;}
+.mu-mobile button.ml:hover{color:#fff;}
 .mu-mobile .mu-btn{margin-top:16px;}
 .mu-desktop-cta{display:none;}
 
@@ -156,13 +155,14 @@ const CSS = `
 .mu-meta{font-size:12.5px; color:var(--muted); font-weight:600; letter-spacing:.02em;}
 .mu-course h3{font-size:20px;}
 .mu-course .desc{margin:8px 0 14px;}
+.mu-featlabel{font-size:11.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:9px;}
 .mu-bullets{list-style:none; padding:0; margin:0 0 20px; display:grid; gap:9px;}
 .mu-bullets li{display:flex; gap:9px; align-items:flex-start; font-size:14.5px; color:var(--ink);}
 .mu-bullets svg{color:var(--emerald); flex-shrink:0; margin-top:3px;}
 .mu-course .foot{margin-top:auto; display:flex; align-items:center; justify-content:space-between; gap:12px; padding-top:16px; border-top:1px solid var(--border);}
 .mu-course .links{display:flex; align-items:center; gap:14px;}
 .mu-price{font-family:"Plus Jakarta Sans"; font-weight:800; font-size:20px;}
-.mu-price small{font-family:"Inter"; font-weight:600; font-size:12.5px; color:var(--muted); letter-spacing:.04em; text-transform:uppercase; display:block; margin-bottom:-2px;}
+.mu-price small{font-family:"Manrope"; font-weight:600; font-size:12.5px; color:var(--muted); letter-spacing:.04em; text-transform:uppercase; display:block; margin-bottom:-2px;}
 
 /* ---------- how it works ---------- */
 .mu-steps{position:relative; margin-top:48px; display:grid; grid-template-columns:1fr; gap:22px;}
@@ -171,18 +171,8 @@ const CSS = `
 .mu-step h3{font-size:17px; margin-bottom:5px;}
 .mu-step p{color:var(--muted); font-size:14.5px;}
 
-/* ---------- teachers ---------- */
-.mu-teacher{text-align:left;}
-.mu-avatar{width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:"Plus Jakarta Sans"; font-weight:800; font-size:22px; color:#fff; background:linear-gradient(135deg,var(--emerald),var(--emerald-mid)); box-shadow:0 6px 16px -8px rgba(11,110,79,.6); position:relative;}
+.mu-avatar{width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:"Plus Jakarta Sans"; font-weight:800; font-size:22px; color:#fff; background:linear-gradient(135deg,var(--emerald),var(--emerald-mid)); box-shadow:0 6px 16px -8px rgba(63,86,46,.6); position:relative;}
 .mu-avatar::after{content:""; position:absolute; inset:-4px; border-radius:50%; border:1.5px solid var(--gold-soft);}
-.mu-teacher .name{display:flex; align-items:center; justify-content:space-between; gap:10px; margin:16px 0 4px;}
-.mu-teacher h3{font-size:19px;}
-.mu-teacher .exp{color:var(--emerald); font-weight:600; font-size:14px;}
-.mu-teacher .qual{color:var(--muted); font-size:14px; margin-top:6px;}
-.mu-teacher .langs{display:flex; flex-wrap:wrap; gap:6px; margin:12px 0;}
-.mu-tag{font-size:12px; font-weight:600; color:var(--muted); background:var(--paper); border:1px solid var(--border); padding:4px 10px; border-radius:999px;}
-.mu-teacher .quote{font-size:15px; color:var(--ink); border-top:1px solid var(--border); padding-top:14px; margin-top:14px;}
-.mu-rate{display:inline-flex; align-items:center; gap:5px; font-weight:700; font-size:14px;}
 
 /* ---------- testimonials ---------- */
 .mu-testi{position:relative; overflow:hidden;}
@@ -204,7 +194,7 @@ const CSS = `
 .mu-pricing-grid{display:grid; grid-template-columns:1fr; gap:22px; margin-top:40px; align-items:stretch;}
 .mu-plan{background:var(--card); border:1px solid var(--border); border-radius:20px; padding:30px 26px; box-shadow:var(--sh-sm); display:flex; flex-direction:column; position:relative;}
 .mu-plan.pop{border-color:var(--emerald); box-shadow:var(--sh-md);}
-.mu-popbadge{position:absolute; top:-13px; left:50%; transform:translateX(-50%); background:var(--gold); color:#231d05; font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; padding:6px 16px; border-radius:999px; display:inline-flex; align-items:center; gap:6px;}
+.mu-popbadge{position:absolute; top:-13px; left:50%; transform:translateX(-50%); background:var(--gold-soft); color:#2F2F2F; font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; padding:6px 16px; border-radius:999px; display:inline-flex; align-items:center; gap:6px;}
 .mu-plan h3{font-size:20px; margin-bottom:4px;}
 .mu-plan .tagline{color:var(--muted); font-size:14.5px; min-height:22px;}
 .mu-planprice{font-family:"Plus Jakarta Sans"; font-weight:800; font-size:42px; margin:16px 0 2px; display:flex; align-items:baseline; gap:4px;}
@@ -231,27 +221,26 @@ const CSS = `
 .mu-final .mu-pattern{color:#fff; opacity:.08;}
 .mu-final h2{color:#fff; font-size:clamp(26px,4vw,40px); font-weight:800; max-width:18ch; margin:0 auto; position:relative;}
 .mu-final p{color:rgba(255,255,255,.85); margin:16px auto 30px; max-width:44ch; position:relative;}
-.mu-final .flourish{font-family:"Noto Nastaliq Urdu"; color:var(--gold); font-size:34px; opacity:.9; margin-bottom:6px; position:relative;}
+.mu-final .flourish{font-family:"Noto Nastaliq Urdu"; color:var(--gold-soft); font-size:34px; opacity:.9; margin-bottom:6px; position:relative;}
 
 /* ---------- footer ---------- */
-.mu-footer{position:relative; overflow:hidden; background:#0d1815; color:#cdd6d1; margin-top:96px; padding:64px 0 32px;}
+.mu-footer{position:relative; overflow:hidden; background:#2F2F2F; color:#EAE3D3; margin-top:96px; padding:64px 0 32px;}
 .mu-footer .mu-pattern{color:#fff; opacity:.04;}
 .mu-footcols{display:grid; grid-template-columns:1fr; gap:36px; position:relative;}
 .mu-footbrand .mu-brand{color:#fff;}
-.mu-footbrand .mu-brand .mu-mark{color:var(--gold);}
-.mu-footbrand p{color:#9aa8a1; font-size:14.5px; margin-top:12px; max-width:34ch;}
+.mu-footbrand p{color:#C9C0AE; font-size:14.5px; margin-top:12px; max-width:34ch;}
 .mu-footcol h4{color:#fff; font-size:13px; letter-spacing:.1em; text-transform:uppercase; margin-bottom:16px; font-family:"Plus Jakarta Sans";}
-.mu-footcol button.fl{display:block; background:none; border:0; cursor:pointer; font:inherit; text-align:left; color:#9aa8a1; font-size:14.5px; padding:6px 0; transition:color .2s;}
-.mu-footcol button.fl:hover{color:var(--gold);}
+.mu-footcol button.fl{display:block; background:none; border:0; cursor:pointer; font:inherit; text-align:left; color:#C9C0AE; font-size:14.5px; padding:6px 0; transition:color .2s;}
+.mu-footcol button.fl:hover{color:var(--gold-soft);}
 .mu-news{display:flex; gap:8px; margin-top:14px;}
-.mu-news input{flex:1; background:#132420; border:1px solid #24382f; border-radius:12px; padding:11px 14px; color:#fff; font:inherit; font-size:14.5px;}
-.mu-news input::placeholder{color:#7d8c85;}
-.mu-news input:focus{outline:2px solid var(--gold); outline-offset:1px;}
+.mu-news input{flex:1; background:#262523; border:1px solid #4A473F; border-radius:12px; padding:11px 14px; color:#fff; font:inherit; font-size:14.5px;}
+.mu-news input::placeholder{color:#A69C89;}
+.mu-news input:focus{outline:2px solid var(--gold-soft); outline-offset:1px;}
 .mu-socials{display:flex; gap:10px; margin-top:18px;}
-.mu-socials a{width:38px; height:38px; border-radius:10px; border:1px solid #24382f; display:flex; align-items:center; justify-content:center; color:#cdd6d1; transition:all .2s;}
-.mu-socials a:hover{background:var(--gold); color:#231d05; border-color:var(--gold);}
-.mu-footbottom{position:relative; border-top:1px solid #1c2b26; margin-top:44px; padding-top:24px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; color:#7d8c85; font-size:13.5px;}
-.mu-footbottom .mu-urdu{color:var(--gold); font-size:22px; opacity:.85;}
+.mu-socials a{width:38px; height:38px; border-radius:10px; border:1px solid #4A473F; display:flex; align-items:center; justify-content:center; color:#D6CDBA; transition:all .2s;}
+.mu-socials a:hover{background:var(--gold-soft); color:#2F2F2F; border-color:var(--gold-soft);}
+.mu-footbottom{position:relative; border-top:1px solid #3D3B36; margin-top:44px; padding-top:24px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; color:#A69C89; font-size:13.5px;}
+.mu-footbottom .mu-urdu{color:var(--gold-soft); font-size:22px; opacity:.85;}
 
 /* ---------- page hero + breadcrumb ---------- */
 .mu-pagehero{position:relative; overflow:hidden; border-bottom:1px solid var(--border);}
@@ -269,35 +258,16 @@ const CSS = `
 .mu-chiptag{display:inline-flex; align-items:center; gap:7px; font-size:12.5px; font-weight:600; color:var(--emerald); background:var(--emerald-tint); padding:7px 13px; border-radius:999px;}
 .mu-block h2{font-size:24px; font-weight:800; margin-bottom:6px;}
 .mu-block .sub{color:var(--muted); margin-bottom:20px;}
-.mu-syllabus{display:grid; gap:10px;}
-.mu-syl{display:flex; gap:16px; align-items:flex-start; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:15px 18px;}
-.mu-syl .wk{flex-shrink:0; min-width:78px; font-size:11.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--emerald); padding-top:2px;}
-.mu-syl .wt{font-weight:600; font-size:15.5px; line-height:1.4;}
 .mu-outcomes{list-style:none; padding:0; margin:0; display:grid; gap:13px;}
 .mu-outcomes li{display:flex; gap:12px; align-items:flex-start; font-size:16px;}
 .mu-outcomes svg{color:var(--emerald); flex-shrink:0; margin-top:4px;}
-.mu-sample{background:var(--card); border:1px solid var(--border); border-radius:20px; padding:28px; box-shadow:var(--sh-sm);}
-.mu-sample .shead{display:flex; align-items:center; gap:10px; color:var(--emerald); font-weight:700; font-size:13px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:10px;}
-.mu-sample h3{font-size:21px;}
-.mu-sample .smeta{color:var(--muted); font-size:14px; margin-top:6px;}
-.mu-sample .obj{margin:16px 0 22px; padding:14px 16px; background:var(--emerald-tint); border-radius:12px; font-size:15px;}
-.mu-sample .obj b{color:var(--emerald);}
-.mu-flow{display:grid; gap:0; border-left:2px solid var(--emerald-tint); margin-left:6px;}
-.mu-flow-step{position:relative; padding:0 0 18px 24px;}
-.mu-flow-step::before{content:""; position:absolute; left:-7px; top:3px; width:12px; height:12px; border-radius:50%; background:var(--card); border:2px solid var(--emerald);}
-.mu-flow-step:last-child{padding-bottom:0;}
-.mu-flow-step .fl{font-weight:700; font-size:14.5px;}
-.mu-flow-step .ft{color:var(--muted); font-size:14.5px;}
-.mu-urdu-samp{margin-top:22px; background:var(--paper); border:1px solid var(--border); border-radius:14px; padding:14px 18px;}
-.mu-urdu-samp .lbl{font-size:11.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; font-weight:700; margin-bottom:6px;}
-.mu-urdu-samp .mu-urdu{font-size:24px; color:var(--ink); direction:rtl; display:block; text-align:right;}
-.mu-homework{margin-top:20px; display:flex; gap:12px; align-items:flex-start; border-top:1px solid var(--border); padding-top:18px; font-size:14.5px; color:var(--muted);}
-.mu-homework svg{color:var(--emerald); flex-shrink:0; margin-top:2px;}
-.mu-homework b{color:var(--ink); font-weight:700;}
 .mu-detail-side .card{background:var(--card); border:1px solid var(--border); border-radius:20px; padding:24px; box-shadow:var(--sh-md);}
 .mu-detail-side .price{font-family:"Plus Jakarta Sans"; font-weight:800; font-size:34px; display:flex; align-items:baseline; gap:5px;}
 .mu-detail-side .price small{font-size:14px; font-weight:600; color:var(--muted);}
 .mu-detail-side .price .from{font-size:11.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); font-weight:700; display:block; margin-bottom:-2px;}
+.mu-tierlist{list-style:none; padding:0; margin:16px 0 0; display:grid; gap:0; border-top:1px solid var(--border);}
+.mu-tierlist li{display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:14px; padding:9px 0; border-bottom:1px solid var(--border); color:var(--muted);}
+.mu-tierlist li b{color:var(--ink); font-weight:700;}
 .mu-facts{list-style:none; padding:0; margin:20px 0; display:grid; gap:0;}
 .mu-facts li{display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:14.5px; padding:11px 0; border-bottom:1px solid var(--border);}
 .mu-facts li:last-child{border-bottom:0;}
@@ -312,23 +282,8 @@ const CSS = `
 .mu-billing-toggle button.on{background:var(--emerald); color:#fff;}
 .mu-billing-label{font-size:13px; font-weight:600; letter-spacing:.02em; color:var(--muted);}
 .mu-fromlbl{font-size:15px; font-weight:600; color:var(--muted);}
-.mu-save-badge{font-size:11px; font-weight:800; letter-spacing:.03em; color:#231d05; background:var(--gold); padding:3px 8px; border-radius:999px;}
+.mu-save-badge{font-size:11px; font-weight:800; letter-spacing:.03em; color:#2F2F2F; background:var(--gold-soft); padding:3px 8px; border-radius:999px;}
 
-/* ---------- comparison table ---------- */
-.mu-compare-wrap{overflow-x:auto; margin-top:40px; border:1px solid var(--border); border-radius:20px; background:var(--card); box-shadow:var(--sh-sm); -webkit-overflow-scrolling:touch;}
-.mu-compare{width:100%; border-collapse:collapse; min-width:680px;}
-.mu-compare th, .mu-compare td{padding:15px 20px; text-align:center; font-size:14.5px; border-top:1px solid var(--border);}
-.mu-compare thead th{border-top:0; vertical-align:bottom; padding-top:24px; padding-bottom:20px;}
-.mu-compare th.feat, .mu-compare td.feat{text-align:left;}
-.mu-compare thead .pname{font-family:"Plus Jakarta Sans"; font-weight:800; font-size:17px; display:block;}
-.mu-compare thead .pprice{font-size:13px; color:var(--muted); font-weight:600; margin-top:3px; display:block;}
-.mu-compare thead th.pop .pill{display:inline-block; margin-bottom:9px; font-size:10.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#231d05; background:var(--gold); padding:3px 10px; border-radius:999px;}
-.mu-compare td.feat{color:var(--ink); font-weight:500;}
-.mu-compare tr.cat td{background:var(--paper); text-align:left; font-family:"Plus Jakarta Sans"; font-weight:700; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted);}
-.mu-compare .pop-col{background:rgba(11,110,79,.045);}
-.mu-compare .yes{color:var(--emerald);}
-.mu-compare .no{color:#cfcabd;}
-.mu-scrollhint{text-align:center; color:var(--muted); font-size:12.5px; margin-top:12px;}
 
 /* star pop */
 .mu-anim-star{animation:mu-pop .5s cubic-bezier(.2,1.4,.4,1) both;}
@@ -352,7 +307,7 @@ const CSS = `
 .mu-skip{position:fixed; top:-100px; left:16px; z-index:200; background:var(--emerald); color:#fff; font-weight:700; font-size:14px; padding:10px 18px; border-radius:999px; box-shadow:var(--sh-md); transition:top .15s ease;}
 .mu-skip:focus{top:14px; outline:2px solid var(--gold); outline-offset:2px;}
 #main-content:focus{outline:none;}
-.mu-photo-ov{position:absolute; inset:0; z-index:3; pointer-events:none; background:linear-gradient(180deg,transparent 42%,rgba(20,32,27,.5));}
+.mu-photo-ov{position:absolute; inset:0; z-index:3; pointer-events:none; background:linear-gradient(180deg,transparent 42%,rgba(47,47,47,.5));}
 
 .mu-visual-photo{display:none; position:absolute; top:6px; right:-4px; width:300px; transform:rotate(3deg); box-shadow:var(--sh-md); z-index:1;}
 .mu-visual .mu-vcard{z-index:2;}
@@ -366,8 +321,6 @@ const CSS = `
 /* ---------- shared: small bits ---------- */
 .mu-h3{font-family:"Plus Jakarta Sans",sans-serif; font-weight:700; font-size:20px; line-height:1.3;}
 .mu-narrow{max-width:780px;}
-.mu-spectags{display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 2px;}
-.mu-chiptag.sm{padding:5px 10px; font-size:12px;}
 .mu-avatar.tiny{width:28px; height:28px; font-size:11px; border-radius:9px;}
 .mu-avatar.tiny::after{border-radius:11px; inset:-3px;}
 
@@ -440,9 +393,11 @@ const CSS = `
 .mu-field label{font-size:14px; font-weight:600;}
 .mu-field input,.mu-field select,.mu-field textarea{font:inherit; font-size:16px; color:var(--ink); background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:12px 14px; width:100%; transition:border-color .15s ease, box-shadow .15s ease;}
 .mu-field textarea{resize:vertical; min-height:120px;}
-.mu-field input:focus,.mu-field select:focus,.mu-field textarea:focus{outline:none; border-color:var(--emerald); box-shadow:0 0 0 3px rgba(11,110,79,.14);}
-.mu-field.err input,.mu-field.err textarea{border-color:#c04343; box-shadow:0 0 0 3px rgba(192,67,67,.12);}
+.mu-field input:focus,.mu-field select:focus,.mu-field textarea:focus{outline:none; border-color:var(--emerald); box-shadow:0 0 0 3px rgba(63,86,46,.14);}
+.mu-field.err input,.mu-field.err select,.mu-field.err textarea{border-color:#c04343; box-shadow:0 0 0 3px rgba(192,67,67,.12);}
 .mu-field .hint{font-size:12.5px; color:#c04343;}
+.mu-field .hint-plain{font-size:12.5px; color:var(--muted);}
+.err{font-size:12.5px; color:#c04343;}
 .mu-selectwrap{position:relative;}
 .mu-selectwrap select{appearance:none; padding-right:40px; cursor:pointer;}
 .mu-selectwrap svg{position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--muted); pointer-events:none;}
@@ -466,14 +421,32 @@ a.mu-inforow:hover .v{color:var(--emerald);}
 .mu-map-inner strong{color:var(--ink);}
 .mu-map-inner span{font-size:13.5px;}
 
-/* ---------- floating whatsapp ---------- */
-.mu-wa{position:fixed; right:20px; bottom:20px; z-index:80; display:flex; align-items:center; gap:0; background:var(--emerald); color:#fff; border-radius:999px; padding:15px; box-shadow:0 10px 26px rgba(11,110,79,.4); text-decoration:none; transition:gap .2s ease, padding .2s ease, transform .2s ease;}
+/* ---------- book trial modal ---------- */
+.mu-modal-overlay{position:fixed; inset:0; z-index:120; background:rgba(20,24,17,.55); backdrop-filter:blur(3px); display:flex; align-items:center; justify-content:center; padding:20px; overflow-y:auto;}
+.mu-modal{position:relative; width:100%; max-width:560px; max-height:calc(100vh - 40px); overflow-y:auto; background:var(--card); border-radius:24px; box-shadow:var(--sh-md); padding:34px 30px; margin:auto; animation:mu-modal-in .25s cubic-bezier(.2,.75,.2,1);}
+@keyframes mu-modal-in{from{opacity:0; transform:translateY(14px) scale(.98);} to{opacity:1; transform:none;}}
+.mu-modal-close{position:absolute; top:18px; right:18px; width:36px; height:36px; border-radius:50%; background:var(--paper); border:1px solid var(--border); color:var(--ink); display:flex; align-items:center; justify-content:center; cursor:pointer;}
+.mu-modal-close:hover{background:var(--border);}
+.mu-modal-title{font-size:23px; margin-right:36px;}
+.mu-modal-sub{color:var(--muted); font-size:14.5px; margin:6px 0 22px;}
+.mu-field-row{display:grid; grid-template-columns:1fr; gap:18px;}
+.mu-hp{position:absolute; left:-9999px; width:1px; height:1px; opacity:0; pointer-events:none;}
+@media(min-width:480px){
+  .mu-field-row{grid-template-columns:1fr 1fr;}
+}
+
+/* ---------- floating buttons ---------- */
+.mu-float-stack{position:fixed; right:20px; bottom:20px; z-index:80; display:flex; flex-direction:column-reverse; align-items:flex-end; gap:12px;}
+.mu-wa{display:flex; align-items:center; gap:0; background:var(--emerald); color:#fff; border-radius:999px; padding:15px; box-shadow:0 10px 26px rgba(63,86,46,.4); text-decoration:none; transition:gap .2s ease, padding .2s ease, transform .2s ease;}
 .mu-wa:hover{transform:translateY(-2px);}
 .mu-wa-label{max-width:0; overflow:hidden; white-space:nowrap; font-weight:700; font-size:14px; transition:max-width .25s ease;}
 @media(min-width:900px){
   .mu-wa:hover{gap:10px; padding:15px 20px;}
   .mu-wa:hover .mu-wa-label{max-width:160px;}
 }
+.mu-totop{display:flex; align-items:center; justify-content:center; width:46px; height:46px; border-radius:50%; background:var(--card); color:var(--emerald); border:1px solid var(--border); box-shadow:var(--sh-md); cursor:pointer; opacity:0; transform:translateY(8px) scale(.9); pointer-events:none; transition:opacity .2s ease, transform .2s ease;}
+.mu-totop.show{opacity:1; transform:none; pointer-events:auto;}
+.mu-totop:hover{background:var(--emerald); color:#fff; border-color:var(--emerald); transform:translateY(-2px);}
 
 /* ---------- responsive ---------- */
 @media(min-width:700px){
@@ -495,18 +468,19 @@ a.mu-inforow:hover .v{color:var(--emerald);}
   .mu-trustbar .grid{grid-template-columns:repeat(4,1fr);}
   .mu-stat{border-bottom:0 !important;}
   .mu-stat:last-child{border-right:0;}
-  .mu-teachers-grid{grid-template-columns:repeat(3,1fr);}
   .mu-pricing-grid{grid-template-columns:repeat(3,1fr);}
+  .mu-pricing-grid.cols2{grid-template-columns:repeat(2,1fr); max-width:720px; margin-left:auto; margin-right:auto;}
+  .mu-pricing-grid.cols4{grid-template-columns:repeat(2,1fr);}
   .mu-plan.pop{transform:translateY(-14px);}
   .mu-footcols{grid-template-columns:1.6fr 1fr 1fr 1.3fr;}
 }
 @media(min-width:1000px){
   .mu-navlinks{display:flex;}
   .mu-visual-photo{display:block;}
-  .mu-toggle{display:inline-flex;}
   .mu-burger{display:none;}
   .mu-desktop-cta{display:inline-flex;}
   .mu-grid.cols3{grid-template-columns:repeat(3,1fr);}
+  .mu-pricing-grid.cols4{grid-template-columns:repeat(4,1fr);}
   .mu-hero-inner{grid-template-columns:1.05fr .95fr; gap:56px;}
   .mu-steps{grid-template-columns:repeat(5,1fr); gap:20px;}
   .mu-step{padding-left:0; padding-top:60px;}
@@ -542,246 +516,70 @@ const WHY = [
 
 const COURSES = [
   {
-    slug: "beginner-urdu", icon: BookOpen, name: "Beginner Urdu",
-    meta: "Beginner · 12 weeks · Live 1:1", level: "Beginner", duration: "12 weeks",
-    format: "Live 1:1", bestFor: "Complete beginners", unitLabel: "Week",
-    desc: "Master the alphabet, read your first words, and hold a simple conversation.",
-    long: "Start from the very first letter. Over twelve guided weeks you'll learn to read, write, and speak simple Urdu with confidence — no prior exposure needed.",
-    bullets: ["Alphabet & sounds", "Reading foundations", "Handwriting", "Everyday phrases"],
-    price: "$49", unit: "/mo",
-    syllabus: [
-      "The Urdu alphabet — shapes & sounds (part 1)",
-      "The alphabet — part 2 & joining letters",
-      "Short vowels (zabar, zer, pesh) & first syllables",
-      "Reading whole words & writing direction",
-      "Long vowels & common letter combinations",
-      "Greetings & introducing yourself",
-      "Numbers, days & telling the time",
-      "Everyday objects & family vocabulary",
-      "Simple present-tense sentences",
-      "Asking questions & giving directions",
-      "Handwriting practice & short reading passages",
-      "Review, first conversation & progress check",
-    ],
-    outcomes: [
-      "Read and write all Urdu letters confidently",
-      "Sound out and read simple words and short sentences",
-      "Introduce yourself and hold a basic conversation",
-      "Recognise numbers, days, and everyday vocabulary",
-      "Write neatly in the Nastaliq style",
-    ],
-    sample: {
-      title: "Greetings & introductions", tag: "Lesson 6 of 12", meta: "Beginner · 45 min",
-      objective: "Greet someone, introduce yourself, and ask a person's name.",
-      flow: [
-        ["Warm-up · 5 min", "Review last class's letters with flashcards."],
-        ["New vocabulary · 10 min", "Greetings and self-introduction phrases."],
-        ["Guided practice · 15 min", "Role-play a first meeting with your teacher."],
-        ["Reading · 10 min", "Read three short greeting dialogues aloud."],
-        ["Wrap-up · 5 min", "Set homework and record a short self-introduction."],
-      ],
-      urdu: "میرا نام … ہے۔ آپ سے مل کر خوشی ہوئی۔",
-      homework: "Record a 30-second introduction with your name and city, and complete worksheet 6.",
-    },
+    slug: "kids-1-1", icon: Baby, name: "Kids 1:1 Urdu Classes",
+    meta: "Ages 5+ · 30 min · Live 1:1", format: "Live 1:1", lessonLength: "30 minutes",
+    desc: "Perfect for children learning Urdu as a second language.",
+    pricingType: "tiered",
+    tiers: [{ lessons: 4, price: 32 }, { lessons: 8, price: 64 }, { lessons: 12, price: 96 }],
+    price: "$32", unit: "/mo",
+    featuresLabel: "Features",
+    features: ["Personalized lessons", "Speaking practice", "Reading", "Writing", "Games", "Worksheets", "Homework support"],
+    ctaLabel: "Book Trial", ctaKind: "trial",
   },
   {
-    slug: "intermediate-urdu", icon: MessagesSquare, name: "Intermediate Urdu",
-    meta: "Intermediate · 16 weeks", level: "Intermediate", duration: "16 weeks",
-    format: "Live 1:1", bestFor: "Those who can read basics", unitLabel: "Week",
-    desc: "Build real fluency: grammar, vocabulary, confident daily conversation.",
-    long: "Turn the basics into real fluency. Across sixteen weeks you'll master the core tenses, grow a 1,000-word vocabulary, and hold confident conversations on everyday topics.",
-    bullets: ["Grammar in context", "1,000+ vocabulary", "Reading short stories", "Listening practice"],
-    price: "$79", unit: "/mo",
-    syllabus: [
-      "Review & fluency diagnostic",
-      "Nouns, gender & plurals",
-      "Pronouns & postpositions",
-      "Present & habitual tense",
-      "Past tense & storytelling",
-      "Future tense & making plans",
-      "Core vocabulary building (part 1)",
-      "Vocabulary (part 2) & word families",
-      "Conversation: shopping & travel",
-      "Conversation: work, health & appointments",
-      "Reading short stories (part 1)",
-      "Reading short stories (part 2) & comprehension",
-      "Listening practice with native audio",
-      "Expressing opinions & emotions",
-      "Writing paragraphs & short messages",
-      "Fluency review & assessment",
-    ],
-    outcomes: [
-      "Use past, present, and future tenses accurately",
-      "Hold confident 15–20 minute everyday conversations",
-      "Read and understand short stories and articles",
-      "Follow native-speed audio on familiar topics",
-      "Write clear paragraphs and everyday messages",
-    ],
-    sample: {
-      title: "Getting around: shopping & travel", tag: "Lesson 9 of 16", meta: "Intermediate · 50 min",
-      objective: "Negotiate at a market and ask for directions with natural phrasing.",
-      flow: [
-        ["Warm-up · 5 min", "Quick recap of postpositions in context."],
-        ["Vocabulary · 10 min", "Market and travel phrases."],
-        ["Listening · 10 min", "A market dialogue at native pace."],
-        ["Role-play · 15 min", "Bargain for three items and ask for directions."],
-        ["Wrap-up · 10 min", "Feedback and record a short market dialogue."],
-      ],
-      urdu: "یہ کتنے کا ہے؟ تھوڑا کم کر دیجیے۔",
-      homework: "Write a six-line market conversation and listen to the provided audio twice.",
-    },
+    slug: "women-1-1", icon: Users, name: "Women 1:1 Urdu Classes",
+    meta: "Adults · 50 min · Live 1:1", format: "Live 1:1", lessonLength: "50 minutes",
+    desc: "Designed for adult women who want to confidently communicate in Urdu.",
+    pricingType: "tiered",
+    tiers: [{ lessons: 4, price: 48 }, { lessons: 8, price: 96 }, { lessons: 12, price: 144 }],
+    price: "$48", unit: "/mo",
+    featuresLabel: "Focus",
+    features: ["Conversation", "Grammar", "Reading", "Writing", "Vocabulary", "Pronunciation", "Cultural understanding"],
+    ctaLabel: "Book Trial", ctaKind: "trial",
   },
   {
-    slug: "advanced-literary-urdu", icon: Feather, name: "Advanced & Literary Urdu",
-    meta: "Advanced", level: "Advanced", duration: "Flexible modules",
-    format: "Live 1:1", bestFor: "Confident speakers", unitLabel: "Module",
-    desc: "Read Iqbal and Faiz, write formally, and speak with nuance.",
-    long: "Step into the beauty of literary Urdu. Work through classical and modern texts, master idiom and register, and write with formality and flair.",
-    bullets: ["Classical & modern literature", "Poetry & idiom", "Formal writing", "Advanced grammar"],
-    price: "$99", unit: "/mo",
-    syllabus: [
-      "Advanced grammar & sentence nuance",
-      "Registers: formal, literary & colloquial",
-      "Idiom, metaphor & proverbs",
-      "Introduction to Urdu poetry: forms & meter",
-      "Reading Iqbal — themes & language",
-      "Reading Faiz — imagery & tone",
-      "Classical prose & the ghazal tradition",
-      "Formal & creative writing workshop",
-    ],
-    outcomes: [
-      "Read classical and modern literature with comprehension",
-      "Discuss poetry, imagery, and idiom with nuance",
-      "Write formal letters, essays, and creative pieces",
-      "Command formal, literary, and colloquial registers",
-      "Appreciate the ghazal tradition and its major poets",
-    ],
-    sample: {
-      title: "Reading Faiz — imagery & resistance", tag: "Module 6", meta: "Advanced · 60 min",
-      objective: "Analyse theme, imagery, and vocabulary in a short modern poem.",
-      flow: [
-        ["Warm-up · 5 min", "Discuss last module's idioms."],
-        ["Context · 10 min", "The poet's era and central themes."],
-        ["Close reading · 20 min", "Work through vocabulary and imagery (text in your dashboard)."],
-        ["Discussion · 15 min", "Interpretation and personal response, in Urdu."],
-        ["Wrap-up · 10 min", "Choose a couplet to memorise and paraphrase."],
-      ],
-      urdu: "ادب، محاورہ اور شعری زبان",
-      homework: "Write a one-paragraph interpretation and prepare to recite your chosen couplet.",
-    },
+    slug: "gcse-urdu-exam-prep", icon: GraduationCap, name: "GCSE Urdu Exam Preparation",
+    meta: "16 weeks · 1x/week · 60 min", format: "Live 1:1", lessonLength: "60 minutes",
+    desc: "Exam-focused Urdu preparation for GCSE success, built around the real syllabus.",
+    pricingType: "flat",
+    duration: "16 Weeks", frequency: "1 session per week", fee: 79,
+    price: "$79", unit: " total",
+    featuresLabel: "Includes",
+    features: ["Speaking", "Listening", "Reading", "Writing", "Exam strategies", "Past paper practice", "Vocabulary", "Mock exams"],
+    ctaLabel: "Enroll Now", ctaKind: "enroll",
   },
   {
-    slug: "urdu-for-kids", icon: Baby, name: "Urdu for Kids (5+)",
-    meta: "All levels", level: "Ages 5+", duration: "Flexible units",
-    format: "Live 1:1", bestFor: "Children aged 5+", unitLabel: "Unit",
-    desc: "Playful, game-based lessons that keep children engaged.",
-    long: "Bright, patient, and fun. Children learn Urdu through songs, stories, and games — building letters, words, and a love of the language that lasts.",
-    bullets: ["Stories & rhymes", "Interactive games", "Letter tracing", "Patient teachers"],
-    price: "$59", unit: "/mo",
-    syllabus: [
-      "My first letters — playful alphabet (part 1)",
-      "More letters with songs & rhymes",
-      "Colours, shapes & animals",
-      "Numbers & counting games",
-      "My family & my home",
-      "Feelings & polite words",
-      "Stories & picture reading",
-      "Show-and-tell: my first sentences",
-    ],
-    outcomes: [
-      "Recognise and trace Urdu letters through play",
-      "Learn 150+ everyday words via games and songs",
-      "Understand and follow simple spoken instructions",
-      "Say short sentences about themselves and their world",
-      "Build a genuine love of Urdu",
-    ],
-    sample: {
-      title: "Colours & animals adventure", tag: "Unit 3", meta: "Ages 5+ · 30 min",
-      objective: "Name five colours and five animals, and use them in a fun sentence.",
-      flow: [
-        ["Hello song · 5 min", "A cheerful Urdu greeting song."],
-        ["Discover · 8 min", "Colour and animal flashcards with sounds."],
-        ["Game · 10 min", "\u2018I spy\u2019 in Urdu with on-screen pictures."],
-        ["Make · 5 min", "Trace the letter of the day."],
-        ["Star time · 2 min", "Sticker reward and goodbye song."],
-      ],
-      urdu: "بلی، کتا، ہاتھی — سرخ، سبز، نیلا",
-      homework: "Colour the animal worksheet and name each colour to a grown-up.",
-    },
+    slug: "read-write-urdu", icon: BookOpen, name: "Read & Write Urdu Course",
+    meta: "12 weeks · 2x/week · 40 min", format: "Live 1:1", lessonLength: "40 minutes",
+    desc: "Go from the Urdu alphabet to confident reading and writing in three months.",
+    pricingType: "flat",
+    duration: "12 Weeks", frequency: "2 sessions per week", fee: 60,
+    price: "$60", unit: " total",
+    featuresLabel: "Students Learn",
+    features: ["Urdu alphabet", "Reading fluency", "Writing skills", "Vocabulary", "Sentence building", "Reading practice"],
+    ctaLabel: "Enroll Now", ctaKind: "enroll",
   },
   {
-    slug: "urdu-for-travelers", icon: Plane, name: "Urdu for Travelers",
-    meta: "Beginner · 4-week intensive", level: "Beginner", duration: "4-week intensive",
-    format: "Live 1:1", bestFor: "Upcoming travellers", unitLabel: "Week",
-    desc: "Speak enough to connect on your next trip — fast.",
-    long: "A focused four-week sprint to the phrases that matter most on the road: greetings, directions, food, money, and the etiquette to use them well.",
-    bullets: ["Survival phrases", "Pronunciation", "Cultural etiquette", "Quick wins"],
-    price: "$39", unit: "",
-    syllabus: [
-      "Survival basics — greetings, please/thank you, yes/no",
-      "Getting around — directions, transport & numbers",
-      "Food, shopping & money",
-      "Connecting — small talk, etiquette & emergencies",
-    ],
-    outcomes: [
-      "Handle greetings, politeness, and introductions with ease",
-      "Order food, shop, and manage money confidently",
-      "Ask for and understand directions",
-      "Navigate common travel situations and emergencies",
-      "Speak with culturally appropriate etiquette",
-    ],
-    sample: {
-      title: "At the bazaar: food & money", tag: "Week 3", meta: "Beginner · 45 min",
-      objective: "Order food and pay confidently at a market or restaurant.",
-      flow: [
-        ["Warm-up · 5 min", "Review numbers 1–100."],
-        ["Vocabulary · 12 min", "Food, prices, and polite requests."],
-        ["Listening · 8 min", "A restaurant ordering clip."],
-        ["Role-play · 15 min", "Order a meal and pay."],
-        ["Wrap-up · 5 min", "Cultural tip on tipping and etiquette."],
-      ],
-      urdu: "ایک چائے اور دو سموسے، براہِ کرم۔ بل کتنے کا ہوا؟",
-      homework: "Memorise ten food words and practise ordering aloud.",
-    },
+    slug: "summer-urdu-course", icon: Calendar, name: "Summer Urdu Course",
+    meta: "Jul – Mid Aug · 6 weeks · 30 min", format: "Live 1:1", lessonLength: "30 minutes",
+    desc: "Keep the momentum going this summer with playful, focused Urdu practice.",
+    pricingType: "flat",
+    available: "July – Mid August", duration: "6 Weeks", frequency: "2 sessions per week", fee: 55,
+    price: "$55", unit: " total",
+    featuresLabel: "Focus",
+    features: ["Speaking", "Vocabulary", "Reading", "Writing", "Interactive games", "Cultural activities"],
+    ctaLabel: "Enroll Now", ctaKind: "enroll",
   },
   {
-    slug: "urdu-for-professionals", icon: Briefcase, name: "Urdu for Professionals & Heritage Speakers",
-    meta: "Custom", level: "Custom", duration: "Flexible modules",
-    format: "Live 1:1", bestFor: "Professionals & heritage speakers", unitLabel: "Module",
-    desc: "Reconnect with your roots or work confidently in Urdu-speaking settings.",
-    long: "A fully personalised track. Whether you're reconnecting with family or working in Urdu, we build the plan around your goals — from formal writing to accent refinement.",
-    bullets: ["Formal register", "Reading & writing", "Conversation coaching", "Goals-based plan"],
-    price: "$99", unit: "/mo",
-    syllabus: [
-      "Goals & baseline assessment",
-      "Formal register & professional etiquette",
-      "Email, messages & business writing",
-      "Meetings & presentations in Urdu",
-      "Reading & writing for the workplace",
-      "Heritage track: reconnecting with family & culture",
-      "Pronunciation & accent refinement",
-      "Personalised project & review",
-    ],
-    outcomes: [
-      "Communicate professionally in formal Urdu settings",
-      "Write emails and documents with the right register",
-      "Lead conversations, meetings, and presentations",
-      "Reconnect with heritage through reading and speech",
-      "Follow a plan tailored entirely to your goals",
-    ],
-    sample: {
-      title: "Writing a professional email", tag: "Module 3", meta: "Custom · 50 min",
-      objective: "Draft a clear, correctly-registered professional email in Urdu.",
-      flow: [
-        ["Warm-up · 5 min", "Formal versus informal phrasing."],
-        ["Model · 10 min", "Analyse a sample professional email."],
-        ["Build · 20 min", "Draft your own email with live feedback."],
-        ["Polish · 10 min", "Register, tone, and courtesy formulas."],
-        ["Wrap-up · 5 min", "Set a personalised writing goal."],
-      ],
-      urdu: "محترم … صاحب، گزارش ہے کہ …",
-      homework: "Finish your email draft and read one provided workplace text.",
-    },
+    slug: "back-to-school-urdu", icon: Repeat, name: "Back-to-School Urdu Course",
+    meta: "Late Aug – Sep · 6 weeks · 30 min", format: "Live 1:1", lessonLength: "30 minutes",
+    desc: "Refresh and rebuild Urdu skills before the new school year begins.",
+    pricingType: "flat",
+    available: "Late August – September", duration: "6 Weeks", frequency: "2 sessions per week", fee: 55,
+    price: "$55", unit: " total",
+    featuresLabel: "Focus",
+    features: ["Maintaining Urdu skills after summer", "Speaking confidence", "Reading", "Writing", "Revision activities"],
+    ctaLabel: "Enroll Now", ctaKind: "enroll",
   },
 ];
 const COURSE_BY_SLUG = Object.fromEntries(COURSES.map((c) => [c.slug, c]));
@@ -794,30 +592,6 @@ const STEPS = [
   { t: "Track your progress", d: "Weekly reports and a certificate on completion." },
 ];
 
-const SPECIALTIES = [
-  "Beginners", "Kids", "Conversation", "Grammar",
-  "Literary Urdu", "Business Urdu", "Travel Urdu", "Heritage Learners",
-];
-
-const TEACHERS = [
-  { initials:"AK", name:"Ustadha Ayesha K.", exp:"8 yrs", langs:["Urdu","English","Punjabi"], qual:"MA Urdu Literature", line:"Specializes in beginners and kids.", rating:"4.9",
-    based:"Lahore, PK", specialties:["Beginners","Kids"] },
-  { initials:"BR", name:"Ustad Bilal R.", exp:"10 yrs", langs:["Urdu","English","Arabic"], qual:"MPhil Linguistics", line:"Grammar and literary Urdu, taught with patience.", rating:"5.0",
-    based:"Karachi, PK", specialties:["Grammar","Literary Urdu"] },
-  { initials:"SM", name:"Ustadha Sana M.", exp:"6 yrs", langs:["Urdu","English"], qual:"BEd + Urdu certification", line:"Conversation and heritage learners.", rating:"4.9",
-    based:"Islamabad, PK", specialties:["Conversation","Heritage Learners"] },
-  { initials:"HN", name:"Ustadha Hina N.", exp:"7 yrs", langs:["Urdu","English","Saraiki"], qual:"MA Education", line:"Makes the alphabet click for total beginners.", rating:"4.8",
-    based:"Multan, PK", specialties:["Beginners","Kids"] },
-  { initials:"TF", name:"Ustad Tariq F.", exp:"12 yrs", langs:["Urdu","English","Arabic","Persian"], qual:"PhD Urdu Literature", line:"Classical poetry, prose, and exam prep.", rating:"5.0",
-    based:"Lahore, PK", specialties:["Literary Urdu","Grammar"] },
-  { initials:"MJ", name:"Ustadha Maria J.", exp:"5 yrs", langs:["Urdu","English"], qual:"MBA + Urdu tutor cert.", line:"Business Urdu and confident everyday speaking.", rating:"4.9",
-    based:"Dubai, UAE", specialties:["Business Urdu","Conversation"] },
-  { initials:"AR", name:"Ustad Adnan R.", exp:"9 yrs", langs:["Urdu","English","Punjabi"], qual:"MA Linguistics", line:"Travel Urdu and fast conversational fluency.", rating:"4.8",
-    based:"Rawalpindi, PK", specialties:["Travel Urdu","Conversation"] },
-  { initials:"ZK", name:"Ustadha Zoya K.", exp:"6 yrs", langs:["Urdu","English"], qual:"BEd, early-childhood focus", line:"Beloved by young learners and their parents.", rating:"5.0",
-    based:"Toronto, CA", specialties:["Kids","Heritage Learners"] },
-];
-
 const TESTIMONIALS = [
   { q:"I went from not knowing the alphabet to reading short stories in four months. My teacher is endlessly patient.", a:"Fatima H., Canada" },
   { q:"My kids actually ask for their Urdu class now. That's a miracle.", a:"Omar S., USA" },
@@ -828,24 +602,12 @@ const TESTIMONIALS = [
 
 const CLASS_TIERS = [4, 8, 12];
 
-const PLANS = [
+const PRIVATE_PLANS = [
   {
-    id: "gcse", kind: "group", name: "GCSE Exam Prep",
-    tagline: "Group course · monthly subscription", price: 45, pop: false,
-    cta: "Join the group",
-    incl: [
-      "4 live group sessions every month",
-      "60 minutes per session",
-      "Sundays — choose 10 AM or 6 PM GMT",
-      "Exam-focused practice and revision",
-      "Every session recorded to rewatch",
-    ],
-  },
-  {
-    id: "kids", kind: "private", name: "Kids 1:1",
+    id: "kids", kind: "private", name: "Kids 1:1", courseSlug: "kids-1-1",
     tagline: "Private lessons for young learners", minutes: 30,
     prices: { 4: 32, 8: 64, 12: 96 }, pop: false,
-    cta: "Start kids 1:1",
+    cta: "Book Trial",
     incl: [
       "One-to-one with a dedicated teacher",
       "30 minutes per class",
@@ -855,10 +617,10 @@ const PLANS = [
     ],
   },
   {
-    id: "adults", kind: "private", name: "Adults & Women 1:1",
-    tagline: "Private lessons for adult learners", minutes: 50,
+    id: "women", kind: "private", name: "Women 1:1", courseSlug: "women-1-1",
+    tagline: "Private lessons for adult women", minutes: 50,
     prices: { 4: 48, 8: 96, 12: 144 }, pop: false,
-    cta: "Start adult 1:1",
+    cta: "Book Trial",
     incl: [
       "One-to-one with a dedicated teacher",
       "50 minutes per class",
@@ -869,48 +631,78 @@ const PLANS = [
   },
 ];
 
-const COMPARE = [
-  { cat:"Format", rows:[
-    { f:"Teaching format", g:"Live group", k:"Private 1:1", a:"Private 1:1" },
-    { f:"Minutes per class", g:"60 min", k:"30 min", a:"50 min" },
-    { f:"Classes per month", g:"4 (fixed)", k:"4 · 8 · 12", a:"4 · 8 · 12" },
-    { f:"Best for", g:"GCSE exam students", k:"Children (5+)", a:"Adults & women" },
-  ]},
-  { cat:"Schedule", rows:[
-    { f:"Scheduling", g:"Set weekly times", k:"Flexible, your timezone", a:"Flexible, your timezone" },
-    { f:"Time slots", g:"Sun 10 AM / 6 PM GMT", k:"Booked with your teacher", a:"Booked with your teacher" },
-  ]},
-  { cat:"What's included", rows:[
-    { f:"Dedicated teacher", g:false, k:true, a:true },
-    { f:"Personalized study plan", g:false, k:true, a:true },
-    { f:"Homework & worksheets", g:true, k:true, a:true },
-    { f:"Class recordings", g:true, k:true, a:true },
-    { f:"Progress updates", g:true, k:true, a:true },
-  ]},
-  { cat:"Every plan includes", rows:[
-    { f:"Free trial class", g:true, k:true, a:true },
-    { f:"Cancel anytime", g:true, k:true, a:true },
-  ]},
+const GROUP_PLANS = [
+  {
+    id: "gcse", kind: "flat", name: "GCSE Urdu", courseSlug: "gcse-urdu-exam-prep",
+    tagline: "Exam-focused preparation course",
+    duration: "16 Weeks", frequency: "1 session/week", minutes: 60, fee: 79, pop: false,
+    cta: "Enroll Now",
+    incl: [
+      "16 weeks, one 60-minute session a week",
+      "Speaking, listening, reading & writing",
+      "Exam strategies & past paper practice",
+      "Mock exams before test day",
+    ],
+  },
+  {
+    id: "readwrite", kind: "flat", name: "Read & Write Urdu", courseSlug: "read-write-urdu",
+    tagline: "Alphabet-to-fluency course",
+    duration: "12 Weeks", frequency: "2 sessions/week", minutes: 40, fee: 60, pop: false,
+    cta: "Enroll Now",
+    incl: [
+      "12 weeks, two 40-minute sessions a week",
+      "Urdu alphabet to reading fluency",
+      "Writing skills & sentence building",
+      "Guided reading practice",
+    ],
+  },
+  {
+    id: "summer", kind: "flat", name: "Summer Course", courseSlug: "summer-urdu-course",
+    tagline: "Summer intensive · Jul – Mid Aug",
+    duration: "6 Weeks", frequency: "2 sessions/week", minutes: 30, fee: 55, pop: false,
+    cta: "Enroll Now",
+    incl: [
+      "6 weeks, two 30-minute sessions a week",
+      "Speaking, vocabulary, reading & writing",
+      "Interactive games & cultural activities",
+      "Runs July through mid-August",
+    ],
+  },
+  {
+    id: "backtoschool", kind: "flat", name: "Back-to-School Course", courseSlug: "back-to-school-urdu",
+    tagline: "Refresher course · Late Aug – Sep",
+    duration: "6 Weeks", frequency: "2 sessions/week", minutes: 30, fee: 55, pop: false,
+    cta: "Enroll Now",
+    incl: [
+      "6 weeks, two 30-minute sessions a week",
+      "Maintains skills after summer break",
+      "Speaking confidence & revision activities",
+      "Runs late August through September",
+    ],
+  },
 ];
+
+const PLANS = [...PRIVATE_PLANS, ...GROUP_PLANS];
 
 const FAQ = [
   { q:"Is the trial really free?", a:"Yes, one full class with a teacher, no credit card required." },
   { q:"How do I book my free trial?", a:"Pick a course, tell us your timezone and a time that suits you, and we'll match you with a teacher for one complete class." },
   { q:"What if I've never seen Urdu before?", a:"Perfect. Most students start from the alphabet; we assess and place you correctly." },
   { q:"Can I choose my class times?", a:"Yes. Tell us your timezone and availability and we schedule around you." },
-  { q:"Can I reschedule a class?", a:"Yes. With reasonable notice we'll move a 1:1 class to another slot that suits you. GCSE group sessions follow the fixed Sunday schedule, but every session is recorded so you never miss the material." },
-  { q:"When is the GCSE group class?", a:"Sundays. Each month includes four 60-minute sessions, and you choose the 10 AM or 6 PM GMT slot that works for you." },
-  { q:"How do the 1:1 bundles work?", a:"Pick 4, 8, or 12 classes a month — 30 minutes each for kids, 50 minutes each for adults and women. The more you book, the faster you progress, and your teacher plans each month around your goals." },
+  { q:"Can I reschedule a class?", a:"Yes. With reasonable notice we'll move a 1:1 class to another slot that suits you. Structured courses like GCSE prep follow a fixed weekly schedule, but every session is recorded so you never miss the material." },
+  { q:"When does the GCSE Urdu course run?", a:"It's 16 weeks, one 60-minute session a week, on a fixed day and time agreed with your teacher when you enroll." },
+  { q:"How do the 1:1 bundles work?", a:"Pick 4, 8, or 12 classes a month — 30 minutes each for kids, 50 minutes each for women. The more you book, the faster you progress, and your teacher plans each month around your goals." },
+  { q:"When do the Summer and Back-to-School courses run?", a:"The Summer Urdu Course runs July through mid-August; the Back-to-School Urdu Course runs late August through September. Both are 6 weeks, two 30-minute sessions a week." },
   { q:"Are classes recorded?", a:"Every class is recorded and saved to your dashboard to rewatch anytime." },
   { q:"What are your teachers' qualifications?", a:"Every teacher is a native Urdu speaker with a formal qualification — in Urdu literature, linguistics, or education — plus years of online teaching experience." },
   { q:"Do I get a certificate?", a:"Yes. We track your progress throughout, and learners receive a certificate on completing their course." },
-  { q:"What payment methods do you accept?", a:"We accept major credit and debit cards and popular local options. Every plan is a simple monthly subscription." },
-  { q:"Do you offer refunds?", a:"If you're not satisfied after your first paid class, contact us within 7 days and we'll refund that month in full." },
-  { q:"Is there a minimum age to start?", a:"Our Kids course welcomes learners from age 5; teen and adult courses have no upper age limit." },
+  { q:"What payment methods do you accept?", a:"We accept major credit and debit cards and popular local options. Kids and Women 1:1 are monthly subscriptions; GCSE, Read & Write, Summer, and Back-to-School are a single course fee paid at enrollment." },
+  { q:"Do you offer refunds?", a:"If you're not satisfied after your first paid class, contact us within 7 days and we'll refund your payment in full." },
+  { q:"Is there a minimum age to start?", a:"Our Kids course welcomes learners from age 5; other courses have no upper age limit." },
   { q:"Do you teach children?", a:"Yes, from age 5, with teachers who specialize in young learners." },
-  { q:"How long does it take to learn Urdu?", a:"Most learners hold simple conversations within 3–4 months of weekly classes. Reading fluency and literary study take longer and depend on your goals and practice." },
-  { q:"Can I switch teachers or change my plan?", a:"Absolutely. You can request a different teacher, or upgrade, downgrade, or pause your plan at any time." },
-  { q:"Can I cancel anytime?", a:"Yes, plans are monthly with no long-term contract." },
+  { q:"How long does it take to learn Urdu?", a:"Most learners hold simple conversations within 3–4 months of weekly classes. Reading and writing fluency take longer and depend on your goals and practice." },
+  { q:"Can I switch teachers or change my plan?", a:"Absolutely. You can request a different teacher, or upgrade, downgrade, or pause your 1:1 plan at any time." },
+  { q:"Can I cancel anytime?", a:"Kids and Women 1:1 plans are monthly with no long-term contract. GCSE, Read & Write, Summer, and Back-to-School are a one-time enrollment for the full course." },
 ];
 
 /* ================= about ================= */
@@ -924,9 +716,9 @@ const VALUES = [
 ];
 
 const MILESTONES = [
-  { y:"2019", t:"A single teacher, a few students", d:"Master Urdu Academy began as one ustadha teaching cousins abroad over video calls." },
+  { y:"2019", t:"A single teacher, a few students", d:"Speak in Urdu began as one ustadha teaching cousins abroad over video calls." },
   { y:"2021", t:"A real curriculum", d:"We rebuilt lessons into a structured path — alphabet to fluency — with worksheets and recordings." },
-  { y:"2023", t:"A team of natives", d:"Qualified teachers from across Pakistan joined, each with a specialty from kids to classical poetry." },
+  { y:"2023", t:"A team of natives", d:"Qualified teachers from across Pakistan joined, each with a specialty from kids to GCSE exam preparation." },
   { y:"2026", t:"Thousands of learners", d:"Students in 20+ countries now read, write, and speak Urdu with confidence." },
 ];
 
@@ -1117,12 +909,12 @@ const u = (id, w = 1100) =>
 const IMG = {
   hero: u("1503676260728-1c00da094a0b", 900),
   courses: {
-    "beginner-urdu": u("1455390582262-044cdead277a"),
-    "intermediate-urdu": u("1522202176988-66273c2fd55f"),
-    "advanced-literary-urdu": u("1512820790803-83ca734da794"),
-    "urdu-for-kids": u("1503454537195-1dcabb73ffb9"),
-    "urdu-for-travelers": u("1506905925346-21bda4d32df4"),
-    "urdu-for-professionals": u("1454165804606-c3d57bc86b40"),
+    "kids-1-1": u("1503454537195-1dcabb73ffb9"),
+    "women-1-1": u("1522202176988-66273c2fd55f"),
+    "gcse-urdu-exam-prep": u("1512820790803-83ca734da794"),
+    "read-write-urdu": u("1455390582262-044cdead277a"),
+    "summer-urdu-course": u("1506905925346-21bda4d32df4"),
+    "back-to-school-urdu": u("1481627834876-b7833e8f5570"),
   },
   blog: {
     "Learn Urdu": u("1481627834876-b7833e8f5570"),
@@ -1141,12 +933,12 @@ const IMG = {
 const ART = {
   hero: { word: "اردو", variant: "calli" },
   courses: {
-    "beginner-urdu": { word: "آغاز", variant: "arch" },
-    "intermediate-urdu": { word: "ترقی", variant: "rays" },
-    "advanced-literary-urdu": { word: "ادب", variant: "calli" },
-    "urdu-for-kids": { word: "بچے", variant: "star" },
-    "urdu-for-travelers": { word: "سفر", variant: "waves" },
-    "urdu-for-professionals": { word: "دفتر", variant: "geo" },
+    "kids-1-1": { word: "بچے", variant: "star" },
+    "women-1-1": { word: "خواتین", variant: "waves" },
+    "gcse-urdu-exam-prep": { word: "امتحان", variant: "geo" },
+    "read-write-urdu": { word: "پڑھنا", variant: "arch" },
+    "summer-urdu-course": { word: "گرمی", variant: "rays" },
+    "back-to-school-urdu": { word: "اسکول", variant: "calli" },
   },
   blog: {
     "Learn Urdu": { word: "سیکھیں", variant: "arch" },
@@ -1172,7 +964,6 @@ const starPts = (cx, cy, ro, ri, n = 8) =>
 const NAV = [
   { label:"Home", type:"route", target:"home" },
   { label:"Courses", type:"route", target:"courses" },
-  { label:"Teachers", type:"route", target:"teachers" },
   { label:"Pricing", type:"route", target:"pricing" },
   { label:"Blog", type:"route", target:"blog" },
   { label:"About", type:"route", target:"about" },
@@ -1189,7 +980,6 @@ function parseHash() {
   if (h === "#/courses") return { name: "courses" };
   if (h === "#/pricing") return { name: "pricing" };
   if (h === "#/about") return { name: "about" };
-  if (h === "#/teachers") return { name: "teachers" };
   if (h.startsWith("#/blog/")) return { name: "post", slug: h.slice("#/blog/".length) };
   if (h === "#/blog") return { name: "blog" };
   if (h === "#/contact") return { name: "contact" };
@@ -1263,11 +1053,11 @@ function SectionHeader({ eyebrow, title, lead, center = true, id }) {
 /* shared PlanCard used on landing + pricing page */
 function PlanCard({ plan, classes = 8, from = false, onCta, headingTag = "h3" }) {
   const Tag = headingTag;
-  const group = plan.kind === "group";
+  const flat = plan.kind === "flat";
   let price, note;
-  if (group) {
-    price = plan.price;
-    note = "Monthly subscription · 4 sessions included";
+  if (flat) {
+    price = plan.fee;
+    note = `${plan.duration} · ${plan.frequency} · ${plan.minutes} min`;
   } else {
     const perClass = Math.round(plan.prices[4] / 4);
     price = from ? plan.prices[4] : plan.prices[classes];
@@ -1281,8 +1071,8 @@ function PlanCard({ plan, classes = 8, from = false, onCta, headingTag = "h3" })
       <Tag>{plan.name}</Tag>
       <p className="tagline">{plan.tagline}</p>
       <div className="mu-planprice">
-        {from && !group && <span className="mu-fromlbl">from</span>}
-        ${price}<small>/mo</small>
+        {from && !flat && <span className="mu-fromlbl">from</span>}
+        ${price}{!flat && <small>/mo</small>}
       </div>
       <p className="mu-annnote">{note}</p>
       <ul className="incl">
@@ -1290,7 +1080,7 @@ function PlanCard({ plan, classes = 8, from = false, onCta, headingTag = "h3" })
       </ul>
       <div className="btnwrap">
         <button className={`mu-btn mu-btn-md mu-btn-block ${plan.pop ? "mu-btn-primary" : "mu-btn-ghost"}`} onClick={onCta}>{plan.cta}</button>
-        <p className="subnote">Free trial · Cancel anytime</p>
+        <p className="subnote">{flat ? "Free trial · One-time course fee" : "Free trial · Cancel anytime"}</p>
       </div>
     </div>
   );
@@ -1301,7 +1091,6 @@ function Header() {
   const { route, goSection, goRoute, goHomeTop, goTrial } = useNav();
   const [stuck, setStuck] = useState(false);
   const [open, setOpen] = useState(false);
-  const [lang, setLang] = useState("EN");
   useEffect(() => {
     const onScroll = () => setStuck(window.scrollY > 8);
     onScroll();
@@ -1320,8 +1109,7 @@ function Header() {
       <div className="mu-wrap">
         <nav className="mu-nav" aria-label="Primary">
           <button className="mu-brand" onClick={() => { setOpen(false); goHomeTop(); }}>
-            <span>Master Urdu Academy</span>
-            <span className="mu-mark mu-urdu" aria-hidden="true">اردو</span>
+            <img className="mu-brand-full" src={logoFullWhite} alt="Speak in Urdu" width="79" height="44" />
           </button>
           <div className="mu-navlinks">
             {NAV.map((n) => (
@@ -1330,13 +1118,7 @@ function Header() {
             ))}
           </div>
           <div className="mu-navright">
-            <div className="mu-toggle" role="group" aria-label="Site language">
-              <button className={lang==="EN"?"on":""} onClick={() => setLang("EN")} aria-pressed={lang==="EN"}>EN</button>
-              <button className={lang==="UR"?"on":""} onClick={() => setLang("UR")} aria-pressed={lang==="UR"}>
-                <span className="mu-urdu" aria-hidden="true">اردو</span>
-              </button>
-            </div>
-            <button className="mu-btn mu-btn-md mu-btn-primary mu-desktop-cta" onClick={goTrial}>Book Free Trial</button>
+            <button className="mu-btn mu-btn-md mu-btn-gold mu-desktop-cta" onClick={goTrial}>Book Free Trial</button>
             <button className="mu-burger" aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} onClick={() => setOpen(v => !v)}>
               {open ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -1344,7 +1126,7 @@ function Header() {
         </nav>
         <div className={`mu-mobile ${open ? "open" : ""}`}>
           {NAV.map((n) => <button key={n.label} className="ml" onClick={() => handle(n)}>{n.label}</button>)}
-          <button className="mu-btn mu-btn-md mu-btn-primary mu-btn-block" onClick={() => { setOpen(false); goTrial(); }}>Book Free Trial</button>
+          <button className="mu-btn mu-btn-md mu-btn-gold mu-btn-block" onClick={() => { setOpen(false); goTrial(); }}>Book Free Trial</button>
         </div>
       </div>
     </header>
@@ -1353,12 +1135,12 @@ function Header() {
 
 /* ================= landing sections ================= */
 const ART_GRADS = {
-  calli: ["#0B6E4F", "#0F8A63"],
-  arch: ["#0A6247", "#10855F"],
-  rays: ["#0C7351", "#0E8E66"],
-  waves: ["#095C42", "#0F8A63"],
-  star: ["#0B6E4F", "#118A5E"],
-  geo: ["#0A6247", "#0F8A63"],
+  calli: ["#3F562E", "#52713D"],
+  arch: ["#33461F", "#5E7A45"],
+  rays: ["#4A6238", "#6B8A4A"],
+  waves: ["#2C3D1E", "#52713D"],
+  star: ["#3F562E", "#6B8A4A"],
+  geo: ["#33461F", "#52713D"],
 };
 
 function ArtScene({ word = "اردو", variant = "geo", icon: Ico }) {
@@ -1550,9 +1332,10 @@ function WhyChooseUs() {
 
 /* reusable course card (landing + courses page) */
 function CourseCard({ c, showDetail = true, headingTag = "h3" }) {
-  const { goRoute, goCourse } = useNav();
+  const { goCourse, goTrial } = useNav();
   const Icon = c.icon;
   const Tag = headingTag;
+  const flat = c.pricingType === "flat";
   return (
     <article className="mu-card mu-course">
       <Photo className="mu-course-media" src={IMG.courses[c.slug]} art={ART.courses[c.slug]} alt="" ratio="16 / 9" overlay icon={Icon} />
@@ -1562,17 +1345,19 @@ function CourseCard({ c, showDetail = true, headingTag = "h3" }) {
       </div>
       <Tag>{c.name}</Tag>
       <p className="desc" style={{ color:"var(--muted)" }}>{c.desc}</p>
+      <div className="mu-featlabel">{c.featuresLabel}</div>
       <ul className="mu-bullets">
-        {c.bullets.map((b) => <li key={b}><Check size={16} strokeWidth={2.4} /> {b}</li>)}
+        {c.features.map((b) => <li key={b}><Check size={16} strokeWidth={2.4} /> {b}</li>)}
       </ul>
       <div className="foot">
         <span className="mu-price">
-          <small>From</small>{c.price}
+          {!flat && <small>From</small>}
+          {c.price}
           <small style={{ display:"inline", textTransform:"none", letterSpacing:0, marginLeft:2 }}>{c.unit}</small>
         </span>
         <div className="links">
           {showDetail && <button className="mu-textlink" onClick={() => goCourse(c.slug)}>Details <ArrowRight size={15} /></button>}
-          <button className="mu-btn mu-btn-md mu-btn-ghost" onClick={() => goRoute("pricing")}>Enroll</button>
+          <button className="mu-btn mu-btn-md mu-btn-ghost" onClick={() => goTrial(c.slug)}>{c.ctaLabel}</button>
         </div>
       </div>
     </article>
@@ -1585,7 +1370,7 @@ function CoursesSection() {
     <section className="mu-section" id="courses" style={{ background:"var(--card)", borderTop:"1px solid var(--border)", borderBottom:"1px solid var(--border)" }} aria-labelledby="courses-h">
       <div className="mu-wrap">
         <SectionHeader eyebrow="Courses" title="Find the path that fits you."
-          lead="Structured tracks for every age and goal — from your very first letter to classical poetry." />
+          lead="Structured tracks for every age and goal — private 1:1 classes plus seasonal and exam-focused courses." />
         <div className="mu-grid cols3">
           {COURSES.map((c, i) => (
             <Reveal key={c.slug} delay={(i % 3) * 90}>
@@ -1624,51 +1409,6 @@ function HowItWorks() {
         </div>
       </div>
     </section>
-  );
-}
-
-function Teachers() {
-  const { goRoute } = useNav();
-  const goRouteTeachers = () => goRoute("teachers");
-  return (
-    <section className="mu-section" id="teachers" style={{ background:"var(--card)", borderTop:"1px solid var(--border)", borderBottom:"1px solid var(--border)" }} aria-labelledby="teach-h">
-      <div className="mu-wrap">
-        <SectionHeader eyebrow="Your teachers" title="Native educators who love to teach."
-          lead="Qualified, patient, and endlessly encouraging — meet a few of the ustaads guiding our learners." />
-        <div className="mu-grid mu-teachers-grid">
-          {TEACHERS.slice(0, 3).map((t, i) => (
-            <Reveal key={t.name} delay={i * 100}>
-              <TeacherCard t={t} headingId={i===0 ? "teach-h" : undefined} />
-            </Reveal>
-          ))}
-        </div>
-        <div style={{ textAlign:"center", marginTop:36 }}>
-          <button className="mu-btn mu-btn-lg mu-btn-ghost" onClick={() => goRouteTeachers()}>Meet all teachers <ArrowRight size={18} /></button>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function TeacherCard({ t, headingId, onTrial }) {
-  return (
-    <article className="mu-card mu-teacher">
-      <div className="mu-avatar" role="img" aria-label={`Portrait of ${t.name}`}>{t.initials}</div>
-      <div className="name">
-        <h3 id={headingId}>{t.name}</h3>
-        <span className="mu-rate"><Star size={14} strokeWidth={0} style={{ fill:"var(--gold)", color:"var(--gold)" }} /> {t.rating}</span>
-      </div>
-      <div className="exp">{t.exp} experience{t.based ? <> · <MapPin size={13} style={{ verticalAlign:"-2px" }} /> {t.based}</> : null}</div>
-      <div className="langs">{t.langs.map((l) => <span key={l} className="mu-tag">{l}</span>)}</div>
-      <div className="qual"><GraduationCap size={15} style={{ verticalAlign:"-2px", marginRight:6, color:"var(--emerald)" }} />{t.qual}</div>
-      {t.specialties && (
-        <div className="mu-spectags">
-          {t.specialties.map((s) => <span key={s} className="mu-chiptag sm">{s}</span>)}
-        </div>
-      )}
-      <p className="quote">“{t.line}”</p>
-      {onTrial && <button className="mu-btn mu-btn-md mu-btn-ghost mu-btn-block" onClick={onTrial} style={{ marginTop:16 }}>Book a trial with {t.name.split(" ")[1] || t.name}</button>}
-    </article>
   );
 }
 
@@ -1724,16 +1464,16 @@ function Testimonials() {
 }
 
 function PricingSection() {
-  const { goRoute } = useNav();
+  const { goRoute, goTrial } = useNav();
   return (
     <section className="mu-section" id="pricing" style={{ background:"var(--card)", borderTop:"1px solid var(--border)", borderBottom:"1px solid var(--border)" }} aria-labelledby="price-h">
       <div className="mu-wrap">
         <SectionHeader eyebrow="Pricing" title="Simple plans, real teachers."
-          lead="A GCSE group course and private 1:1 tuition for kids and adults — each with a free trial and cancel-anytime billing." />
+          lead="Private 1:1 tuition for kids and women, plus structured courses like GCSE exam prep — each with a free trial." />
         <div className="mu-pricing-grid">
-          {PLANS.map((p, i) => (
+          {PLANS.slice(0, 3).map((p, i) => (
             <Reveal key={p.id} delay={i * 90}>
-              <PlanCard plan={p} from onCta={() => goRoute("pricing")} headingTag="h3" />
+              <PlanCard plan={p} from onCta={() => goTrial(p.courseSlug)} headingTag="h3" />
             </Reveal>
           ))}
         </div>
@@ -1803,8 +1543,24 @@ function FinalCta() {
 function Footer() {
   const { goSection, goRoute, goCourse } = useNav();
   const [email, setEmail] = useState("");
-  const [done, setDone] = useState(false);
-  const subscribe = () => { if (email.trim()) { setDone(true); setEmail(""); } };
+  const [newsStatus, setNewsStatus] = useState("idle"); // idle | submitting | done | error
+  const subscribe = async () => {
+    if (!email.trim() || newsStatus === "submitting") return;
+    setNewsStatus("submitting");
+    try {
+      const body = new URLSearchParams({ email });
+      const res = await fetch("/newsletter.php", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
+      const data = await res.json().catch(() => ({ success: res.ok }));
+      if (res.ok && data.success !== false) {
+        setNewsStatus("done");
+        setEmail("");
+      } else {
+        setNewsStatus("error");
+      }
+    } catch {
+      setNewsStatus("error");
+    }
+  };
   return (
     <footer className="mu-footer mu-on-dark">
       <Pattern />
@@ -1812,27 +1568,25 @@ function Footer() {
         <div className="mu-footcols">
           <div className="mu-footbrand">
             <div className="mu-brand">
-              <span>Master Urdu Academy</span>
-              <span className="mu-mark mu-urdu" aria-hidden="true">اردو</span>
+              <img className="mu-brand-full" src={logoFullWhite} alt="Speak in Urdu" width="79" height="44" />
             </div>
-            <p>Live 1-on-1 Urdu classes with native teachers. Read, write, and speak beautiful Urdu — from your first letter to classical poetry.</p>
+            <p>Live 1-on-1 Urdu classes with native teachers. Read, write, and speak beautiful Urdu — from your first letter to exam success.</p>
             <div className="mu-socials">
-              <a href="#/" aria-label="Instagram"><Instagram size={18} /></a>
-              <a href="#/" aria-label="Facebook"><Facebook size={18} /></a>
-              <a href="#/" aria-label="YouTube"><Youtube size={18} /></a>
+              <a href="https://www.instagram.com/speakinurdu/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><Instagram size={18} /></a>
+              <a href="https://www.facebook.com/profile.php?id=61590513969029" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><Facebook size={18} /></a>
+              <a href="https://www.youtube.com/@SpeakinUrdu" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><Youtube size={18} /></a>
               <a href="#/" aria-label="LinkedIn"><Linkedin size={18} /></a>
             </div>
           </div>
           <div className="mu-footcol">
             <h4>Courses</h4>
-            {COURSES.slice(0,5).map((c) => (
-              <button key={c.slug} className="fl" onClick={() => goCourse(c.slug)}>{c.name.replace(" (5+)","").replace(" & Heritage Speakers","")}</button>
+            {COURSES.map((c) => (
+              <button key={c.slug} className="fl" onClick={() => goCourse(c.slug)}>{c.name}</button>
             ))}
           </div>
           <div className="mu-footcol">
             <h4>Academy</h4>
             <button className="fl" onClick={() => goRoute("about")}>About Us</button>
-            <button className="fl" onClick={() => goRoute("teachers")}>Our Teachers</button>
             <button className="fl" onClick={() => goRoute("courses")}>All Courses</button>
             <button className="fl" onClick={() => goRoute("pricing")}>Pricing</button>
             <button className="fl" onClick={() => goRoute("blog")}>Blog</button>
@@ -1841,18 +1595,21 @@ function Footer() {
           </div>
           <div className="mu-footcol">
             <h4>Stay in touch</h4>
-            <p style={{ color:"#9aa8a1", fontSize:14, margin:0 }}>Study tips and new courses, now and then.</p>
+            <p style={{ color:"#C9C0AE", fontSize:14, margin:0 }}>Study tips and new courses, now and then.</p>
             <div className="mu-news">
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@email.com" aria-label="Email address for newsletter"
                 onKeyDown={(e) => { if (e.key === "Enter") subscribe(); }} />
-              <button className="mu-btn mu-btn-md mu-btn-gold" onClick={subscribe}>Subscribe</button>
+              <button className="mu-btn mu-btn-md mu-btn-gold" onClick={subscribe} disabled={newsStatus === "submitting"}>
+                {newsStatus === "submitting" ? "…" : "Subscribe"}
+              </button>
             </div>
-            {done && <p style={{ color:"var(--gold)", fontSize:13.5, marginTop:10 }}>Thanks — you're on the list.</p>}
+            {newsStatus === "done" && <p style={{ color:"var(--gold-soft)", fontSize:13.5, marginTop:10 }}>Thanks — you're on the list.</p>}
+            {newsStatus === "error" && <p style={{ color:"#e08a7d", fontSize:13.5, marginTop:10 }}>Something went wrong — please try again.</p>}
           </div>
         </div>
         <div className="mu-footbottom">
-          <span>© 2026 Master Urdu Academy. All rights reserved.</span>
+          <span>© 2026 Speak in Urdu. All rights reserved.</span>
           <span className="mu-urdu" aria-hidden="true">اردو سیکھیں</span>
         </div>
       </div>
@@ -1869,7 +1626,6 @@ function HomePage() {
       <WhyChooseUs />
       <CoursesSection />
       <HowItWorks />
-      <Teachers />
       <Testimonials />
       <PricingSection />
       <Faq />
@@ -1879,7 +1635,7 @@ function HomePage() {
 }
 
 function PageHero({ crumb, eyebrow, title, lead, children }) {
-  const { goHomeTop, goRoute } = useNav();
+  const { goHomeTop } = useNav();
   return (
     <section className="mu-pagehero">
       <Pattern />
@@ -1911,7 +1667,7 @@ function CoursesPage() {
         crumb={[{ label:"Courses" }]}
         eyebrow="Courses"
         title="Every course, in full."
-        lead="Six structured tracks for every age and goal. Open any course to see the week-by-week syllabus, outcomes, and a real sample lesson."
+        lead="Six structured tracks for every age and goal — private 1:1 classes plus seasonal and exam-focused courses."
       />
       <section className="mu-section" style={{ paddingTop:64 }}>
         <div className="mu-wrap">
@@ -1930,7 +1686,7 @@ function CoursesPage() {
 }
 
 function CourseDetailPage({ slug }) {
-  const { goRoute, goCourse, goTrial } = useNav();
+  const { goRoute, goTrial } = useNav();
   const c = COURSE_BY_SLUG[slug];
   if (!c) {
     return (
@@ -1946,7 +1702,7 @@ function CourseDetailPage({ slug }) {
     );
   }
   const Icon = c.icon;
-  const s = c.sample;
+  const flat = c.pricingType === "flat";
   return (
     <>
       <section className="mu-pagehero">
@@ -1964,11 +1720,12 @@ function CourseDetailPage({ slug }) {
               <div className="mu-ico" style={{ width:52, height:52 }}><Icon size={26} strokeWidth={1.8} /></div>
               <h1 style={{ marginTop:14 }}>{c.name}</h1>
               <div className="chips">
-                <span className="mu-chiptag"><GraduationCap size={14} /> {c.level}</span>
-                <span className="mu-chiptag"><Clock size={14} /> {c.duration}</span>
                 <span className="mu-chiptag"><Video size={14} /> {c.format}</span>
+                <span className="mu-chiptag"><Clock size={14} /> {c.lessonLength}</span>
+                {flat && <span className="mu-chiptag"><Calendar size={14} /> {c.duration} · {c.frequency}</span>}
+                {c.available && <span className="mu-chiptag"><CalendarClock size={14} /> {c.available}</span>}
               </div>
-              <p className="mu-lead">{c.long}</p>
+              <p className="mu-lead">{c.desc}</p>
             </div>
           </Reveal>
         </div>
@@ -1983,67 +1740,37 @@ function CourseDetailPage({ slug }) {
           <div className="mu-detail-grid">
             <div className="mu-detail-main">
               <Reveal className="mu-block">
-                <h2>Syllabus & weekly breakdown</h2>
-                <p className="sub">{c.syllabus.length} {c.unitLabel.toLowerCase()}s, each building on the last.</p>
-                <div className="mu-syllabus">
-                  {c.syllabus.map((w, i) => (
-                    <div className="mu-syl" key={i}>
-                      <span className="wk">{c.unitLabel} {i + 1}</span>
-                      <span className="wt">{w}</span>
-                    </div>
-                  ))}
-                </div>
-              </Reveal>
-
-              <Reveal className="mu-block">
-                <h2>What you'll be able to do</h2>
-                <p className="sub">By the end of this course you'll be able to:</p>
+                <h2>{c.featuresLabel}</h2>
                 <ul className="mu-outcomes">
-                  {c.outcomes.map((o) => (
+                  {c.features.map((o) => (
                     <li key={o}><Check size={20} strokeWidth={2.4} /> {o}</li>
                   ))}
                 </ul>
-              </Reveal>
-
-              <Reveal className="mu-block">
-                <h2>A sample lesson</h2>
-                <p className="sub">Here's how a single class is structured.</p>
-                <div className="mu-sample">
-                  <div className="shead"><PlayCircle size={16} /> {s.tag}</div>
-                  <h3>{s.title}</h3>
-                  <div className="smeta">{s.meta}</div>
-                  <p className="obj"><b>Objective:</b> {s.objective}</p>
-                  <div className="mu-flow">
-                    {s.flow.map((f, i) => (
-                      <div className="mu-flow-step" key={i}>
-                        <div className="fl">{f[0]}</div>
-                        <div className="ft">{f[1]}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mu-urdu-samp">
-                    <div className="lbl">In class you'll practise</div>
-                    <span className="mu-urdu">{s.urdu}</span>
-                  </div>
-                  <div className="mu-homework">
-                    <NotebookPen size={18} />
-                    <span><b>Homework:</b> {s.homework}</span>
-                  </div>
-                </div>
               </Reveal>
             </div>
 
             <aside className="mu-detail-side" aria-label="Course summary">
               <div className="card">
-                <div className="price"><span className="from">From</span>{c.price}<small>{c.unit || " one-off"}</small></div>
+                {flat ? (
+                  <div className="price"><span className="from">Course fee</span>{c.price}<small>{c.unit}</small></div>
+                ) : (
+                  <>
+                    <div className="price"><span className="from">From</span>{c.price}<small>{c.unit}</small></div>
+                    <ul className="mu-tierlist">
+                      {c.tiers.map((t) => (
+                        <li key={t.lessons}><span>{t.lessons} lessons/mo</span><b>${t.price}</b></li>
+                      ))}
+                    </ul>
+                  </>
+                )}
                 <ul className="mu-facts">
-                  <li><span className="k"><GraduationCap size={15} /> Level</span><span className="v">{c.level}</span></li>
-                  <li><span className="k"><Clock size={15} /> Duration</span><span className="v">{c.duration}</span></li>
                   <li><span className="k"><Video size={15} /> Format</span><span className="v">{c.format}</span></li>
-                  <li><span className="k"><Target size={15} /> Best for</span><span className="v">{c.bestFor}</span></li>
+                  <li><span className="k"><Clock size={15} /> Lesson length</span><span className="v">{c.lessonLength}</span></li>
+                  {flat && <li><span className="k"><Calendar size={15} /> Duration</span><span className="v">{c.duration}</span></li>}
+                  {flat && <li><span className="k"><Repeat size={15} /> Frequency</span><span className="v">{c.frequency}</span></li>}
                 </ul>
                 <div className="mu-side-cta">
-                  <button className="mu-btn mu-btn-md mu-btn-primary mu-btn-block" onClick={goTrial}>Book a Free Trial</button>
+                  <button className="mu-btn mu-btn-md mu-btn-primary mu-btn-block" onClick={() => goTrial(c.slug)}>{c.ctaLabel}</button>
                   <button className="mu-btn mu-btn-md mu-btn-ghost mu-btn-block" onClick={() => goRoute("pricing")}>View plans & pricing</button>
                 </div>
               </div>
@@ -2059,23 +1786,16 @@ function CourseDetailPage({ slug }) {
   );
 }
 
-function Cell({ v, pop }) {
-  const cls = pop ? "pop-col" : "";
-  if (v === true) return <td className={cls}><Check className="yes" size={19} strokeWidth={2.6} aria-label="Included" /></td>;
-  if (v === false) return <td className={cls}><Minus className="no" size={18} aria-label="Not included" /></td>;
-  return <td className={cls}>{v}</td>;
-}
-
 function PricingPage() {
-  const { goSection, goTrial } = useNav();
+  const { goTrial } = useNav();
   const [classes, setClasses] = useState(8);
   return (
     <>
       <PageHero
         crumb={[{ label:"Pricing" }]}
         eyebrow="Pricing"
-        title="One academy, three ways to learn."
-        lead="A GCSE group course, plus private 1:1 tuition for kids and adults. Every plan includes a free trial and cancel-anytime billing."
+        title="Private classes and structured courses."
+        lead="Private 1:1 tuition for kids and women, plus structured group courses like GCSE exam prep. Every plan includes a free trial."
       >
         <div className="mu-billing">
           <span className="mu-billing-label">Classes per month for 1:1 plans</span>
@@ -2087,55 +1807,31 @@ function PricingPage() {
         </div>
       </PageHero>
 
-      <section className="mu-section" style={{ paddingTop:56 }} aria-label="Plans">
+      <section className="mu-section" style={{ paddingTop:56 }} aria-labelledby="priv-h">
         <div className="mu-wrap">
-          <div className="mu-pricing-grid" style={{ marginTop:0 }}>
-            {PLANS.map((p, i) => (
+          <SectionHeader eyebrow="Private 1:1 classes" title="One-to-one, paced around you." lead={null} id="priv-h" />
+          <div className="mu-pricing-grid cols2">
+            {PRIVATE_PLANS.map((p, i) => (
               <Reveal key={p.id} delay={i * 90}>
-                <PlanCard plan={p} classes={classes} onCta={() => goSection("final")} headingTag="h2" />
+                <PlanCard plan={p} classes={classes} onCta={() => goTrial(p.courseSlug)} headingTag="h2" />
               </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="mu-section" style={{ paddingTop:0 }} aria-labelledby="cmp-h">
+      <section className="mu-section" style={{ paddingTop:0 }} aria-labelledby="group-h">
         <div className="mu-wrap">
-          <SectionHeader eyebrow="Full comparison" title="Compare every plan." lead={null} />
-          <span id="cmp-h" className="mu-sr">Feature comparison across plans</span>
-          <Reveal>
-            <div className="mu-compare-wrap">
-              <table className="mu-compare">
-                <caption className="mu-sr">A comparison of the GCSE group course and the Kids and Adults 1:1 plans, at {classes} classes per month.</caption>
-                <thead>
-                  <tr>
-                    <th className="feat" scope="col"><span className="mu-sr">Feature</span></th>
-                    <th scope="col"><span className="pname">GCSE Exam Prep</span><span className="pprice">$45/mo</span></th>
-                    <th scope="col"><span className="pname">Kids 1:1</span><span className="pprice">${PLANS[1].prices[classes]}/mo</span></th>
-                    <th scope="col"><span className="pname">Adults &amp; Women 1:1</span><span className="pprice">${PLANS[2].prices[classes]}/mo</span></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {COMPARE.map((group) => (
-                    <React.Fragment key={group.cat}>
-                      <tr className="cat"><td className="feat" colSpan={4}>{group.cat}</td></tr>
-                      {group.rows.map((r) => (
-                        <tr key={r.f}>
-                          <th className="feat" scope="row" style={{ fontWeight:500 }}>{r.f}</th>
-                          <Cell v={r.g} />
-                          <Cell v={r.k} />
-                          <Cell v={r.a} />
-                        </tr>
-                      ))}
-                    </React.Fragment>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Reveal>
-          <p className="mu-scrollhint">1:1 prices shown for {classes} classes per month. Every plan includes a free trial and cancel-anytime monthly billing.</p>
+          <SectionHeader eyebrow="Group courses" title="Structured, exam-focused, seasonal." lead={null} id="group-h" />
+          <div className="mu-pricing-grid cols4">
+            {GROUP_PLANS.map((p, i) => (
+              <Reveal key={p.id} delay={i * 90}>
+                <PlanCard plan={p} onCta={() => goTrial(p.courseSlug)} headingTag="h2" />
+              </Reveal>
+            ))}
+          </div>
           <Reveal className="mu-center">
-            <div style={{ marginTop:28 }}>
+            <div style={{ marginTop:32 }}>
               <button className="mu-btn mu-btn-lg mu-btn-primary" onClick={goTrial}>Start with a free trial <ArrowRight size={18} /></button>
             </div>
           </Reveal>
@@ -2149,14 +1845,14 @@ function PricingPage() {
 /* ================= app ================= */
 /* ================= about page ================= */
 function AboutPage() {
-  const { goRoute, goTrial } = useNav();
+  const { goTrial } = useNav();
   return (
     <>
       <PageHero
         crumb={[{ label:"About" }]}
         eyebrow="Our story"
         title="We built the Urdu school we wished existed."
-        lead="Master Urdu Academy is a small team of native teachers on a simple mission: help anyone, anywhere, read, write, and speak Urdu — with warmth and real structure."
+        lead="Speak in Urdu is a small team of native teachers on a simple mission: help anyone, anywhere, read, write, and speak Urdu — with warmth and real structure."
       />
 
       <div className="mu-wrap">
@@ -2236,49 +1932,10 @@ function AboutPage() {
           </div>
           <div style={{ textAlign:"center", marginTop:40, display:"flex", gap:12, justifyContent:"center", flexWrap:"wrap" }}>
             <button className="mu-btn mu-btn-lg mu-btn-primary" onClick={goTrial}>Book a Free Trial <ArrowRight size={18} /></button>
-            <button className="mu-btn mu-btn-lg mu-btn-ghost" onClick={() => goRoute("teachers")}>Meet the teachers</button>
           </div>
         </div>
       </section>
 
-      <FinalCta />
-    </>
-  );
-}
-
-/* ================= teachers page ================= */
-function TeachersPage() {
-  const { goTrial } = useNav();
-  const [active, setActive] = useState("All");
-  const filtered = active === "All" ? TEACHERS : TEACHERS.filter((t) => t.specialties.includes(active));
-  return (
-    <>
-      <PageHero
-        crumb={[{ label:"Teachers" }]}
-        eyebrow="Your teachers"
-        title="Meet the ustaads."
-        lead="Every teacher is a qualified native speaker, hand-picked and trained. Filter by what you want to learn and find your match."
-      />
-      <section className="mu-section" style={{ paddingTop:56 }}>
-        <div className="mu-wrap">
-          <div className="mu-filterbar" role="group" aria-label="Filter teachers by specialty">
-            {["All", ...SPECIALTIES].map((s) => (
-              <button key={s} className={`mu-filterchip ${active === s ? "on" : ""}`}
-                aria-pressed={active === s} onClick={() => setActive(s)}>{s}</button>
-            ))}
-          </div>
-          <p className="mu-resultcount" aria-live="polite">
-            {filtered.length} teacher{filtered.length === 1 ? "" : "s"}{active === "All" ? "" : ` for ${active}`}
-          </p>
-          <div className="mu-grid cols3" style={{ marginTop:8 }}>
-            {filtered.map((t, i) => (
-              <Reveal key={t.name} delay={(i % 3) * 80}>
-                <TeacherCard t={t} onTrial={goTrial} />
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
       <FinalCta />
     </>
   );
@@ -2499,10 +2156,38 @@ const TIMEZONES = [
   "AEST — Sydney (UTC+10)",
 ];
 
+const COUNTRIES = [
+  "Select your country…",
+  "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Argentina", "Armenia",
+  "Australia", "Austria", "Azerbaijan", "Bahrain", "Bangladesh", "Belarus", "Belgium",
+  "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil",
+  "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada",
+  "Chad", "Chile", "China", "Colombia", "Costa Rica", "Croatia", "Cuba", "Cyprus",
+  "Czechia", "Denmark", "Djibouti", "Dominican Republic", "Ecuador", "Egypt",
+  "El Salvador", "Estonia", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia",
+  "Georgia", "Germany", "Ghana", "Greece", "Guatemala", "Guinea", "Guyana", "Haiti",
+  "Honduras", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq",
+  "Ireland", "Israel", "Italy", "Ivory Coast", "Jamaica", "Japan", "Jordan",
+  "Kazakhstan", "Kenya", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho",
+  "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar",
+  "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Mauritania", "Mauritius",
+  "Mexico", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique",
+  "Myanmar", "Namibia", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger",
+  "Nigeria", "North Macedonia", "Norway", "Oman", "Pakistan", "Palestine", "Panama",
+  "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar",
+  "Romania", "Russia", "Rwanda", "Saudi Arabia", "Senegal", "Serbia", "Sierra Leone",
+  "Singapore", "Slovakia", "Slovenia", "Somalia", "South Africa", "South Korea",
+  "South Sudan", "Spain", "Sri Lanka", "Sudan", "Sweden", "Switzerland", "Syria",
+  "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Trinidad and Tobago",
+  "Tunisia", "Turkey", "Turkmenistan", "Uganda", "Ukraine", "United Arab Emirates",
+  "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Venezuela", "Vietnam",
+  "Yemen", "Zambia", "Zimbabwe", "Other",
+];
+
 function ContactPage() {
-  const [form, setForm] = useState({ name:"", email:"", tz:TIMEZONES[0], message:"" });
+  const [form, setForm] = useState({ name:"", email:"", tz:TIMEZONES[0], message:"", website:"" });
   const [errors, setErrors] = useState({});
-  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState("idle"); // idle | submitting | sent | error
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
   const validate = () => {
@@ -2513,12 +2198,24 @@ function ContactPage() {
     if (!form.message.trim()) er.message = "Add a short message so we can help.";
     return er;
   };
-  const submit = () => {
+  const submit = async () => {
+    if (form.website) return; // honeypot
     const er = validate();
     setErrors(er);
-    if (Object.keys(er).length === 0) {
-      setSent(true);
-      setForm({ name:"", email:"", tz:TIMEZONES[0], message:"" });
+    if (Object.keys(er).length > 0) return;
+    setStatus("submitting");
+    try {
+      const body = new URLSearchParams({ name: form.name, email: form.email, tz: form.tz, message: form.message });
+      const res = await fetch("/contact.php", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
+      const data = await res.json().catch(() => ({ success: res.ok }));
+      if (res.ok && data.success !== false) {
+        setStatus("sent");
+        setForm({ name:"", email:"", tz:TIMEZONES[0], message:"", website:"" });
+      } else {
+        setStatus("error");
+      }
+    } catch {
+      setStatus("error");
     }
   };
 
@@ -2538,12 +2235,12 @@ function ContactPage() {
             <Reveal>
               <div className="mu-card mu-formcard">
                 <h2 className="mu-h3">Send us a message</h2>
-                {sent ? (
+                {status === "sent" ? (
                   <div className="mu-sent" role="status">
                     <div className="ic"><Check size={22} /></div>
                     <h3>Shukriya! Your message is on its way.</h3>
                     <p>We've received it and will reply by email shortly. For anything urgent, WhatsApp us using the button in the corner.</p>
-                    <button className="mu-btn mu-btn-md mu-btn-ghost" onClick={() => setSent(false)}>Send another</button>
+                    <button className="mu-btn mu-btn-md mu-btn-ghost" onClick={() => setStatus("idle")}>Send another</button>
                   </div>
                 ) : (
                   <div className="mu-form" noValidate>
@@ -2579,8 +2276,10 @@ function ContactPage() {
                         aria-describedby={errors.message ? "cf-msg-err" : undefined} />
                       {errors.message && <span className="err" id="cf-msg-err">{errors.message}</span>}
                     </div>
-                    <button type="button" className="mu-btn mu-btn-lg mu-btn-primary mu-btn-block" onClick={submit}>
-                      Send message <Send size={17} />
+                    <input type="text" name="website" value={form.website} onChange={set("website")} tabIndex={-1} autoComplete="off" className="mu-hp" aria-hidden="true" />
+                    {status === "error" && <p className="err" role="alert">Something went wrong sending your message — please try again, or email us directly.</p>}
+                    <button type="button" className="mu-btn mu-btn-lg mu-btn-primary mu-btn-block" onClick={submit} disabled={status === "submitting"}>
+                      {status === "submitting" ? "Sending…" : <>Send message <Send size={17} /></>}
                     </button>
                     <p className="mu-formnote">By sending, you agree we may email you back. We never share your details.</p>
                   </div>
@@ -2594,13 +2293,13 @@ function ContactPage() {
                 <Photo className="mu-contact-photo" src={IMG.contact} art={ART.contact} alt="A cozy tea moment — how we like our conversations" ratio="16 / 9" overlay icon={Heart} />
                 <div className="mu-card">
                   <h3 className="mu-h3" style={{ marginBottom:16 }}>Reach us directly</h3>
-                  <a className="mu-inforow" href="mailto:hello@masterurdu.academy">
+                  <a className="mu-inforow" href="mailto:info@speakinurdu.com">
                     <span className="ic"><Mail size={18} /></span>
-                    <span><span className="k">Email</span><span className="v">hello@masterurdu.academy</span></span>
+                    <span><span className="k">Email</span><span className="v">info@speakinurdu.com</span></span>
                   </a>
-                  <a className="mu-inforow" href="tel:+10000000000">
+                  <a className="mu-inforow" href="tel:+923275347525">
                     <span className="ic"><Phone size={18} /></span>
-                    <span><span className="k">Phone</span><span className="v">+1 (000) 000-0000</span></span>
+                    <span><span className="k">Phone</span><span className="v">+92 327 5347525</span></span>
                   </a>
                   <div className="mu-inforow">
                     <span className="ic"><Clock size={18} /></span>
@@ -2609,16 +2308,16 @@ function ContactPage() {
                   <div className="mu-infosocials">
                     <span className="k">Follow along</span>
                     <div className="mu-socials tight">
-                      <a href="#/contact" aria-label="Instagram"><Instagram size={18} /></a>
-                      <a href="#/contact" aria-label="Facebook"><Facebook size={18} /></a>
-                      <a href="#/contact" aria-label="YouTube"><Youtube size={18} /></a>
+                      <a href="https://www.instagram.com/speakinurdu/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><Instagram size={18} /></a>
+                      <a href="https://www.facebook.com/profile.php?id=61590513969029" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><Facebook size={18} /></a>
+                      <a href="https://www.youtube.com/@SpeakinUrdu" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><Youtube size={18} /></a>
                       <a href="#/contact" aria-label="LinkedIn"><Linkedin size={18} /></a>
                     </div>
                   </div>
                 </div>
 
                 {/* map embed placeholder */}
-                <div className="mu-map" role="img" aria-label="Map location placeholder — Master Urdu Academy is fully online">
+                <div className="mu-map" role="img" aria-label="Map location placeholder — Speak in Urdu is fully online">
                   <Pattern />
                   <div className="mu-map-inner">
                     <span className="pin"><MapPin size={26} /></span>
@@ -2636,20 +2335,227 @@ function ContactPage() {
 }
 
 /* ================= floating whatsapp ================= */
+function WhatsAppIcon({ size = 24 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+    </svg>
+  );
+}
+
 function FloatingWhatsApp() {
   return (
-    <a className="mu-wa" href="https://wa.me/10000000000" target="_blank" rel="noopener noreferrer"
+    <a className="mu-wa" href="https://wa.me/923275347525" target="_blank" rel="noopener noreferrer"
       aria-label="Chat with us on WhatsApp">
-      <MessageCircle size={24} aria-hidden="true" />
+      <WhatsAppIcon size={24} />
       <span className="mu-wa-label">Chat on WhatsApp</span>
     </a>
   );
 }
 
+function BackToTop() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setShow(window.scrollY > 480);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  const scrollUp = () => window.scrollTo({ top: 0, behavior: reducedMotion() ? "auto" : "smooth" });
+  return (
+    <button className={`mu-totop ${show ? "show" : ""}`} onClick={scrollUp}
+      aria-label="Back to top" tabIndex={show ? 0 : -1}>
+      <ArrowUp size={20} />
+    </button>
+  );
+}
+
+/* ================= book trial modal ================= */
+const emptyBooking = { name:"", email:"", age:"", gender:"", country:COUNTRIES[0], timezone:TIMEZONES[0], classTime:"", courseSlug:"", website:"" };
+
+function BookTrialModal({ open, onClose, presetCourseSlug }) {
+  const [form, setForm] = useState(emptyBooking);
+  const [errors, setErrors] = useState({});
+  const [status, setStatus] = useState("idle"); // idle | submitting | sent | error
+  const firstFieldRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    setForm({ ...emptyBooking, courseSlug: presetCourseSlug || "" });
+    setErrors({});
+    setStatus("idle");
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    const t = setTimeout(() => firstFieldRef.current?.focus(), 50);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKey);
+      clearTimeout(t);
+    };
+  }, [open, onClose, presetCourseSlug]);
+
+  if (!open) return null;
+
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const validate = () => {
+    const er = {};
+    if (!form.name.trim()) er.name = "Please tell us your name.";
+    if (!form.email.trim()) er.email = "We need an email to confirm your trial.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) er.email = "That email doesn't look right.";
+    const age = Number(form.age);
+    if (!form.age) er.age = "Please add your age.";
+    else if (!Number.isFinite(age) || age < 5 || age > 99) er.age = "Age must be between 5 and 99.";
+    if (!form.gender) er.gender = "Please select an option.";
+    if (form.country === COUNTRIES[0]) er.country = "Please select your country.";
+    if (form.timezone === TIMEZONES[0]) er.timezone = "Please select your timezone.";
+    if (!form.courseSlug) er.courseSlug = "Please choose a course.";
+    return er;
+  };
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (form.website) return; // honeypot — bots fill hidden fields, humans never see it
+    const er = validate();
+    setErrors(er);
+    if (Object.keys(er).length > 0) return;
+    setStatus("submitting");
+    try {
+      const body = new URLSearchParams({
+        name: form.name,
+        email: form.email,
+        age: form.age,
+        gender: form.gender,
+        country: form.country,
+        timezone: form.timezone,
+        classTime: form.classTime,
+        course: COURSE_BY_SLUG[form.courseSlug]?.name || form.courseSlug,
+      });
+      const res = await fetch("/book-trial.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body,
+      });
+      const data = await res.json().catch(() => ({ success: res.ok }));
+      setStatus(res.ok && data.success !== false ? "sent" : "error");
+    } catch {
+      setStatus("error");
+    }
+  };
+
+  return (
+    <div className="mu-modal-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="mu-modal" role="dialog" aria-modal="true" aria-labelledby="booktrial-title">
+        <button className="mu-modal-close" onClick={onClose} aria-label="Close">
+          <X size={20} />
+        </button>
+
+        {status === "sent" ? (
+          <div className="mu-sent" role="status">
+            <div className="ic"><Check size={22} /></div>
+            <h3 id="booktrial-title">Shukriya! Your trial request is in.</h3>
+            <p>We'll email you within one business day to confirm your class time.</p>
+            <button className="mu-btn mu-btn-md mu-btn-primary" onClick={onClose}>Done</button>
+          </div>
+        ) : (
+          <form className="mu-form" onSubmit={submit} noValidate>
+            <h3 id="booktrial-title" className="mu-modal-title">Book your free trial</h3>
+            <p className="mu-modal-sub">Tell us a bit about you and we'll match you with the right teacher.</p>
+
+            <div className="mu-field-row">
+              <div className={`mu-field ${errors.name ? "err" : ""}`}>
+                <label htmlFor="bt-name">Full name</label>
+                <input id="bt-name" ref={firstFieldRef} type="text" value={form.name} onChange={set("name")} placeholder="e.g. Sara Ahmed" />
+                {errors.name && <span className="err">{errors.name}</span>}
+              </div>
+              <div className={`mu-field ${errors.email ? "err" : ""}`}>
+                <label htmlFor="bt-email">Email</label>
+                <input id="bt-email" type="email" value={form.email} onChange={set("email")} placeholder="you@email.com" />
+                {errors.email && <span className="err">{errors.email}</span>}
+              </div>
+            </div>
+
+            <div className="mu-field-row">
+              <div className={`mu-field ${errors.age ? "err" : ""}`}>
+                <label htmlFor="bt-age">Age</label>
+                <input id="bt-age" type="number" min="5" max="99" value={form.age} onChange={set("age")} placeholder="e.g. 27" />
+                {errors.age && <span className="err">{errors.age}</span>}
+              </div>
+              <div className={`mu-field ${errors.gender ? "err" : ""}`}>
+                <label htmlFor="bt-gender">Gender</label>
+                <div className="mu-selectwrap">
+                  <select id="bt-gender" value={form.gender} onChange={set("gender")}>
+                    <option value="">Select…</option>
+                    <option value="Female">Female</option>
+                    <option value="Male">Male</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
+                  </select>
+                  <ChevronDown size={18} aria-hidden="true" />
+                </div>
+                {errors.gender && <span className="err">{errors.gender}</span>}
+              </div>
+            </div>
+
+            <div className={`mu-field ${errors.country ? "err" : ""}`}>
+              <label htmlFor="bt-country">Country of residence</label>
+              <div className="mu-selectwrap">
+                <select id="bt-country" value={form.country} onChange={set("country")}>
+                  {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+                <ChevronDown size={18} aria-hidden="true" />
+              </div>
+              {errors.country && <span className="err">{errors.country}</span>}
+            </div>
+
+            <div className={`mu-field ${errors.timezone ? "err" : ""}`}>
+              <label htmlFor="bt-tz">Timezone</label>
+              <div className="mu-selectwrap">
+                <select id="bt-tz" value={form.timezone} onChange={set("timezone")}>
+                  {TIMEZONES.map((t) => <option key={t} value={t}>{t}</option>)}
+                </select>
+                <ChevronDown size={18} aria-hidden="true" />
+              </div>
+              {errors.timezone && <span className="err">{errors.timezone}</span>}
+            </div>
+
+            <div className="mu-field">
+              <label htmlFor="bt-time">Preferred class time</label>
+              <input id="bt-time" type="text" value={form.classTime} onChange={set("classTime")} placeholder="e.g. Weekday evenings, 6–8 PM" />
+              <span className="hint-plain">Optional — a rough idea is fine, we'll confirm exact times with you.</span>
+            </div>
+
+            <div className={`mu-field ${errors.courseSlug ? "err" : ""}`}>
+              <label htmlFor="bt-course">Which course?</label>
+              <div className="mu-selectwrap">
+                <select id="bt-course" value={form.courseSlug} onChange={set("courseSlug")}>
+                  <option value="">Select a course…</option>
+                  {COURSES.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
+                </select>
+                <ChevronDown size={18} aria-hidden="true" />
+              </div>
+              {errors.courseSlug && <span className="err">{errors.courseSlug}</span>}
+            </div>
+
+            <input type="text" name="website" value={form.website} onChange={set("website")} tabIndex={-1} autoComplete="off" className="mu-hp" aria-hidden="true" />
+
+            {status === "error" && <p className="err" role="alert">Something went wrong sending your request — please try again, or email us directly.</p>}
+
+            <button type="submit" className="mu-btn mu-btn-lg mu-btn-primary mu-btn-block" disabled={status === "submitting"}>
+              {status === "submitting" ? "Sending…" : <>Request Free Trial <ArrowRight size={18} /></>}
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ================= SEO ================= */
-const SITE_NAME = "Master Urdu Academy";
+const SITE_NAME = "Speak in Urdu";
 const SITE_TAGLINE = "Learn Urdu Online with Native Teachers";
-const SITE_DESC = "Live 1-on-1 online Urdu classes with native teachers. Read, write, and speak Urdu — structured courses for beginners, kids, travelers, and professionals, with a free trial class.";
+const SITE_DESC = "Live 1-on-1 online Urdu classes with native teachers. Private lessons for kids and women, plus GCSE exam prep and seasonal Urdu courses, with a free trial class.";
 
 function upsertMeta(attr, key, content) {
   let el = document.head.querySelector(`meta[${attr}="${key}"]`);
@@ -2662,7 +2568,8 @@ const orgLD = () => ({
   name: SITE_NAME,
   description: SITE_DESC,
   url: typeof window !== "undefined" ? window.location.origin + window.location.pathname : "",
-  email: "hello@masterurdu.academy",
+  email: "info@speakinurdu.com",
+  telephone: "+923275347525",
 });
 
 const courseLD = (c) => ({
@@ -2670,8 +2577,7 @@ const courseLD = (c) => ({
   name: c.name,
   description: c.desc,
   provider: { "@type": "EducationalOrganization", name: SITE_NAME },
-  educationalLevel: c.level,
-  hasCourseInstance: { "@type": "CourseInstance", courseMode: "online", courseWorkload: c.duration },
+  hasCourseInstance: { "@type": "CourseInstance", courseMode: "online", courseWorkload: c.duration || "Ongoing" },
   offers: { "@type": "Offer", price: (c.price || "").replace(/[^0-9.]/g, "") || undefined, priceCurrency: "USD", category: "Paid" },
 });
 
@@ -2679,8 +2585,8 @@ function seoFor(route) {
   const t = (s) => `${s} | ${SITE_NAME}`;
   switch (route.name) {
     case "courses":
-      return { title: t("Online Urdu Courses — Beginner to Advanced"),
-        desc: "Six structured Urdu courses: beginners, intermediate, literary Urdu, kids, travelers, and professionals. Live 1-on-1 classes with native teachers.",
+      return { title: t("Online Urdu Courses — Kids, Women & Exam Prep"),
+        desc: "Six Urdu courses: private 1:1 classes for kids and women, GCSE exam preparation, Read & Write Urdu, and seasonal Summer and Back-to-School courses. Live classes with native teachers.",
         ld: [orgLD(), { "@type": "ItemList", name: "Urdu Courses", itemListElement: COURSES.map((c, i) => ({ "@type": "ListItem", position: i + 1, item: courseLD(c) })) }] };
     case "course": {
       const c = COURSE_BY_SLUG[route.slug];
@@ -2688,16 +2594,12 @@ function seoFor(route) {
       return { title: t(`${c.name} — Online Urdu Course`), desc: c.desc, ld: [orgLD(), courseLD(c)] };
     }
     case "pricing":
-      return { title: t("Pricing & Plans — GCSE Group & 1:1 Urdu Classes"),
-        desc: "GCSE Exam Prep group course at $45/mo, plus private 1:1 Urdu tuition for kids (from $32/mo) and adults (from $48/mo). Every plan starts with a free trial class.",
+      return { title: t("Pricing & Plans — 1:1 Classes & Urdu Courses"),
+        desc: "Private 1:1 Urdu tuition for kids (from $32/mo) and women (from $48/mo), plus GCSE exam prep ($79), Read & Write Urdu ($60), and seasonal Summer and Back-to-School courses ($55 each). Every plan starts with a free trial.",
         ld: [orgLD(), { "@type": "FAQPage", mainEntity: FAQ.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }] };
-    case "teachers":
-      return { title: t("Meet Our Native Urdu Teachers"),
-        desc: "Qualified native Urdu teachers for conversation, grammar, Quranic script, kids' classes, poetry, and business Urdu. Filter by specialty and book a free trial.",
-        ld: [orgLD()] };
     case "about":
       return { title: t("About Us — Our Story & Mission"),
-        desc: "Master Urdu Academy is a small team of native teachers helping learners in 40+ countries read, write, and speak Urdu with structure and warmth.",
+        desc: "Speak in Urdu is a small team of native teachers helping learners in 40+ countries read, write, and speak Urdu with structure and warmth.",
         ld: [orgLD(), { "@type": "AboutPage", name: t("About Us"), about: orgLD() }] };
     case "blog":
       return { title: t("Urdu Learning Blog — Tips, Grammar & Poetry"),
@@ -2714,7 +2616,7 @@ function seoFor(route) {
     }
     case "contact":
       return { title: t("Contact Us — Book a Free Trial Class"),
-        desc: "Questions about learning Urdu? Message us, email hello@masterurdu.academy, or book a free trial class. We reply within one business day.",
+        desc: "Questions about learning Urdu? Message us, email info@speakinurdu.com, or book a free trial class. We reply within one business day.",
         ld: [orgLD(), { "@type": "ContactPage", name: t("Contact Us") }] };
     default:
       return { title: `${SITE_NAME} — ${SITE_TAGLINE}`, desc: SITE_DESC,
@@ -2733,7 +2635,7 @@ function useSEO(route) {
       document.head.appendChild(v);
     }
     upsertMeta("name", "description", desc);
-    upsertMeta("name", "theme-color", "#0B6E4F");
+    upsertMeta("name", "theme-color", "#1F4D3A");
     upsertMeta("property", "og:site_name", SITE_NAME);
     upsertMeta("property", "og:title", title);
     upsertMeta("property", "og:description", desc);
@@ -2748,6 +2650,8 @@ function useSEO(route) {
 export default function App() {
   const [route, setRoute] = useState(parseHash);
   const [pendingScroll, setPendingScroll] = useState(null);
+  const [trialOpen, setTrialOpen] = useState(false);
+  const [trialCourseSlug, setTrialCourseSlug] = useState("");
 
   useEffect(() => {
     const on = () => setRoute(parseHash());
@@ -2764,7 +2668,7 @@ export default function App() {
   const goPost = useCallback((slug) => setHash(`#/blog/${slug}`), []);
   const goHomeTop = useCallback(() => { setPendingScroll("__top"); setHash("#/"); }, []);
   const goSection = useCallback((id) => { setPendingScroll(id); if (parseHash().name !== "home") setHash("#/"); }, []);
-  const goTrial = useCallback(() => { setPendingScroll("final"); if (parseHash().name !== "home") setHash("#/"); }, []);
+  const goTrial = useCallback((slug) => { setTrialCourseSlug(slug || ""); setTrialOpen(true); }, []);
 
   // handle pending in-page scroll once home is mounted; otherwise scroll to top on route change
   useEffect(() => {
@@ -2805,13 +2709,16 @@ export default function App() {
           {route.name === "course" && <CourseDetailPage slug={route.slug} />}
           {route.name === "pricing" && <PricingPage />}
           {route.name === "about" && <AboutPage />}
-          {route.name === "teachers" && <TeachersPage />}
           {route.name === "blog" && <BlogPage />}
           {route.name === "post" && <BlogPostPage slug={route.slug} />}
           {route.name === "contact" && <ContactPage />}
         </main>
         <Footer />
-        <FloatingWhatsApp />
+        <div className="mu-float-stack">
+          <FloatingWhatsApp />
+          <BackToTop />
+        </div>
+        <BookTrialModal open={trialOpen} onClose={() => setTrialOpen(false)} presetCourseSlug={trialCourseSlug} />
       </div>
     </Nav.Provider>
   );
