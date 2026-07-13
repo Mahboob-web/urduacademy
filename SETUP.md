@@ -104,7 +104,35 @@ If you skip this step, submissions still get saved to the database in Step
 
 ---
 
-## Step 5 — Upload the site to Hostinger
+## Step 5 — Set up the admin dashboard
+
+This gives you a password-protected page at `yoursite.com/admin.php` to
+browse and search every booking, contact message, and newsletter signup —
+and export any of them as CSV. It reads from the same database as Step 2.
+
+1. `public/admin-config.php` is where the dashboard's login password lives,
+   so like `db.php`, it's gitignored — you're expected to create it
+   yourself from the template.
+2. If `public/admin-config.php` doesn't exist yet, copy
+   `public/admin-config.php.example` and rename the copy to
+   `public/admin-config.php` (same folder).
+3. Open it and set a real password:
+   ```php
+   const ADMIN_PASSWORD = "change-this-password";
+   ```
+   Pick something you'll actually remember — this is the only thing standing
+   between the public internet and your students' contact details, so don't
+   leave the default in place.
+4. Save the file, then **re-run `npm run build`** (same reason as Step 3 —
+   whatever's in the file when you build is what ships).
+
+Once it's deployed (Step 6), visit `yoursite.com/admin.php`, log in with
+that password, and you'll see three tabs: Bookings, Contact Messages, and
+Newsletter. Each has a search box and an **Export CSV** button.
+
+---
+
+## Step 6 — Upload the site to Hostinger
 
 1. hPanel → **Files → File Manager**.
 2. Navigate into `public_html` (this is the folder Hostinger serves your
@@ -113,8 +141,9 @@ If you skip this step, submissions still get saved to the database in Step
 3. Click **Upload** and select **every file and folder inside your local
    `dist/` folder** — not the `dist` folder itself, its *contents*
    (`index.html`, `favicon.png`, `book-trial.php`, `contact.php`, `db.php`,
-   `newsletter.php`, and the `assets` folder should all end up directly
-   inside `public_html`, not nested inside a `dist` subfolder).
+   `newsletter.php`, `admin.php`, `admin-config.php`, and the `assets`
+   folder should all end up directly inside `public_html`, not nested
+   inside a `dist` subfolder).
 
    **Faster alternative:** on your computer, select everything inside
    `dist/` and compress it into a single `.zip`. Upload just that zip into
@@ -122,13 +151,14 @@ If you skip this step, submissions still get saved to the database in Step
    **Extract**. Delete the zip afterward.
 4. Double check: in File Manager, `public_html` should now directly contain
    `index.html`, `book-trial.php`, `contact.php`, `db.php`,
-   `newsletter.php`, `favicon.png`, and an `assets` folder — all at the same
-   level, not buried in subfolders. The PHP files need to sit right next to
-   `index.html` or they won't find each other.
+   `newsletter.php`, `admin.php`, `admin-config.php`, `favicon.png`, and an
+   `assets` folder — all at the same level, not buried in subfolders. The
+   PHP files need to sit right next to `index.html` or they won't find
+   each other.
 
 ---
 
-## Step 6 — Test it
+## Step 7 — Test it
 
 1. Visit your domain in a browser. The site should load.
 2. Click **Book a Free Trial**, fill out the form, and submit it.
@@ -137,6 +167,8 @@ If you skip this step, submissions still get saved to the database in Step
    row.
 4. Check the `info@speakinurdu.com` inbox for the notification email too.
 5. Try the contact form and the newsletter signup in the footer the same way.
+6. Visit `yoursite.com/admin.php`, log in with the password from Step 5, and
+   confirm your test submissions show up in each tab.
 
 If the booking shows up in the database but no email arrived, that's a
 mailbox problem (double-check Step 4) — the important part (the data) is
@@ -152,9 +184,9 @@ Whenever you make changes to the code:
 2. Upload the new contents of `dist/` to `public_html`, overwriting the old
    files.
 
-You only need to repeat Steps 2–4 (database, `db.php` credentials, email
-mailbox) if you're setting up on a *new* Hostinger account — not on every
-update.
+You only need to repeat Steps 2–5 (database, `db.php` credentials, email
+mailbox, admin password) if you're setting up on a *new* Hostinger account —
+not on every update.
 
 ---
 
@@ -170,3 +202,7 @@ update.
   `info@speakinurdu.com` mailbox either doesn't exist yet (Step 4) or
   Hostinger's mail delivery is having an off day — the booking itself is
   safe in the database regardless.
+- **Can't log into `/admin.php`**: the password is only ever stored in
+  `public/admin-config.php` — open that file (locally, or via File Manager
+  on Hostinger) to check or reset it. There's no "forgot password" flow by
+  design, since there's no second admin account to reset it for you.

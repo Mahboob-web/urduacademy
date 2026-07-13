@@ -1,3 +1,4 @@
 node_modules
 dist
 public/db.php
+public/admin-config.php
