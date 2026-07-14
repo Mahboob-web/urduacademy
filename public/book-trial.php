@@ -46,6 +46,7 @@ function field(string $key, int $maxLen = 200): string {
 
 $name = field("name", 120);
 $email = field("email", 200);
+$phone = field("phone", 40);
 $age = field("age", 3);
 $gender = field("gender", 40);
 $country = field("country", 80);
@@ -53,7 +54,7 @@ $timezone = field("timezone", 80);
 $classTime = field("classTime", 200);
 $course = field("course", 120);
 
-$required = compact("name", "email", "age", "gender", "country", "timezone", "course");
+$required = compact("name", "email", "phone", "age", "gender", "country", "timezone", "course");
 foreach ($required as $key => $value) {
   if ($value === "") {
     fail(422, "Missing required field: $key");
@@ -62,6 +63,10 @@ foreach ($required as $key => $value) {
 
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
   fail(422, "Invalid email address.");
+}
+
+if (!preg_match('/^[+\d][\d\s()-]{6,}$/', $phone)) {
+  fail(422, "Invalid phone number.");
 }
 
 $ageNum = (int)$age;
@@ -76,11 +81,11 @@ $pdo = db_connect();
 if ($pdo) {
   try {
     $stmt = $pdo->prepare(
-      "INSERT INTO bookings (name, email, age, gender, country, timezone, class_time, course)
-       VALUES (:name, :email, :age, :gender, :country, :timezone, :class_time, :course)"
+      "INSERT INTO bookings (name, email, phone, age, gender, country, timezone, class_time, course)
+       VALUES (:name, :email, :phone, :age, :gender, :country, :timezone, :class_time, :course)"
     );
     $stmt->execute([
-      ":name" => $name, ":email" => $email, ":age" => $ageNum, ":gender" => $gender,
+      ":name" => $name, ":email" => $email, ":phone" => $phone, ":age" => $ageNum, ":gender" => $gender,
       ":country" => $country, ":timezone" => $timezone, ":class_time" => $classTime, ":course" => $course,
     ]);
     $dbSaved = true;
@@ -96,6 +101,7 @@ New free trial request from the website.
 
 Name:              $name
 Email:              $email
+Phone:              $phone
 Age:                $ageNum
 Gender:             $gender
 Country:            $country

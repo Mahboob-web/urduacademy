@@ -58,6 +58,12 @@ Now create the actual tables:
     `bookings`, `contacts`, `newsletter_signups`. That's the whole database
     set up.
 
+**Already ran this before and the booking form now includes a phone
+number?** `schema.sql` includes an `ALTER TABLE` near the top that adds the
+`phone` column to an existing `bookings` table — paste the file in again
+and run it the same way; it won't touch your existing data or duplicate
+the tables.
+
 ---
 
 ## Step 3 — Connect the site to the database

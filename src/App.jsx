@@ -6,7 +6,7 @@ import {
   BookOpen, Feather, Baby,
   GraduationCap, Globe, Sparkles, Menu, X, Award, Quote,
   Instagram, Facebook, Youtube, Linkedin, Video, Clock,
-  Mail, Phone, MapPin, Send, Users, Compass, Heart,
+  Mail, Phone, MapPin, Send, Users, Compass, Heart, MessageCircle,
   Calendar, Tag, ShieldCheck, Languages, Handshake, ArrowUpRight
 } from "lucide-react";
 
@@ -437,16 +437,37 @@ a.mu-inforow:hover .v{color:var(--emerald);}
 
 /* ---------- floating buttons ---------- */
 .mu-float-stack{position:fixed; right:20px; bottom:20px; z-index:80; display:flex; flex-direction:column-reverse; align-items:flex-end; gap:12px;}
-.mu-wa{display:flex; align-items:center; gap:0; background:var(--emerald); color:#fff; border-radius:999px; padding:15px; box-shadow:0 10px 26px rgba(63,86,46,.4); text-decoration:none; transition:gap .2s ease, padding .2s ease, transform .2s ease;}
-.mu-wa:hover{transform:translateY(-2px);}
-.mu-wa-label{max-width:0; overflow:hidden; white-space:nowrap; font-weight:700; font-size:14px; transition:max-width .25s ease;}
-@media(min-width:900px){
-  .mu-wa:hover{gap:10px; padding:15px 20px;}
-  .mu-wa:hover .mu-wa-label{max-width:160px;}
-}
 .mu-totop{display:flex; align-items:center; justify-content:center; width:46px; height:46px; border-radius:50%; background:var(--card); color:var(--emerald); border:1px solid var(--border); box-shadow:var(--sh-md); cursor:pointer; opacity:0; transform:translateY(8px) scale(.9); pointer-events:none; transition:opacity .2s ease, transform .2s ease;}
 .mu-totop.show{opacity:1; transform:none; pointer-events:auto;}
 .mu-totop:hover{background:var(--emerald); color:#fff; border-color:var(--emerald); transform:translateY(-2px);}
+
+/* ---------- chat bot ---------- */
+.mu-chat-root{position:relative;}
+.mu-chat-toggle{display:flex; align-items:center; justify-content:center; width:56px; height:56px; border-radius:50%; border:0; background:var(--emerald); color:#fff; cursor:pointer; box-shadow:0 10px 26px rgba(63,86,46,.4); transition:transform .2s ease, background .2s ease;}
+.mu-chat-toggle:hover{transform:translateY(-2px); background:var(--emerald-mid);}
+.mu-chat-panel{position:absolute; right:0; bottom:68px; width:min(340px, calc(100vw - 40px)); max-height:min(480px, calc(100vh - 140px)); background:var(--card); border:1px solid var(--border); border-radius:18px; box-shadow:var(--sh-md); display:flex; flex-direction:column; overflow:hidden; animation:mu-modal-in .2s ease;}
+.mu-chat-head{display:flex; align-items:center; justify-content:space-between; padding:14px 16px; background:var(--emerald); color:#fff; flex-shrink:0;}
+.mu-chat-head b{display:block; font-size:14.5px;}
+.mu-chat-head span{display:block; font-size:12px; opacity:.8; margin-top:1px;}
+.mu-chat-close{background:rgba(255,255,255,.16); border:0; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; flex-shrink:0;}
+.mu-chat-list{flex:1; overflow-y:auto; padding:14px 14px 4px; display:flex; flex-direction:column; gap:10px; min-height:160px;}
+.mu-chat-msg{display:flex; flex-direction:column;}
+.mu-chat-msg.user{align-items:flex-end;}
+.mu-chat-msg.bot{align-items:flex-start;}
+.mu-chat-msg p{margin:0; padding:9px 13px; border-radius:14px; font-size:13.5px; line-height:1.5; max-width:85%;}
+.mu-chat-msg.bot p{background:var(--paper); color:var(--ink); border-bottom-left-radius:4px;}
+.mu-chat-msg.user p{background:var(--emerald); color:#fff; border-bottom-right-radius:4px;}
+.mu-chat-actions{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
+.mu-chat-actions button,.mu-chat-actions a{display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:600; padding:7px 12px; border-radius:999px; border:1px solid var(--border); background:var(--card); color:var(--emerald); cursor:pointer; text-decoration:none;}
+.mu-chat-actions button:hover,.mu-chat-actions a:hover{background:var(--emerald-tint);}
+.mu-chat-suggestions{display:flex; flex-direction:column; gap:6px; margin-top:2px;}
+.mu-chat-suggestions button{text-align:left; font-size:12.5px; font-weight:500; padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:var(--paper); color:var(--ink); cursor:pointer;}
+.mu-chat-suggestions button:hover{border-color:var(--emerald); color:var(--emerald);}
+.mu-chat-input{display:flex; gap:8px; padding:12px; border-top:1px solid var(--border); flex-shrink:0;}
+.mu-chat-input input{flex:1; min-width:0; border:1px solid var(--border); border-radius:10px; padding:9px 12px; font-size:13.5px; font:inherit;}
+.mu-chat-input input:focus{outline:none; border-color:var(--emerald);}
+.mu-chat-input button{width:36px; height:36px; flex-shrink:0; border-radius:10px; border:0; background:var(--emerald); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer;}
+.mu-chat-input button:hover{background:var(--emerald-mid);}
 
 /* ---------- responsive ---------- */
 @media(min-width:700px){
@@ -493,7 +514,7 @@ a.mu-inforow:hover .v{color:var(--emerald);}
   .mu-testi-track{transition:none !important;}
   .mu-live .pulse::after{display:none;}
   .mu-photo img{transition:none !important;}
-  .mu-wa,.mu-wa-label,.mu-filterchip,.mu-feature{transition:none !important;}
+  .mu-chat-toggle,.mu-chat-panel,.mu-filterchip,.mu-feature{transition:none !important;}
 }
 `;
 
@@ -2185,7 +2206,7 @@ const COUNTRIES = [
 ];
 
 function ContactPage() {
-  const [form, setForm] = useState({ name:"", email:"", tz:TIMEZONES[0], message:"", website:"" });
+  const [form, setForm] = useState({ name:"", email:"", phone:"", tz:TIMEZONES[0], message:"", website:"" });
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState("idle"); // idle | submitting | sent | error
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -2195,6 +2216,7 @@ function ContactPage() {
     if (!form.name.trim()) er.name = "Please tell us your name.";
     if (!form.email.trim()) er.email = "We need an email to reply.";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) er.email = "That email doesn't look right.";
+    if (form.phone.trim() && !/^[+\d][\d\s()-]{6,}$/.test(form.phone.trim())) er.phone = "That phone number doesn't look right.";
     if (!form.message.trim()) er.message = "Add a short message so we can help.";
     return er;
   };
@@ -2205,12 +2227,12 @@ function ContactPage() {
     if (Object.keys(er).length > 0) return;
     setStatus("submitting");
     try {
-      const body = new URLSearchParams({ name: form.name, email: form.email, tz: form.tz, message: form.message });
+      const body = new URLSearchParams({ name: form.name, email: form.email, phone: form.phone, tz: form.tz, message: form.message });
       const res = await fetch("/contact.php", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body });
       const data = await res.json().catch(() => ({ success: res.ok }));
       if (res.ok && data.success !== false) {
         setStatus("sent");
-        setForm({ name:"", email:"", tz:TIMEZONES[0], message:"", website:"" });
+        setForm({ name:"", email:"", phone:"", tz:TIMEZONES[0], message:"", website:"" });
       } else {
         setStatus("error");
       }
@@ -2239,7 +2261,7 @@ function ContactPage() {
                   <div className="mu-sent" role="status">
                     <div className="ic"><Check size={22} /></div>
                     <h3>Shukriya! Your message is on its way.</h3>
-                    <p>We've received it and will reply by email shortly. For anything urgent, WhatsApp us using the button in the corner.</p>
+                    <p>We've received it and will reply by email shortly. For anything urgent, use the chat bubble in the corner.</p>
                     <button className="mu-btn mu-btn-md mu-btn-ghost" onClick={() => setStatus("idle")}>Send another</button>
                   </div>
                 ) : (
@@ -2257,6 +2279,13 @@ function ContactPage() {
                         placeholder="you@email.com" aria-invalid={!!errors.email}
                         aria-describedby={errors.email ? "cf-email-err" : undefined} />
                       {errors.email && <span className="err" id="cf-email-err">{errors.email}</span>}
+                    </div>
+                    <div className="mu-field">
+                      <label htmlFor="cf-phone">Phone number <span className="hint-plain">(optional)</span></label>
+                      <input id="cf-phone" type="tel" value={form.phone} onChange={set("phone")}
+                        placeholder="e.g. +92 300 1234567" aria-invalid={!!errors.phone}
+                        aria-describedby={errors.phone ? "cf-phone-err" : undefined} />
+                      {errors.phone && <span className="err" id="cf-phone-err">{errors.phone}</span>}
                     </div>
                     <div className="mu-field">
                       <label htmlFor="cf-tz">Preferred timezone</label>
@@ -2343,13 +2372,117 @@ function WhatsAppIcon({ size = 24 }) {
   );
 }
 
-function FloatingWhatsApp() {
+/* ================= chat bot ================= */
+const CHAT_KB = [
+  ...FAQ.map((f) => ({ q: f.q, a: f.a })),
+  ...COURSES.map((c) => ({
+    q: `${c.name} price and details`,
+    a: `${c.name}: ${c.desc} ${c.pricingType === "flat"
+      ? `Cost: ${c.price}${c.unit} — ${c.duration}, ${c.frequency}.`
+      : `Cost: from ${c.price}${c.unit}, depending on how many lessons a month.`} ${c.featuresLabel}: ${c.features.join(", ")}.`,
+  })),
+];
+
+function findChatAnswer(query) {
+  const words = query.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length >= 3);
+  if (words.length === 0) return null;
+  let best = null, bestScore = 0;
+  for (const entry of CHAT_KB) {
+    const text = (entry.q + " " + entry.a).toLowerCase();
+    let score = 0;
+    for (const w of words) if (text.includes(w)) score++;
+    if (score > bestScore) { bestScore = score; best = entry; }
+  }
+  return bestScore > 0 ? best : null;
+}
+
+const CHAT_SUGGESTIONS = [
+  "Is the trial really free?",
+  "How much are classes?",
+  "What courses do you offer?",
+  "Can I choose my class times?",
+];
+
+const CHAT_GREETING = "Assalam-o-Alaikum! I can answer quick questions about courses, pricing, and trials. Ask me anything, or pick one below.";
+
+function ChatWidget() {
+  const { goTrial, goRoute } = useNav();
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState([{ from: "bot", text: CHAT_GREETING }]);
+  const [input, setInput] = useState("");
+  const listRef = useRef(null);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight;
+  }, [messages, open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
+    window.addEventListener("keydown", onKey);
+    const t = setTimeout(() => inputRef.current?.focus(), 50);
+    return () => { window.removeEventListener("keydown", onKey); clearTimeout(t); };
+  }, [open]);
+
+  const ask = (text) => {
+    const q = text.trim();
+    if (!q) return;
+    const match = findChatAnswer(q);
+    setMessages((m) => [
+      ...m,
+      { from: "user", text: q },
+      match
+        ? { from: "bot", text: match.a }
+        : { from: "bot", text: "I don't have a ready answer for that — here's how to reach a real person:", fallback: true },
+    ]);
+    setInput("");
+  };
+
   return (
-    <a className="mu-wa" href="https://wa.me/923275347525" target="_blank" rel="noopener noreferrer"
-      aria-label="Chat with us on WhatsApp">
-      <WhatsAppIcon size={24} />
-      <span className="mu-wa-label">Chat on WhatsApp</span>
-    </a>
+    <div className="mu-chat-root">
+      {open && (
+        <div className="mu-chat-panel" role="dialog" aria-label="Chat with Speak in Urdu">
+          <div className="mu-chat-head">
+            <div>
+              <b>Speak in Urdu</b>
+              <span>Usually answers instantly</span>
+            </div>
+            <button className="mu-chat-close" onClick={() => setOpen(false)} aria-label="Close chat"><X size={17} /></button>
+          </div>
+          <div className="mu-chat-list" ref={listRef}>
+            {messages.map((m, i) => (
+              <div className={`mu-chat-msg ${m.from}`} key={i}>
+                <p>{m.text}</p>
+                {m.fallback && (
+                  <div className="mu-chat-actions">
+                    <button onClick={() => { setOpen(false); goTrial(); }}>Book a Free Trial</button>
+                    <button onClick={() => { setOpen(false); goRoute("contact"); }}>Contact us</button>
+                    <a href="https://wa.me/923275347525" target="_blank" rel="noopener noreferrer">
+                      <WhatsAppIcon size={14} /> WhatsApp
+                    </a>
+                  </div>
+                )}
+              </div>
+            ))}
+            {messages.length === 1 && (
+              <div className="mu-chat-suggestions">
+                {CHAT_SUGGESTIONS.map((s) => (
+                  <button key={s} onClick={() => ask(s)}>{s}</button>
+                ))}
+              </div>
+            )}
+          </div>
+          <form className="mu-chat-input" onSubmit={(e) => { e.preventDefault(); ask(input); }}>
+            <input ref={inputRef} type="text" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Type a question…" />
+            <button type="submit" aria-label="Send"><Send size={16} /></button>
+          </form>
+        </div>
+      )}
+      <button className="mu-chat-toggle" onClick={() => setOpen((v) => !v)} aria-label={open ? "Close chat" : "Open chat"}>
+        {open ? <X size={24} /> : <MessageCircle size={24} />}
+      </button>
+    </div>
   );
 }
 
@@ -2371,7 +2504,7 @@ function BackToTop() {
 }
 
 /* ================= book trial modal ================= */
-const emptyBooking = { name:"", email:"", age:"", gender:"", country:COUNTRIES[0], timezone:TIMEZONES[0], classTime:"", courseSlug:"", website:"" };
+const emptyBooking = { name:"", email:"", phone:"", age:"", gender:"", country:COUNTRIES[0], timezone:TIMEZONES[0], classTime:"", courseSlug:"", website:"" };
 
 function BookTrialModal({ open, onClose, presetCourseSlug }) {
   const [form, setForm] = useState(emptyBooking);
@@ -2405,6 +2538,8 @@ function BookTrialModal({ open, onClose, presetCourseSlug }) {
     if (!form.name.trim()) er.name = "Please tell us your name.";
     if (!form.email.trim()) er.email = "We need an email to confirm your trial.";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) er.email = "That email doesn't look right.";
+    if (!form.phone.trim()) er.phone = "Please add a phone number.";
+    else if (!/^[+\d][\d\s()-]{6,}$/.test(form.phone.trim())) er.phone = "That phone number doesn't look right.";
     const age = Number(form.age);
     if (!form.age) er.age = "Please add your age.";
     else if (!Number.isFinite(age) || age < 5 || age > 99) er.age = "Age must be between 5 and 99.";
@@ -2426,6 +2561,7 @@ function BookTrialModal({ open, onClose, presetCourseSlug }) {
       const body = new URLSearchParams({
         name: form.name,
         email: form.email,
+        phone: form.phone,
         age: form.age,
         gender: form.gender,
         country: form.country,
@@ -2475,6 +2611,12 @@ function BookTrialModal({ open, onClose, presetCourseSlug }) {
                 <input id="bt-email" type="email" value={form.email} onChange={set("email")} placeholder="you@email.com" />
                 {errors.email && <span className="err">{errors.email}</span>}
               </div>
+            </div>
+
+            <div className={`mu-field ${errors.phone ? "err" : ""}`}>
+              <label htmlFor="bt-phone">Phone number</label>
+              <input id="bt-phone" type="tel" value={form.phone} onChange={set("phone")} placeholder="e.g. +92 300 1234567" />
+              {errors.phone && <span className="err">{errors.phone}</span>}
             </div>
 
             <div className="mu-field-row">
@@ -2715,7 +2857,7 @@ export default function App() {
         </main>
         <Footer />
         <div className="mu-float-stack">
-          <FloatingWhatsApp />
+          <ChatWidget />
           <BackToTop />
         </div>
         <BookTrialModal open={trialOpen} onClose={() => setTrialOpen(false)} presetCourseSlug={trialCourseSlug} />

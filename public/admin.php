@@ -40,8 +40,8 @@ $authed = !empty($_SESSION["admin_authed"]);
 // ---- data (only once logged in) ----
 
 const TABS = [
-  "bookings" => ["label" => "Bookings", "cols" => ["created_at", "name", "email", "age", "gender", "country", "timezone", "class_time", "course"], "search" => ["name", "email", "course"]],
-  "contacts" => ["label" => "Contact Messages", "cols" => ["created_at", "name", "email", "timezone", "message"], "search" => ["name", "email", "message"]],
+  "bookings" => ["label" => "Bookings", "cols" => ["created_at", "name", "email", "phone", "age", "gender", "country", "timezone", "class_time", "course"], "search" => ["name", "email", "phone", "course"]],
+  "contacts" => ["label" => "Contact Messages", "cols" => ["created_at", "name", "email", "phone", "timezone", "message"], "search" => ["name", "email", "phone", "message"]],
   "newsletter" => ["label" => "Newsletter", "cols" => ["created_at", "email"], "search" => ["email"]],
 ];
 const TABLE_NAMES = ["bookings" => "bookings", "contacts" => "contacts", "newsletter" => "newsletter_signups"];
@@ -95,7 +95,7 @@ function h(?string $s): string {
 
 function label_for(string $col): string {
   $map = [
-    "created_at" => "Date", "name" => "Name", "email" => "Email", "age" => "Age",
+    "created_at" => "Date", "name" => "Name", "email" => "Email", "phone" => "Phone", "age" => "Age",
     "gender" => "Gender", "country" => "Country", "timezone" => "Timezone",
     "class_time" => "Preferred Time", "course" => "Course", "message" => "Message",
   ];

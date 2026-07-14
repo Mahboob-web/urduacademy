@@ -40,6 +40,7 @@ function field(string $key, int $maxLen = 200): string {
 
 $name = field("name", 120);
 $email = field("email", 200);
+$phone = field("phone", 40);
 $timezone = field("tz", 80);
 
 // Message is multi-line, so it's sanitized separately (newlines kept, tags stripped).
@@ -57,14 +58,19 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
   fail(422, "Invalid email address.");
 }
 
+// Phone is optional here (unlike the booking form) — only validated if given.
+if ($phone !== "" && !preg_match('/^[+\d][\d\s()-]{6,}$/', $phone)) {
+  fail(422, "Invalid phone number.");
+}
+
 $dbSaved = false;
 $pdo = db_connect();
 if ($pdo) {
   try {
     $stmt = $pdo->prepare(
-      "INSERT INTO contacts (name, email, timezone, message) VALUES (:name, :email, :timezone, :message)"
+      "INSERT INTO contacts (name, email, phone, timezone, message) VALUES (:name, :email, :phone, :timezone, :message)"
     );
-    $stmt->execute([":name" => $name, ":email" => $email, ":timezone" => $timezone, ":message" => $message]);
+    $stmt->execute([":name" => $name, ":email" => $email, ":phone" => $phone, ":timezone" => $timezone, ":message" => $message]);
     $dbSaved = true;
   } catch (Throwable $e) {
     error_log("Contact DB insert failed: " . $e->getMessage());
@@ -78,6 +84,7 @@ New message from the contact form.
 
 Name:              $name
 Email:              $email
+Phone:              $phone
 Preferred timezone: $timezone
 
 Message:
