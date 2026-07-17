@@ -282,7 +282,32 @@ body{overflow-x:hidden;}
 .mu-billing-toggle button.on{background:var(--emerald); color:#fff;}
 .mu-billing-label{font-size:13px; font-weight:600; letter-spacing:.02em; color:var(--muted);}
 .mu-fromlbl{font-size:15px; font-weight:600; color:var(--muted);}
+.mu-currency{font-size:.5em; font-weight:600; color:var(--muted); letter-spacing:.02em;}
 .mu-save-badge{font-size:11px; font-weight:800; letter-spacing:.03em; color:#2F2F2F; background:var(--gold-soft); padding:3px 8px; border-radius:999px;}
+
+/* ---------- payment page ---------- */
+.mu-paymethods{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:32px;}
+.mu-paymethods button{border:1px solid var(--border); background:var(--card); color:var(--ink); border-radius:999px; padding:10px 20px; font-size:14.5px; font-weight:700; cursor:pointer; transition:all .18s ease;}
+.mu-paymethods button:hover{border-color:var(--emerald); color:var(--emerald);}
+.mu-paymethods button.on{background:var(--emerald); border-color:var(--emerald); color:#fff;}
+.mu-paycard{background:var(--card); border:1px solid var(--border); border-radius:var(--rc); padding:34px; box-shadow:var(--sh-sm);}
+.mu-paycard h2{font-size:24px;}
+.mu-paycard .tagline{color:var(--emerald); font-weight:600; font-size:14px; margin-top:6px;}
+.mu-paycard .about{color:var(--muted); margin-top:12px; max-width:64ch; line-height:1.6;}
+.mu-paysteps{display:flex; flex-direction:column; gap:0; margin-top:28px; border-top:1px solid var(--border);}
+.mu-paystep{display:flex; gap:16px; align-items:flex-start; padding:16px 0; border-bottom:1px solid var(--border);}
+.mu-paystep .num{flex:0 0 auto; width:30px; height:30px; border-radius:50%; background:var(--emerald-tint); color:var(--emerald); display:flex; align-items:center; justify-content:center; font-family:"Plus Jakarta Sans"; font-weight:800; font-size:13.5px;}
+.mu-paystep p{margin:0; padding-top:4px; font-size:15px; line-height:1.55;}
+.mu-paytips{margin-top:28px; background:var(--paper); border-radius:14px; padding:20px 22px;}
+.mu-paytips h3{font-size:15px; margin-bottom:12px;}
+.mu-paytips ul{list-style:none; padding:0; margin:0; display:grid; gap:9px;}
+.mu-paytips li{display:flex; gap:9px; align-items:flex-start; font-size:14px; color:var(--muted);}
+.mu-paytips li svg{color:var(--emerald); flex-shrink:0; margin-top:2px;}
+.mu-paynote{display:flex; gap:16px; align-items:flex-start; background:var(--emerald-tint); border-radius:var(--rc); padding:26px 28px; margin-top:24px;}
+.mu-paynote svg{color:var(--emerald); flex-shrink:0; margin-top:2px;}
+.mu-paynote h3{font-size:16.5px;}
+.mu-paynote p{color:var(--muted); margin-top:6px; max-width:60ch; line-height:1.55;}
+.mu-paynote .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;}
 
 
 /* star pop */
@@ -571,10 +596,10 @@ const COURSES = [
   },
   {
     slug: "read-write-urdu", icon: BookOpen, name: "Read & Write Urdu Course",
-    meta: "12 weeks · 2x/week · 40 min", format: "Live 1:1", lessonLength: "40 minutes",
+    meta: "12 weeks · 1x/week · 40 min", format: "Live 1:1", lessonLength: "40 minutes",
     desc: "Go from the Urdu alphabet to confident reading and writing in three months.",
     pricingType: "flat",
-    duration: "12 Weeks", frequency: "2 sessions per week", fee: 60,
+    duration: "12 Weeks", frequency: "1 session per week", fee: 60,
     price: "$60", unit: " total",
     featuresLabel: "Students Learn",
     features: ["Urdu alphabet", "Reading fluency", "Writing skills", "Vocabulary", "Sentence building", "Reading practice"],
@@ -668,10 +693,10 @@ const GROUP_PLANS = [
   {
     id: "readwrite", kind: "flat", name: "Read & Write Urdu", courseSlug: "read-write-urdu",
     tagline: "Alphabet-to-fluency course",
-    duration: "12 Weeks", frequency: "2 sessions/week", minutes: 40, fee: 60, pop: false,
+    duration: "12 Weeks", frequency: "1 session/week", minutes: 40, fee: 60, pop: false,
     cta: "Enroll Now",
     incl: [
-      "12 weeks, two 40-minute sessions a week",
+      "12 weeks, one 40-minute session a week",
       "Urdu alphabet to reading fluency",
       "Writing skills & sentence building",
       "Guided reading practice",
@@ -1000,6 +1025,7 @@ function parseHash() {
   if (h.startsWith("#/courses/")) return { name: "course", slug: h.slice("#/courses/".length) };
   if (h === "#/courses") return { name: "courses" };
   if (h === "#/pricing") return { name: "pricing" };
+  if (h === "#/payment") return { name: "payment" };
   if (h === "#/about") return { name: "about" };
   if (h.startsWith("#/blog/")) return { name: "post", slug: h.slice("#/blog/".length) };
   if (h === "#/blog") return { name: "blog" };
@@ -1093,7 +1119,7 @@ function PlanCard({ plan, classes = 8, from = false, onCta, headingTag = "h3" })
       <p className="tagline">{plan.tagline}</p>
       <div className="mu-planprice">
         {from && !flat && <span className="mu-fromlbl">from</span>}
-        ${price}{!flat && <small>/mo</small>}
+        ${price}<small className="mu-currency"> USD</small>{!flat && <small>/mo</small>}
       </div>
       <p className="mu-annnote">{note}</p>
       <ul className="incl">
@@ -1374,7 +1400,7 @@ function CourseCard({ c, showDetail = true, headingTag = "h3" }) {
         <span className="mu-price">
           {!flat && <small>From</small>}
           {c.price}
-          <small style={{ display:"inline", textTransform:"none", letterSpacing:0, marginLeft:2 }}>{c.unit}</small>
+          <small className="mu-currency" style={{ display:"inline", textTransform:"none", letterSpacing:0, marginLeft:2 }}> USD{c.unit}</small>
         </span>
         <div className="links">
           {showDetail && <button className="mu-textlink" onClick={() => goCourse(c.slug)}>Details <ArrowRight size={15} /></button>}
@@ -1610,6 +1636,7 @@ function Footer() {
             <button className="fl" onClick={() => goRoute("about")}>About Us</button>
             <button className="fl" onClick={() => goRoute("courses")}>All Courses</button>
             <button className="fl" onClick={() => goRoute("pricing")}>Pricing</button>
+            <button className="fl" onClick={() => goRoute("payment")}>How to Pay</button>
             <button className="fl" onClick={() => goRoute("blog")}>Blog</button>
             <button className="fl" onClick={() => goRoute("contact")}>Contact</button>
             <button className="fl" onClick={() => goSection("how")}>How It Works</button>
@@ -1773,13 +1800,13 @@ function CourseDetailPage({ slug }) {
             <aside className="mu-detail-side" aria-label="Course summary">
               <div className="card">
                 {flat ? (
-                  <div className="price"><span className="from">Course fee</span>{c.price}<small>{c.unit}</small></div>
+                  <div className="price"><span className="from">Course fee</span>{c.price}<small className="mu-currency"> USD</small><small>{c.unit}</small></div>
                 ) : (
                   <>
-                    <div className="price"><span className="from">From</span>{c.price}<small>{c.unit}</small></div>
+                    <div className="price"><span className="from">From</span>{c.price}<small className="mu-currency"> USD</small><small>{c.unit}</small></div>
                     <ul className="mu-tierlist">
                       {c.tiers.map((t) => (
-                        <li key={t.lessons}><span>{t.lessons} lessons/mo</span><b>${t.price}</b></li>
+                        <li key={t.lessons}><span>{t.lessons} lessons/mo</span><b>${t.price} USD</b></li>
                       ))}
                     </ul>
                   </>
@@ -1808,7 +1835,7 @@ function CourseDetailPage({ slug }) {
 }
 
 function PricingPage() {
-  const { goTrial } = useNav();
+  const { goTrial, goRoute } = useNav();
   const [classes, setClasses] = useState(8);
   return (
     <>
@@ -1854,6 +1881,144 @@ function PricingPage() {
           <Reveal className="mu-center">
             <div style={{ marginTop:32 }}>
               <button className="mu-btn mu-btn-lg mu-btn-primary" onClick={goTrial}>Start with a free trial <ArrowRight size={18} /></button>
+            </div>
+            <div style={{ marginTop:16 }}>
+              <button className="mu-textlink" onClick={() => goRoute("payment")}>Paying from abroad? See how to pay <ArrowRight size={16} /></button>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+      <FinalCta />
+    </>
+  );
+}
+
+/* ================= payment ================= */
+const PAYMENT_METHODS = [
+  {
+    id: "remitly",
+    name: "Remitly",
+    tagline: "Best for Canada, USA, UK, Australia, and many other countries",
+    about: "Remitly is an international money transfer service that lets you send money safely and quickly to Pakistan, with competitive exchange rates and multiple payment methods.",
+    steps: [
+      "Download the Remitly app or visit the official Remitly website and sign up using your email address.",
+      "Verify your identity — Remitly may ask for this, depending on your country and transfer amount.",
+      "Choose Pakistan as the receiving country.",
+      "Enter the amount you wish to send for your Urdu lessons.",
+      "Select the delivery method: bank deposit.",
+      "Enter the recipient's name and payment information exactly as provided by the Speak in Urdu team.",
+      "Review all the information carefully before confirming your transfer.",
+      "Email or message us your full name, the transfer reference number, the amount sent, and the payment date.",
+    ],
+    tips: [
+      "Always verify the recipient details before sending.",
+      "Keep your transfer receipt until your payment has been confirmed.",
+      "Contact us if you have any questions before making your payment.",
+    ],
+  },
+  {
+    id: "taptap",
+    name: "Taptap Send",
+    tagline: "One of the fastest ways to send money internationally",
+    about: "Taptap Send is a secure money transfer service for sending money to family members, businesses, and individuals in various countries, including Pakistan.",
+    steps: [
+      "Install the Taptap Send app from your device's app store.",
+      "Create your account using your mobile number and complete the required verification.",
+      "Choose Pakistan as the destination country.",
+      "Enter the amount for your Urdu lesson payment.",
+      "Enter the recipient information exactly as provided by the Speak in Urdu team.",
+      "Pay using your debit card, bank account, or another payment method available in your country.",
+      "Review all information carefully and send your payment.",
+      "Send us your name, the payment amount, the transaction reference, and a screenshot or receipt (optional but helpful).",
+    ],
+    tips: [
+      "If you're unsure about any step, contact us before sending your payment.",
+      "We'll confirm your payment as soon as it arrives.",
+    ],
+  },
+  {
+    id: "westernunion",
+    name: "Western Union",
+    tagline: "A trusted international transfer service, available almost anywhere",
+    about: "Western Union has been a trusted international money transfer service for many years, available through its website, mobile app, or local agent locations.",
+    steps: [
+      "Visit the Western Union website or download the mobile app and create an account.",
+      "Choose Pakistan as the country where you are sending the payment.",
+      "Enter the lesson fee you wish to pay.",
+      "Select the delivery method — preferably bank deposit; if that's not available, cash pickup also works.",
+      "Carefully enter the recipient's full name and payment details exactly as provided by the Speak in Urdu team.",
+      "Pay using your preferred payment method and submit the transfer.",
+      "Save the Money Transfer Control Number (MTCN) Western Union gives you — keep it safe.",
+      "Send us your full name, the MTCN, the amount sent, and the date of transfer.",
+    ],
+    tips: [
+      "Double-check all recipient information before sending.",
+      "Keep your receipt until your payment has been confirmed.",
+      "Contact us if you need assistance before making your transfer.",
+    ],
+  },
+];
+
+function PaymentPage() {
+  const { goTrial, goRoute } = useNav();
+  const [active, setActive] = useState(PAYMENT_METHODS[0].id);
+  const method = PAYMENT_METHODS.find((m) => m.id === active);
+
+  return (
+    <>
+      <PageHero
+        crumb={[{ label:"Payment" }]}
+        eyebrow="Paying from abroad"
+        title="How to pay for your lessons."
+        lead="We accept international bank transfers from Canada, the USA, the UK, Australia, and many other countries. Pick whichever service works best where you live."
+      />
+
+      <section className="mu-section" style={{ paddingTop:56 }}>
+        <div className="mu-wrap">
+          <div className="mu-paymethods" role="tablist" aria-label="Payment method">
+            {PAYMENT_METHODS.map((m) => (
+              <button key={m.id} role="tab" aria-selected={active === m.id}
+                className={active === m.id ? "on" : ""} onClick={() => setActive(m.id)}>
+                {m.name}
+              </button>
+            ))}
+          </div>
+
+          <Reveal key={method.id}>
+            <div className="mu-paycard">
+              <h2>{method.name}</h2>
+              <p className="tagline">{method.tagline}</p>
+              <p className="about">{method.about}</p>
+
+              <div className="mu-paysteps">
+                {method.steps.map((s, i) => (
+                  <div className="mu-paystep" key={i}>
+                    <span className="num">{i + 1}</span>
+                    <p>{s}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mu-paytips">
+                <h3>Tips for a smooth payment</h3>
+                <ul>
+                  {method.tips.map((t) => <li key={t}><Check size={15} strokeWidth={2.4} /> {t}</li>)}
+                </ul>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal>
+            <div className="mu-paynote">
+              <ShieldCheck size={22} />
+              <div>
+                <h3>We don't publish recipient bank details publicly</h3>
+                <p>For your security, the exact recipient name and account details are shared directly once you book a trial or get in touch — never posted openly on the website.</p>
+                <div className="btns">
+                  <button className="mu-btn mu-btn-md mu-btn-primary" onClick={goTrial}>Book a Free Trial</button>
+                  <button className="mu-btn mu-btn-md mu-btn-ghost" onClick={() => goRoute("contact")}>Contact Us</button>
+                </div>
+              </div>
             </div>
           </Reveal>
         </div>
@@ -2378,9 +2543,13 @@ const CHAT_KB = [
   ...COURSES.map((c) => ({
     q: `${c.name} price and details`,
     a: `${c.name}: ${c.desc} ${c.pricingType === "flat"
-      ? `Cost: ${c.price}${c.unit} — ${c.duration}, ${c.frequency}.`
-      : `Cost: from ${c.price}${c.unit}, depending on how many lessons a month.`} ${c.featuresLabel}: ${c.features.join(", ")}.`,
+      ? `Cost: ${c.price} USD${c.unit} — ${c.duration}, ${c.frequency}.`
+      : `Cost: from ${c.price} USD${c.unit}, depending on how many lessons a month.`} ${c.featuresLabel}: ${c.features.join(", ")}.`,
   })),
+  {
+    q: "How do I pay for lessons from abroad? Payment methods Remitly Taptap Send Western Union bank transfer international",
+    a: `We accept international bank transfers to Pakistan via Remitly, Taptap Send, or Western Union — whichever is available where you live. See the "How to Pay" page (linked in the footer) for step-by-step guides for each. Recipient details are shared privately once you book a trial or contact us, not published on the site.`,
+  },
 ];
 
 function findChatAnswer(query) {
@@ -2737,8 +2906,12 @@ function seoFor(route) {
     }
     case "pricing":
       return { title: t("Pricing & Plans — 1:1 Classes & Urdu Courses"),
-        desc: "Private 1:1 Urdu tuition for kids (from $32/mo) and women (from $48/mo), plus GCSE exam prep ($79), Read & Write Urdu ($60), and seasonal Summer and Back-to-School courses ($55 each). Every plan starts with a free trial.",
+        desc: "Private 1:1 Urdu tuition for kids (from $32/mo USD) and women (from $48/mo USD), plus GCSE exam prep ($79 USD), Read & Write Urdu ($60 USD), and seasonal Summer and Back-to-School courses ($55 USD each). Every plan starts with a free trial.",
         ld: [orgLD(), { "@type": "FAQPage", mainEntity: FAQ.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }] };
+    case "payment":
+      return { title: t("How to Pay — Remitly, Taptap Send & Western Union"),
+        desc: "Step-by-step guides for paying your Urdu lesson fees from abroad via Remitly, Taptap Send, or Western Union, with international bank transfer to Pakistan.",
+        ld: [orgLD()] };
     case "about":
       return { title: t("About Us — Our Story & Mission"),
         desc: "Speak in Urdu is a small team of native teachers helping learners in 40+ countries read, write, and speak Urdu with structure and warmth.",
@@ -2850,6 +3023,7 @@ export default function App() {
           {route.name === "courses" && <CoursesPage />}
           {route.name === "course" && <CourseDetailPage slug={route.slug} />}
           {route.name === "pricing" && <PricingPage />}
+          {route.name === "payment" && <PaymentPage />}
           {route.name === "about" && <AboutPage />}
           {route.name === "blog" && <BlogPage />}
           {route.name === "post" && <BlogPostPage slug={route.slug} />}
