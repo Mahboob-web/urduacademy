@@ -309,6 +309,19 @@ body{overflow-x:hidden;}
 .mu-paynote p{color:var(--muted); margin-top:6px; max-width:60ch; line-height:1.55;}
 .mu-paynote .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;}
 
+.mu-paybanner{display:flex; align-items:center; gap:16px; width:100%; text-align:left; background:linear-gradient(135deg, var(--emerald), var(--emerald-mid)); color:#fff; border:0; border-radius:var(--rc); padding:18px 24px; margin:28px 0 0; cursor:pointer; transition:transform .18s ease, box-shadow .18s ease; box-shadow:0 10px 30px -14px rgba(63,86,46,.55);}
+.mu-paybanner:hover{transform:translateY(-2px); box-shadow:0 16px 36px -14px rgba(63,86,46,.6);}
+.mu-paybanner-icon{flex:0 0 auto; width:42px; height:42px; border-radius:50%; background:rgba(255,255,255,.16); display:flex; align-items:center; justify-content:center;}
+.mu-paybanner-text{display:flex; flex-direction:column; gap:2px; flex:1; min-width:0;}
+.mu-paybanner-text strong{font-family:"Plus Jakarta Sans"; font-size:16px;}
+.mu-paybanner-text span{color:rgba(255,255,255,.85); font-size:13.5px; line-height:1.4;}
+.mu-paybanner-cta{flex:0 0 auto; display:flex; align-items:center; gap:6px; font-weight:700; font-size:14px; background:rgba(255,255,255,.14); padding:9px 16px; border-radius:999px; white-space:nowrap;}
+@media (max-width:640px){
+  .mu-paybanner{flex-wrap:wrap;}
+  .mu-paybanner-text{order:2; width:100%;}
+  .mu-paybanner-cta{order:3; width:100%; justify-content:center;}
+}
+
 
 /* star pop */
 .mu-anim-star{animation:mu-pop .5s cubic-bezier(.2,1.4,.4,1) both;}
@@ -1011,6 +1024,7 @@ const NAV = [
   { label:"Home", type:"route", target:"home" },
   { label:"Courses", type:"route", target:"courses" },
   { label:"Pricing", type:"route", target:"pricing" },
+  { label:"How to Pay", type:"route", target:"payment" },
   { label:"Blog", type:"route", target:"blog" },
   { label:"About", type:"route", target:"about" },
   { label:"Contact", type:"route", target:"contact" },
@@ -1855,7 +1869,20 @@ function PricingPage() {
         </div>
       </PageHero>
 
-      <section className="mu-section" style={{ paddingTop:56 }} aria-labelledby="priv-h">
+      <div className="mu-wrap">
+        <Reveal>
+          <button className="mu-paybanner" onClick={() => goRoute("payment")}>
+            <span className="mu-paybanner-icon"><Globe size={22} /></span>
+            <span className="mu-paybanner-text">
+              <strong>Paying from abroad?</strong>
+              <span>See our step-by-step guides for Remitly, Taptap Send &amp; Western Union.</span>
+            </span>
+            <span className="mu-paybanner-cta">How to pay <ArrowRight size={16} /></span>
+          </button>
+        </Reveal>
+      </div>
+
+      <section className="mu-section" style={{ paddingTop:32 }} aria-labelledby="priv-h">
         <div className="mu-wrap">
           <SectionHeader eyebrow="Private 1:1 classes" title="One-to-one, paced around you." lead={null} id="priv-h" />
           <div className="mu-pricing-grid cols2">
@@ -1881,9 +1908,6 @@ function PricingPage() {
           <Reveal className="mu-center">
             <div style={{ marginTop:32 }}>
               <button className="mu-btn mu-btn-lg mu-btn-primary" onClick={goTrial}>Start with a free trial <ArrowRight size={18} /></button>
-            </div>
-            <div style={{ marginTop:16 }}>
-              <button className="mu-textlink" onClick={() => goRoute("payment")}>Paying from abroad? See how to pay <ArrowRight size={16} /></button>
             </div>
           </Reveal>
         </div>
