@@ -20,9 +20,25 @@ web server can actually serve.
    ```
    npm run build
    ```
-3. When it finishes, you'll have a new folder called `dist/`. Everything
-   inside `dist/` is your entire website — that's the only folder you upload.
-   You never upload `src/`, `node_modules/`, or anything else.
+3. This does four things automatically (you'll see each one print in the
+   terminal): builds the app, builds a temporary server-only copy of it,
+   uses that copy to pre-render every page (home, courses, pricing, each
+   course, etc.) into its own real HTML file with the correct title and
+   description already baked in, then deletes the temporary server-only
+   copy again. This is what makes each page show up correctly in Google
+   search results and when shared on social media, instead of every page
+   looking identical to search engines. (The blog is different — see Step
+   8a — its pages are generated live by PHP from the database on every
+   visit, not baked in at build time, so new posts don't need a rebuild.)
+4. When it finishes, you'll have a new folder called `dist/`. Everything
+   inside `dist/` is your entire website — that's the only folder you
+   upload. You never upload `src/`, `node_modules/`, or anything else.
+   Besides `index.html`, `dist/` will now also contain folders like
+   `courses/`, `pricing/` (one real HTML file per page), the blog's PHP
+   files (`blog.php`, `blog-post.php`, `blog-lib.php`, `blog-layout.php`,
+   `blog-icons.php`, `sitemap.php`), plus `robots.txt`, `manifest.json`,
+   `social-share.png`, `site.css`, and a hidden `.htaccess` file — all of
+   these need to be uploaded too, see the note about hidden files in Step 6.
 
 Leave this terminal window open — you'll rebuild again any time you make a
 future change.
@@ -144,41 +160,145 @@ Newsletter. Each has a search box and an **Export CSV** button.
 2. Navigate into `public_html` (this is the folder Hostinger serves your
    domain from). If there are old placeholder files in here from Hostinger's
    default setup, you can delete them.
-3. Click **Upload** and select **every file and folder inside your local
+3. **Important — show hidden files first.** `dist/` now includes a file
+   called `.htaccess` (it controls HTTPS redirects and clean page URLs —
+   without it, pages like `/courses` won't load correctly). Files starting
+   with a dot are hidden by default in Windows/Mac and sometimes in zip
+   tools, so:
+   - On Windows: File Explorer → **View** → tick **Hidden items** before
+     you zip or select the folder.
+   - On Mac: press `Cmd+Shift+.` in Finder to reveal it.
+4. Click **Upload** and select **every file and folder inside your local
    `dist/` folder** — not the `dist` folder itself, its *contents*
-   (`index.html`, `favicon.png`, `book-trial.php`, `contact.php`, `db.php`,
-   `newsletter.php`, `admin.php`, `admin-config.php`, and the `assets`
-   folder should all end up directly inside `public_html`, not nested
-   inside a `dist` subfolder).
+   (`index.html`, `.htaccess`, `robots.txt`, `manifest.json`,
+   `social-share.png`, `favicon.png`, `site.css`, `logo-full-white.png`,
+   `book-trial.php`, `contact.php`, `db.php`, `newsletter.php`, `admin.php`,
+   `admin-post-edit.php`, `admin-config.php`, `blog.php`, `blog-post.php`,
+   `blog-lib.php`, `blog-layout.php`, `blog-icons.php`, `sitemap.php`, the
+   `assets` folder, and the per-page folders like `courses/`, `pricing/`,
+   `about/`, `contact/`, `payment/` should all end up directly inside
+   `public_html`, not nested inside a `dist` subfolder).
 
    **Faster alternative:** on your computer, select everything inside
-   `dist/` and compress it into a single `.zip`. Upload just that zip into
-   `public_html`, then right-click it in File Manager and choose
-   **Extract**. Delete the zip afterward.
-4. Double check: in File Manager, `public_html` should now directly contain
-   `index.html`, `book-trial.php`, `contact.php`, `db.php`,
-   `newsletter.php`, `admin.php`, `admin-config.php`, `favicon.png`, and an
-   `assets` folder — all at the same level, not buried in subfolders. The
-   PHP files need to sit right next to `index.html` or they won't find
-   each other.
+   `dist/` (with hidden files visible) and compress it into a single
+   `.zip`. Upload just that zip into `public_html`, then right-click it in
+   File Manager and choose **Extract**. Delete the zip afterward. Hostinger's
+   File Manager upload/extract preserves dotfiles like `.htaccess`
+   correctly even if your local zip tool almost skipped it — double check
+   with Step 5 below either way.
+5. Double check: in File Manager, `public_html` should now directly contain
+   `index.html`, `.htaccess`, `robots.txt`, `manifest.json`, `site.css`,
+   `book-trial.php`, `contact.php`, `db.php`, `newsletter.php`, `admin.php`,
+   `admin-post-edit.php`, `admin-config.php`, `blog.php`, `blog-post.php`,
+   `blog-lib.php`, `blog-layout.php`, `blog-icons.php`, `sitemap.php`,
+   `favicon.png`, `social-share.png`, an `assets` folder, and the per-page
+   folders — all at the same level, not buried in subfolders. The PHP files
+   need to sit right next to `index.html` or they won't find each other. If
+   you don't see `.htaccess` listed, turn on **Settings → Show Hidden
+   Files** in File Manager itself and re-upload it.
 
 ---
 
 ## Step 7 — Test it
 
-1. Visit your domain in a browser. The site should load.
-2. Click **Book a Free Trial**, fill out the form, and submit it.
-3. Go back to phpMyAdmin (hPanel → Databases → phpMyAdmin) and open the
+1. Visit your domain in a browser, as plain `http://speakinurdu.com` (not
+   `https`) — it should automatically redirect to `https://speakinurdu.com`
+   with the padlock showing. That redirect is handled by the `.htaccess`
+   file from Step 6; if it doesn't happen, re-check that `.htaccess` made
+   it into `public_html` (Hostinger issues the free SSL certificate itself,
+   usually within a few minutes of the domain being added — hPanel →
+   **SSL** to check its status if the padlock is missing entirely).
+2. Click a few links in the main menu (Courses, Pricing, Blog) and confirm
+   the address bar shows a real path like `speakinurdu.com/courses`, and
+   that reloading the page on one of those URLs still works (this confirms
+   the pre-rendering and `.htaccess` clean-URL rule from Step 1 are both
+   working correctly).
+3. Click **Book a Free Trial**, fill out the form, and submit it.
+4. Go back to phpMyAdmin (hPanel → Databases → phpMyAdmin) and open the
    `bookings` table — your test submission should be sitting there as a new
    row.
-4. Check the `info@speakinurdu.com` inbox for the notification email too.
-5. Try the contact form and the newsletter signup in the footer the same way.
-6. Visit `yoursite.com/admin.php`, log in with the password from Step 5, and
+5. Check the `info@speakinurdu.com` inbox for the notification email too.
+6. Try the contact form and the newsletter signup in the footer the same way.
+7. Visit `yoursite.com/admin.php`, log in with the password from Step 5, and
    confirm your test submissions show up in each tab.
 
 If the booking shows up in the database but no email arrived, that's a
 mailbox problem (double-check Step 4) — the important part (the data) is
 still safe either way.
+
+---
+
+## Step 8 — Tell Google about the site
+
+The site serves `sitemap.xml` dynamically — it's always current, including
+any blog posts published from the dashboard, with no rebuild needed.
+Submitting it to Google speeds up how quickly new/changed pages get
+indexed, and lets you see indexing progress directly instead of guessing
+from search results.
+
+1. Go to [Google Search Console](https://search.google.com/search-console)
+   and sign in with the Google account you want to manage this site with.
+2. Click **Add property**, and choose **Domain** (not "URL prefix") when
+   asked which type — it verifies `speakinurdu.com` across `www`/non-`www`
+   and http/https all at once, so you only ever do this step once. Enter
+   `speakinurdu.com` and continue.
+3. Google shows a DNS TXT record to verify ownership, e.g.
+   `google-site-verification=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`.
+   Add it in Hostinger:
+   - hPanel → **Domains** → click `speakinurdu.com` → **DNS / Nameservers**
+     → **DNS Zone Editor**.
+   - **Add Record** → Type `TXT`, Name/Host `@`, Value: paste the exact
+     string Google gave you, TTL default.
+   - Save, then go back to Search Console and click **Verify**. DNS is
+     usually live within minutes on Hostinger, but can take a few hours —
+     if verification fails immediately, wait and try again before assuming
+     something's wrong.
+   (If the domain's DNS is managed somewhere other than Hostinger —
+   GoDaddy, Namecheap, Cloudflare — add the same TXT record there instead.)
+4. Once verified, in the left sidebar click **Sitemaps**.
+5. Under "Add a new sitemap", type `sitemap.xml` and click **Submit**.
+6. Give it a few hours to a few days. Come back to the **Sitemaps** page to
+   see how many pages Google has discovered vs. indexed, and check the
+   **Pages** report in the sidebar for anything marked "Excluded" with a
+   reason — that's the direct way to track indexing progress, instead of
+   guessing from a `site:speakinurdu.com` search.
+
+---
+
+## Step 8a — Writing and managing blog posts
+
+Once Steps 2–6 are done (database + admin password set up, site uploaded),
+the client can write and publish blog posts entirely from the browser —
+**no rebuild, no re-upload, no developer needed.** A published post is live
+at its own address (e.g. `speakinurdu.com/blog/my-post-title`) the instant
+it's saved.
+
+1. Go to `yoursite.com/admin.php` and log in (same password as the rest of
+   the dashboard).
+2. Click the **Blog Posts** tab, then **+ New Post**.
+3. Fill in:
+   - **Title** — the headline.
+   - **URL slug** — leave it blank and it fills itself in from the title.
+   - **Category** — pick one of the seven existing categories.
+   - **Short excerpt** — one or two sentences, shown in blog listings and
+     search results.
+   - **Cover photo** — optional but recommended, JPG/PNG/WEBP up to 5 MB.
+   - **Article body** — the write-up. Click "Formatting help" inside the
+     editor for the handful of special lines available (headings, bullet
+     lists, a highlighted tip box, and Urdu word/verse examples) — regular
+     paragraphs just need a blank line between them, nothing else to learn.
+   - **Published** — leave checked to make it live immediately, or uncheck
+     to save as a draft only visible in the dashboard.
+4. Click **Publish post** (or **Save changes** when editing). Done — the
+   post is live.
+
+From the **Blog Posts** list you can also **Edit**, **Unpublish** (takes it
+off the live site without deleting it), or **Delete** any post (this also
+removes its uploaded cover photo).
+
+**If uploading a cover photo fails with a size error**, Hostinger's PHP
+config may cap uploads below 5 MB by default — hPanel → **Advanced → PHP
+Configuration** → raise `upload_max_filesize` and `post_max_size`.
 
 ---
 
@@ -193,6 +313,11 @@ Whenever you make changes to the code:
 You only need to repeat Steps 2–5 (database, `db.php` credentials, email
 mailbox, admin password) if you're setting up on a *new* Hostinger account —
 not on every update.
+
+**Blog posts are the one exception** — see Step 8a. Writing, editing, or
+deleting a post from `/admin.php` needs none of this; it's live immediately
+because it's stored in the database and rendered fresh on every visit,
+not baked into the files you build and upload.
 
 ---
 
@@ -212,3 +337,9 @@ not on every update.
   `public/admin-config.php` — open that file (locally, or via File Manager
   on Hostinger) to check or reset it. There's no "forgot password" flow by
   design, since there's no second admin account to reset it for you.
+- **`/blog` shows "No posts in this category yet" even after publishing
+  one, or a blog page looks broken/unstyled**: make sure `schema.sql` was
+  run all the way through (Step 2) — it includes the `posts` table, and
+  re-running the whole file is always safe. Also confirm `blog.php`,
+  `blog-post.php`, `blog-lib.php`, `blog-layout.php`, `blog-icons.php`,
+  `sitemap.php`, and `.htaccess` all made it into `public_html` (Step 6).

@@ -7,554 +7,15 @@ import {
   GraduationCap, Globe, Sparkles, Menu, X, Award, Quote,
   Instagram, Facebook, Youtube, Linkedin, Video, Clock,
   Mail, Phone, MapPin, Send, Users, Compass, Heart, MessageCircle,
-  Calendar, Tag, ShieldCheck, Languages, Handshake, ArrowUpRight
+  Calendar, ShieldCheck
 } from "lucide-react";
 
 /* ================================================================== *
  *  Speak in Urdu — multi-route site
- *  Routes (hash-based):  #/  ·  #/courses  ·  #/courses/<slug>  ·  #/pricing
- *  Shared design tokens live once in <Styles/>.
+ *  Routes:  /  ·  /courses  ·  /courses/<slug>  ·  /pricing  ·  /blog (PHP)
+ *  Shared styles live in public/site.css, linked from index.html.
  * ================================================================== */
 
-const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;500;700&display=swap');
-
-html,body{margin:0; padding:0;}
-body{overflow-x:hidden;}
-.mu-root *{box-sizing:border-box;}
-.mu-root{
-  --paper:#EEF3EA; --card:#FFFFFF;
-  --emerald:#3F562E; --emerald-mid:#52713D; --emerald-tint:#E5EBE0;
-  --gold:#7A5A43; --gold-soft:#C9A45A;
-  --ink:#2F2F2F; --muted:#6B5F52; --border:#DCE6D6;
-  --rc:18px; --rb:12px;
-  --sh-sm:0 1px 2px rgba(47,47,47,.05), 0 6px 16px -8px rgba(47,47,47,.12);
-  --sh-md:0 2px 6px rgba(47,47,47,.06), 0 22px 48px -18px rgba(47,47,47,.22);
-  --maxw:1200px;
-  background:var(--paper); color:var(--ink);
-  font-family:"Manrope",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-  font-size:17px; line-height:1.62; -webkit-font-smoothing:antialiased;
-  letter-spacing:-0.003em;
-}
-.mu-root h1,.mu-root h2,.mu-root h3,.mu-root h4{
-  font-family:"Plus Jakarta Sans","Manrope",sans-serif;
-  color:var(--ink); line-height:1.1; margin:0; letter-spacing:-0.02em;
-}
-.mu-root p{margin:0;}
-.mu-root a{color:inherit; text-decoration:none;}
-.mu-root [id]{scroll-margin-top:88px;}
-.mu-urdu{font-family:"Noto Nastaliq Urdu",serif; line-height:2;}
-.mu-sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;}
-
-.mu-wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px;}
-.mu-section{padding:88px 0;}
-.mu-eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--emerald);}
-.mu-eyebrow::before{content:""; width:22px; height:1.5px; background:var(--gold); display:inline-block;}
-.mu-h2{font-size:clamp(28px,4.4vw,44px); font-weight:800;}
-.mu-lead{color:var(--muted); font-size:clamp(16px,2vw,18px); max-width:56ch; margin-top:14px;}
-.mu-center{text-align:center; margin:0 auto;}
-.mu-center .mu-lead{margin-left:auto; margin-right:auto;}
-
-/* buttons */
-.mu-btn{display:inline-flex; align-items:center; justify-content:center; gap:9px; font-weight:600; font-size:15.5px; cursor:pointer; border:1px solid transparent; font-family:inherit; transition:background .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease, border-color .2s ease; white-space:nowrap;}
-.mu-btn-lg{padding:15px 26px; border-radius:999px;}
-.mu-btn-md{padding:11px 20px; border-radius:var(--rb);}
-.mu-btn-primary{background:var(--emerald); color:#fff; box-shadow:var(--sh-sm);}
-.mu-btn-primary:hover{background:var(--emerald-mid); transform:translateY(-1px); box-shadow:var(--sh-md);}
-.mu-btn-ghost{background:#fff; color:var(--ink); border-color:var(--border);}
-.mu-btn-ghost:hover{border-color:var(--emerald); color:var(--emerald); transform:translateY(-1px);}
-.mu-btn-block{width:100%;}
-.mu-btn-gold{background:var(--gold-soft); color:#2F2F2F;}
-.mu-btn-gold:hover{background:#d8b43a; transform:translateY(-1px);}
-.mu-root :focus-visible{outline:2.5px solid var(--emerald); outline-offset:3px; border-radius:6px;}
-.mu-on-dark :focus-visible{outline-color:var(--gold-soft);}
-
-.mu-linkbtn{background:none; border:0; padding:0; margin:0; font:inherit; cursor:pointer; color:inherit; text-align:left;}
-.mu-textlink{display:inline-flex; align-items:center; gap:6px; color:var(--emerald); font-weight:600; font-size:14.5px; background:none; border:0; cursor:pointer; padding:0; font-family:inherit;}
-.mu-textlink:hover{color:var(--emerald-mid);}
-
-/* reveal */
-.mu-reveal{opacity:0; transform:translateY(20px); transition:opacity .6s ease, transform .6s cubic-bezier(.2,.75,.2,1);}
-.mu-reveal.is-in{opacity:1; transform:none;}
-
-/* pattern */
-.mu-pattern{position:absolute; inset:0; width:100%; height:100%; color:var(--emerald); opacity:.05; pointer-events:none;}
-
-/* ---------- header ---------- */
-.mu-header{position:sticky; top:0; z-index:60; background:var(--emerald); border-bottom:1px solid transparent; transition:box-shadow .25s ease;}
-.mu-header.is-stuck{box-shadow:0 8px 24px -20px rgba(20,40,32,.55);}
-.mu-nav{display:flex; align-items:center; justify-content:space-between; height:72px; gap:20px; color:#fff;}
-.mu-brand{display:flex; align-items:center; gap:9px; font-family:"Plus Jakarta Sans"; font-weight:800; font-size:19px; letter-spacing:-0.02em; background:none; border:0; cursor:pointer; color:inherit;}
-.mu-brand-full{display:block; flex-shrink:0; object-fit:contain;}
-.mu-navlinks{display:none; align-items:center; gap:26px;}
-.mu-navlinks button{font-family:inherit; background:none; border:0; cursor:pointer; font-size:14.5px; font-weight:500; color:rgba(255,255,255,.72); position:relative; padding:6px 0; transition:color .2s;}
-.mu-navlinks button:hover{color:#fff;}
-.mu-navlinks button::after{content:""; position:absolute; left:0; bottom:0; height:2px; width:0; background:var(--gold-soft); transition:width .25s ease;}
-.mu-navlinks button:hover::after, .mu-navlinks button.active::after{width:100%;}
-.mu-navlinks button.active{color:#fff;}
-.mu-navright{display:flex; align-items:center; gap:14px;}
-.mu-burger{display:inline-flex; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.28); border-radius:12px; padding:9px; cursor:pointer; color:#fff;}
-.mu-mobile{display:none; border-top:1px solid rgba(255,255,255,.16); background:var(--emerald); padding:14px 0 20px;}
-.mu-mobile.open{display:block;}
-.mu-mobile button.ml{display:block; width:100%; text-align:left; background:none; border:0; border-bottom:1px solid rgba(255,255,255,.16); font:inherit; font-weight:500; color:rgba(255,255,255,.85); padding:12px 4px; cursor:pointer; transition:color .15s ease;}
-.mu-mobile button.ml:hover{color:#fff;}
-.mu-mobile .mu-btn{margin-top:16px;}
-.mu-desktop-cta{display:none;}
-
-/* ---------- hero ---------- */
-.mu-hero{position:relative; overflow:hidden;}
-.mu-hero-inner{display:grid; grid-template-columns:1fr; gap:44px; align-items:center; padding:56px 0 84px;}
-.mu-hero h1{font-size:clamp(34px,6.2vw,60px); font-weight:800; margin-top:20px; max-width:14ch;}
-.mu-hero .mu-lead{margin-top:20px; font-size:clamp(17px,2.2vw,20px); max-width:50ch;}
-.mu-hero-ctas{display:flex; flex-wrap:wrap; gap:14px; margin-top:30px;}
-.mu-trustrow{display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px; margin-top:34px; padding-top:26px; border-top:1px solid var(--border); color:var(--muted); font-size:14.5px; font-weight:500;}
-.mu-trustrow .dot{width:4px; height:4px; border-radius:50%; background:var(--border);}
-.mu-stars{display:inline-flex; gap:2px; color:var(--gold);}
-.mu-stars svg{fill:var(--gold);}
-.mu-visual{position:relative; min-height:420px;}
-.mu-visual-urdu{position:absolute; right:-6px; top:-30px; font-size:150px; color:var(--emerald); opacity:.07; user-select:none; pointer-events:none;}
-.mu-vcard{position:relative; background:var(--card); border:1px solid var(--border); border-radius:22px; box-shadow:var(--sh-md); padding:24px; max-width:400px; margin-left:auto;}
-.mu-vcard .row1{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
-.mu-live{display:inline-flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color:var(--emerald); background:var(--emerald-tint); padding:6px 12px; border-radius:999px;}
-.mu-live .pulse{width:8px; height:8px; border-radius:50%; background:var(--emerald); position:relative;}
-.mu-live .pulse::after{content:""; position:absolute; inset:-4px; border-radius:50%; border:2px solid var(--emerald); animation:mu-ping 1.8s ease-out infinite;}
-.mu-vcard .label{font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); font-weight:600;}
-.mu-letters{display:flex; gap:10px; margin:14px 0 20px; justify-content:space-between;}
-.mu-letter{flex:1; aspect-ratio:1; background:var(--paper); border:1px solid var(--border); border-radius:14px; display:flex; align-items:center; justify-content:center; font-family:"Noto Nastaliq Urdu"; font-size:30px; color:var(--emerald); padding-bottom:6px;}
-.mu-letter.hot{background:var(--emerald); color:#fff; border-color:var(--emerald);}
-.mu-prog{height:8px; border-radius:999px; background:var(--emerald-tint); overflow:hidden;}
-.mu-prog span{display:block; height:100%; width:68%; background:linear-gradient(90deg,var(--emerald),var(--emerald-mid)); border-radius:999px;}
-.mu-vcard .progmeta{display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-top:10px;}
-.mu-chip{position:absolute; background:var(--card); border:1px solid var(--border); border-radius:16px; box-shadow:var(--sh-md); padding:12px 16px;}
-.mu-chip.rating{left:-8px; bottom:36px; display:flex; align-items:center; gap:10px;}
-.mu-chip.rating .big{font-family:"Plus Jakarta Sans"; font-weight:800; font-size:22px;}
-.mu-chip.wk{right:-6px; top:66px; display:none;}
-.mu-chip.wk .t{font-size:12px; color:var(--muted); font-weight:600;}
-.mu-chip.wk .v{font-family:"Plus Jakarta Sans"; font-weight:700; font-size:15px; display:flex; align-items:center; gap:6px; color:var(--emerald);}
-
-/* ---------- trust bar ---------- */
-.mu-trustbar{border-top:1px solid var(--border); border-bottom:1px solid var(--border); background:var(--card);}
-.mu-trustbar .grid{display:grid; grid-template-columns:repeat(2,1fr); gap:0;}
-.mu-stat{padding:30px 20px; text-align:center; border-right:1px solid var(--border); border-bottom:1px solid var(--border);}
-.mu-stat:nth-child(2n){border-right:0;}
-.mu-stat:nth-last-child(-n+2){border-bottom:0;}
-.mu-stat .n{font-family:"Plus Jakarta Sans"; font-weight:800; font-size:clamp(26px,3.4vw,34px); color:var(--emerald);}
-.mu-stat .l{color:var(--muted); font-size:14px; font-weight:500; margin-top:4px;}
-
-/* ---------- generic card grids ---------- */
-.mu-grid{display:grid; grid-template-columns:1fr; gap:20px; margin-top:44px;}
-.mu-card{background:var(--card); border:1px solid var(--border); border-radius:var(--rc); padding:26px; box-shadow:var(--sh-sm); transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease; height:100%;}
-.mu-card:hover{transform:translateY(-4px); box-shadow:var(--sh-md); border-color:#dcd6c9;}
-.mu-ico{width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center; background:var(--emerald-tint); color:var(--emerald); margin-bottom:16px;}
-.mu-card h3{font-size:19px; font-weight:700; margin-bottom:8px;}
-.mu-card p{color:var(--muted); font-size:15.5px;}
-
-/* course card */
-.mu-course{display:flex; flex-direction:column;}
-.mu-course .top{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px;}
-.mu-meta{font-size:12.5px; color:var(--muted); font-weight:600; letter-spacing:.02em;}
-.mu-course h3{font-size:20px;}
-.mu-course .desc{margin:8px 0 14px;}
-.mu-featlabel{font-size:11.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:9px;}
-.mu-bullets{list-style:none; padding:0; margin:0 0 20px; display:grid; gap:9px;}
-.mu-bullets li{display:flex; gap:9px; align-items:flex-start; font-size:14.5px; color:var(--ink);}
-.mu-bullets svg{color:var(--emerald); flex-shrink:0; margin-top:3px;}
-.mu-course .foot{margin-top:auto; display:flex; align-items:center; justify-content:space-between; gap:12px; padding-top:16px; border-top:1px solid var(--border);}
-.mu-course .links{display:flex; align-items:center; gap:14px;}
-.mu-price{font-family:"Plus Jakarta Sans"; font-weight:800; font-size:20px;}
-.mu-price small{font-family:"Manrope"; font-weight:600; font-size:12.5px; color:var(--muted); letter-spacing:.04em; text-transform:uppercase; display:block; margin-bottom:-2px;}
-
-/* ---------- how it works ---------- */
-.mu-steps{position:relative; margin-top:48px; display:grid; grid-template-columns:1fr; gap:22px;}
-.mu-step{position:relative; padding-left:60px;}
-.mu-step .num{position:absolute; left:0; top:0; width:44px; height:44px; border-radius:50%; background:var(--card); border:1.5px solid var(--emerald); color:var(--emerald); display:flex; align-items:center; justify-content:center; font-family:"Plus Jakarta Sans"; font-weight:800; box-shadow:var(--sh-sm);}
-.mu-step h3{font-size:17px; margin-bottom:5px;}
-.mu-step p{color:var(--muted); font-size:14.5px;}
-
-.mu-avatar{width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:"Plus Jakarta Sans"; font-weight:800; font-size:22px; color:#fff; background:linear-gradient(135deg,var(--emerald),var(--emerald-mid)); box-shadow:0 6px 16px -8px rgba(63,86,46,.6); position:relative;}
-.mu-avatar::after{content:""; position:absolute; inset:-4px; border-radius:50%; border:1.5px solid var(--gold-soft);}
-
-/* ---------- testimonials ---------- */
-.mu-testi{position:relative; overflow:hidden;}
-.mu-testi-track-wrap{overflow:hidden;}
-.mu-testi-track{display:flex; transition:transform .55s cubic-bezier(.22,.72,.2,1);}
-.mu-testi-slide{min-width:100%; padding:8px;}
-.mu-quotecard{background:var(--card); border:1px solid var(--border); border-radius:22px; box-shadow:var(--sh-sm); padding:38px 34px; max-width:760px; margin:0 auto; text-align:center; position:relative;}
-.mu-quotecard .qmark{color:var(--gold); opacity:.5; margin:0 auto 10px;}
-.mu-quotecard blockquote{font-family:"Plus Jakarta Sans"; font-weight:600; font-size:clamp(19px,2.6vw,25px); line-height:1.4; letter-spacing:-0.01em; margin:0;}
-.mu-quotecard cite{display:block; margin-top:18px; font-style:normal; color:var(--muted); font-weight:600; font-size:14.5px;}
-.mu-testi-controls{display:flex; align-items:center; justify-content:center; gap:18px; margin-top:26px;}
-.mu-arrow{width:44px; height:44px; border-radius:50%; background:var(--card); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink); transition:all .2s;}
-.mu-arrow:hover{border-color:var(--emerald); color:var(--emerald);}
-.mu-dots{display:flex; gap:8px;}
-.mu-dot{width:9px; height:9px; border-radius:50%; background:var(--border); border:0; padding:0; cursor:pointer; transition:all .25s;}
-.mu-dot.on{background:var(--gold); width:26px; border-radius:999px;}
-
-/* ---------- pricing cards ---------- */
-.mu-pricing-grid{display:grid; grid-template-columns:1fr; gap:22px; margin-top:40px; align-items:stretch;}
-.mu-plan{background:var(--card); border:1px solid var(--border); border-radius:20px; padding:30px 26px; box-shadow:var(--sh-sm); display:flex; flex-direction:column; position:relative;}
-.mu-plan.pop{border-color:var(--emerald); box-shadow:var(--sh-md);}
-.mu-popbadge{position:absolute; top:-13px; left:50%; transform:translateX(-50%); background:var(--gold-soft); color:#2F2F2F; font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; padding:6px 16px; border-radius:999px; display:inline-flex; align-items:center; gap:6px;}
-.mu-plan h3{font-size:20px; margin-bottom:4px;}
-.mu-plan .tagline{color:var(--muted); font-size:14.5px; min-height:22px;}
-.mu-planprice{font-family:"Plus Jakarta Sans"; font-weight:800; font-size:42px; margin:16px 0 2px; display:flex; align-items:baseline; gap:4px;}
-.mu-planprice small{font-size:16px; font-weight:600; color:var(--muted);}
-.mu-annnote{font-size:13px; color:var(--muted); min-height:20px; margin-bottom:6px;}
-.mu-annnote .save{color:var(--emerald); font-weight:700;}
-.mu-plan .incl{list-style:none; padding:0; margin:16px 0 26px; display:grid; gap:11px;}
-.mu-plan .incl li{display:flex; gap:10px; font-size:14.5px; align-items:flex-start;}
-.mu-plan .incl svg{color:var(--emerald); flex-shrink:0; margin-top:3px;}
-.mu-plan .btnwrap{margin-top:auto;}
-.mu-plan .subnote{text-align:center; font-size:12.5px; color:var(--muted); margin-top:12px;}
-
-/* ---------- faq ---------- */
-.mu-faq{max-width:820px; margin:44px auto 0;}
-.mu-faq-item{border-bottom:1px solid var(--border);}
-.mu-faq-q{width:100%; background:transparent; border:0; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:20px; padding:22px 4px; text-align:left; font-family:"Plus Jakarta Sans"; font-weight:700; font-size:17.5px; color:var(--ink);}
-.mu-faq-q .ic{flex-shrink:0; width:32px; height:32px; border-radius:50%; background:var(--emerald-tint); color:var(--emerald); display:flex; align-items:center; justify-content:center; transition:transform .3s ease;}
-.mu-faq-q[aria-expanded="true"] .ic{transform:rotate(180deg);}
-.mu-faq-a{overflow:hidden; max-height:0; transition:max-height .35s ease;}
-.mu-faq-a .inner{padding:0 4px 22px; color:var(--muted); font-size:15.5px; max-width:70ch;}
-
-/* ---------- final cta ---------- */
-.mu-final{position:relative; overflow:hidden; background:var(--emerald); color:#fff; border-radius:28px; margin:0 auto; padding:64px 32px; text-align:center;}
-.mu-final .mu-pattern{color:#fff; opacity:.08;}
-.mu-final h2{color:#fff; font-size:clamp(26px,4vw,40px); font-weight:800; max-width:18ch; margin:0 auto; position:relative;}
-.mu-final p{color:rgba(255,255,255,.85); margin:16px auto 30px; max-width:44ch; position:relative;}
-.mu-final .flourish{font-family:"Noto Nastaliq Urdu"; color:var(--gold-soft); font-size:34px; opacity:.9; margin-bottom:6px; position:relative;}
-
-/* ---------- footer ---------- */
-.mu-footer{position:relative; overflow:hidden; background:#2F2F2F; color:#EAE3D3; margin-top:96px; padding:64px 0 32px;}
-.mu-footer .mu-pattern{color:#fff; opacity:.04;}
-.mu-footcols{display:grid; grid-template-columns:1fr; gap:36px; position:relative;}
-.mu-footbrand .mu-brand{color:#fff;}
-.mu-footbrand p{color:#C9C0AE; font-size:14.5px; margin-top:12px; max-width:34ch;}
-.mu-footcol h4{color:#fff; font-size:13px; letter-spacing:.1em; text-transform:uppercase; margin-bottom:16px; font-family:"Plus Jakarta Sans";}
-.mu-footcol button.fl{display:block; background:none; border:0; cursor:pointer; font:inherit; text-align:left; color:#C9C0AE; font-size:14.5px; padding:6px 0; transition:color .2s;}
-.mu-footcol button.fl:hover{color:var(--gold-soft);}
-.mu-news{display:flex; gap:8px; margin-top:14px;}
-.mu-news input{flex:1; background:#262523; border:1px solid #4A473F; border-radius:12px; padding:11px 14px; color:#fff; font:inherit; font-size:14.5px;}
-.mu-news input::placeholder{color:#A69C89;}
-.mu-news input:focus{outline:2px solid var(--gold-soft); outline-offset:1px;}
-.mu-socials{display:flex; gap:10px; margin-top:18px;}
-.mu-socials a{width:38px; height:38px; border-radius:10px; border:1px solid #4A473F; display:flex; align-items:center; justify-content:center; color:#D6CDBA; transition:all .2s;}
-.mu-socials a:hover{background:var(--gold-soft); color:#2F2F2F; border-color:var(--gold-soft);}
-.mu-footbottom{position:relative; border-top:1px solid #3D3B36; margin-top:44px; padding-top:24px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; color:#A69C89; font-size:13.5px;}
-.mu-footbottom .mu-urdu{color:var(--gold-soft); font-size:22px; opacity:.85;}
-
-/* ---------- page hero + breadcrumb ---------- */
-.mu-pagehero{position:relative; overflow:hidden; border-bottom:1px solid var(--border);}
-.mu-pagehero .mu-wrap{padding-top:54px; padding-bottom:54px; position:relative;}
-.mu-crumb{display:flex; align-items:center; gap:8px; font-size:13.5px; color:var(--muted); font-weight:500; margin-bottom:18px; flex-wrap:wrap;}
-.mu-crumb button{background:none; border:0; padding:0; font:inherit; color:var(--muted); cursor:pointer;}
-.mu-crumb button:hover{color:var(--emerald);}
-.mu-crumb .sep{color:var(--border);}
-.mu-crumb .cur{color:var(--ink); font-weight:600;}
-
-/* ---------- course detail ---------- */
-.mu-detail-grid{display:grid; grid-template-columns:1fr; gap:34px; margin-top:8px;}
-.mu-detail-main > * + *{margin-top:40px;}
-.mu-detail-head .chips{display:flex; flex-wrap:wrap; gap:8px; margin:16px 0 4px;}
-.mu-chiptag{display:inline-flex; align-items:center; gap:7px; font-size:12.5px; font-weight:600; color:var(--emerald); background:var(--emerald-tint); padding:7px 13px; border-radius:999px;}
-.mu-block h2{font-size:24px; font-weight:800; margin-bottom:6px;}
-.mu-block .sub{color:var(--muted); margin-bottom:20px;}
-.mu-outcomes{list-style:none; padding:0; margin:0; display:grid; gap:13px;}
-.mu-outcomes li{display:flex; gap:12px; align-items:flex-start; font-size:16px;}
-.mu-outcomes svg{color:var(--emerald); flex-shrink:0; margin-top:4px;}
-.mu-detail-side .card{background:var(--card); border:1px solid var(--border); border-radius:20px; padding:24px; box-shadow:var(--sh-md);}
-.mu-detail-side .price{font-family:"Plus Jakarta Sans"; font-weight:800; font-size:34px; display:flex; align-items:baseline; gap:5px;}
-.mu-detail-side .price small{font-size:14px; font-weight:600; color:var(--muted);}
-.mu-detail-side .price .from{font-size:11.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); font-weight:700; display:block; margin-bottom:-2px;}
-.mu-tierlist{list-style:none; padding:0; margin:16px 0 0; display:grid; gap:0; border-top:1px solid var(--border);}
-.mu-tierlist li{display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:14px; padding:9px 0; border-bottom:1px solid var(--border); color:var(--muted);}
-.mu-tierlist li b{color:var(--ink); font-weight:700;}
-.mu-facts{list-style:none; padding:0; margin:20px 0; display:grid; gap:0;}
-.mu-facts li{display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:14.5px; padding:11px 0; border-bottom:1px solid var(--border);}
-.mu-facts li:last-child{border-bottom:0;}
-.mu-facts .k{color:var(--muted); display:inline-flex; align-items:center; gap:8px;}
-.mu-facts .v{font-weight:600; text-align:right;}
-.mu-side-cta{display:grid; gap:10px; margin-top:6px;}
-
-/* ---------- pricing page ---------- */
-.mu-billing{display:flex; flex-direction:column; align-items:center; gap:10px; margin-top:26px;}
-.mu-billing-toggle{display:inline-flex; align-items:center; background:var(--card); border:1px solid var(--border); border-radius:999px; padding:5px;}
-.mu-billing-toggle button{border:0; background:transparent; padding:9px 18px; border-radius:999px; cursor:pointer; font:inherit; font-weight:600; font-size:14.5px; color:var(--muted); display:inline-flex; align-items:center; gap:8px;}
-.mu-billing-toggle button.on{background:var(--emerald); color:#fff;}
-.mu-billing-label{font-size:13px; font-weight:600; letter-spacing:.02em; color:var(--muted);}
-.mu-fromlbl{font-size:15px; font-weight:600; color:var(--muted);}
-.mu-currency{font-size:.5em; font-weight:600; color:var(--muted); letter-spacing:.02em;}
-.mu-save-badge{font-size:11px; font-weight:800; letter-spacing:.03em; color:#2F2F2F; background:var(--gold-soft); padding:3px 8px; border-radius:999px;}
-
-/* ---------- payment page ---------- */
-.mu-paymethods{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:32px;}
-.mu-paymethods button{border:1px solid var(--border); background:var(--card); color:var(--ink); border-radius:999px; padding:10px 20px; font-size:14.5px; font-weight:700; cursor:pointer; transition:all .18s ease;}
-.mu-paymethods button:hover{border-color:var(--emerald); color:var(--emerald);}
-.mu-paymethods button.on{background:var(--emerald); border-color:var(--emerald); color:#fff;}
-.mu-paycard{background:var(--card); border:1px solid var(--border); border-radius:var(--rc); padding:34px; box-shadow:var(--sh-sm);}
-.mu-paycard h2{font-size:24px;}
-.mu-paycard .tagline{color:var(--emerald); font-weight:600; font-size:14px; margin-top:6px;}
-.mu-paycard .about{color:var(--muted); margin-top:12px; max-width:64ch; line-height:1.6;}
-.mu-paysteps{display:flex; flex-direction:column; gap:0; margin-top:28px; border-top:1px solid var(--border);}
-.mu-paystep{display:flex; gap:16px; align-items:flex-start; padding:16px 0; border-bottom:1px solid var(--border);}
-.mu-paystep .num{flex:0 0 auto; width:30px; height:30px; border-radius:50%; background:var(--emerald-tint); color:var(--emerald); display:flex; align-items:center; justify-content:center; font-family:"Plus Jakarta Sans"; font-weight:800; font-size:13.5px;}
-.mu-paystep p{margin:0; padding-top:4px; font-size:15px; line-height:1.55;}
-.mu-paytips{margin-top:28px; background:var(--paper); border-radius:14px; padding:20px 22px;}
-.mu-paytips h3{font-size:15px; margin-bottom:12px;}
-.mu-paytips ul{list-style:none; padding:0; margin:0; display:grid; gap:9px;}
-.mu-paytips li{display:flex; gap:9px; align-items:flex-start; font-size:14px; color:var(--muted);}
-.mu-paytips li svg{color:var(--emerald); flex-shrink:0; margin-top:2px;}
-.mu-paynote{display:flex; gap:16px; align-items:flex-start; background:var(--emerald-tint); border-radius:var(--rc); padding:26px 28px; margin-top:24px;}
-.mu-paynote svg{color:var(--emerald); flex-shrink:0; margin-top:2px;}
-.mu-paynote h3{font-size:16.5px;}
-.mu-paynote p{color:var(--muted); margin-top:6px; max-width:60ch; line-height:1.55;}
-.mu-paynote .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;}
-
-.mu-paybanner{display:flex; align-items:center; gap:16px; width:100%; text-align:left; background:linear-gradient(135deg, var(--emerald), var(--emerald-mid)); color:#fff; border:0; border-radius:var(--rc); padding:18px 24px; margin:28px 0 0; cursor:pointer; transition:transform .18s ease, box-shadow .18s ease; box-shadow:0 10px 30px -14px rgba(63,86,46,.55);}
-.mu-paybanner:hover{transform:translateY(-2px); box-shadow:0 16px 36px -14px rgba(63,86,46,.6);}
-.mu-paybanner-icon{flex:0 0 auto; width:42px; height:42px; border-radius:50%; background:rgba(255,255,255,.16); display:flex; align-items:center; justify-content:center;}
-.mu-paybanner-text{display:flex; flex-direction:column; gap:2px; flex:1; min-width:0;}
-.mu-paybanner-text strong{font-family:"Plus Jakarta Sans"; font-size:16px;}
-.mu-paybanner-text span{color:rgba(255,255,255,.85); font-size:13.5px; line-height:1.4;}
-.mu-paybanner-cta{flex:0 0 auto; display:flex; align-items:center; gap:6px; font-weight:700; font-size:14px; background:rgba(255,255,255,.14); padding:9px 16px; border-radius:999px; white-space:nowrap;}
-@media (max-width:640px){
-  .mu-paybanner{flex-wrap:wrap;}
-  .mu-paybanner-text{order:2; width:100%;}
-  .mu-paybanner-cta{order:3; width:100%; justify-content:center;}
-}
-
-
-/* star pop */
-.mu-anim-star{animation:mu-pop .5s cubic-bezier(.2,1.4,.4,1) both;}
-@keyframes mu-ping{0%{transform:scale(1);opacity:.7;}70%,100%{transform:scale(2.2);opacity:0;}}
-@keyframes mu-pop{0%{transform:scale(.4);opacity:0;}100%{transform:scale(1);opacity:1;}}
-
-
-/* ---------- shared: photos ---------- */
-.mu-photo{position:relative; overflow:hidden; border-radius:var(--rc); background:linear-gradient(135deg,var(--emerald),var(--emerald-mid)); isolation:isolate;}
-.mu-photo img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .6s ease; z-index:2;}
-.mu-photo.is-ok img{opacity:1;}
-.mu-art{position:absolute; inset:0; z-index:1; display:block;}
-.mu-art svg{position:absolute; inset:0; width:100%; height:100%; display:block;}
-.mu-art-word{position:absolute; left:50%; top:50%; transform:translate(-50%,-54%); color:rgba(255,255,255,.96); font-size:clamp(28px,5.5vw,50px); line-height:2; white-space:nowrap; text-align:center; text-shadow:0 2px 16px rgba(0,0,0,.22);}
-.mu-art-word::after{content:""; display:block; width:42px; height:3px; background:var(--gold); border-radius:2px; margin:0 auto;}
-.mu-art-ico{position:absolute; left:14px; bottom:12px; width:30px; height:30px; border-radius:9px; background:rgba(255,255,255,.16); color:#fff; display:grid; place-items:center; backdrop-filter:blur(4px);}
-.mu-visual-photo .mu-art-word{font-size:44px;}
-.mu-detail-banner .mu-art-word,.mu-post-banner .mu-art-word{font-size:clamp(30px,4vw,46px);}
-.mu-course-media .mu-art-word,.mu-postcard-media .mu-art-word{font-size:32px;}
-.mu-contact-photo .mu-art-word{font-size:34px;}
-.mu-skip{position:fixed; top:-100px; left:16px; z-index:200; background:var(--emerald); color:#fff; font-weight:700; font-size:14px; padding:10px 18px; border-radius:999px; box-shadow:var(--sh-md); transition:top .15s ease;}
-.mu-skip:focus{top:14px; outline:2px solid var(--gold); outline-offset:2px;}
-#main-content:focus{outline:none;}
-.mu-photo-ov{position:absolute; inset:0; z-index:3; pointer-events:none; background:linear-gradient(180deg,transparent 42%,rgba(47,47,47,.5));}
-
-.mu-visual-photo{display:none; position:absolute; top:6px; right:-4px; width:300px; transform:rotate(3deg); box-shadow:var(--sh-md); z-index:1;}
-.mu-visual .mu-vcard{z-index:2;}
-.mu-visual .mu-chip{z-index:2;}
-
-.mu-course{overflow:hidden;}
-.mu-course-media{margin:-26px -26px 20px; border-radius:0;}
-.mu-detail-banner{box-shadow:var(--sh-md); min-height:180px;}
-.mu-post-banner{margin-bottom:28px; min-height:150px;}
-
-/* ---------- shared: small bits ---------- */
-.mu-h3{font-family:"Plus Jakarta Sans",sans-serif; font-weight:700; font-size:20px; line-height:1.3;}
-.mu-narrow{max-width:780px;}
-.mu-avatar.tiny{width:28px; height:28px; font-size:11px; border-radius:9px;}
-.mu-avatar.tiny::after{border-radius:11px; inset:-3px;}
-
-/* ---------- about ---------- */
-.mu-about-split{display:grid; gap:44px; align-items:start;}
-.mu-about-stats{display:flex; flex-wrap:wrap; gap:14px 34px; margin-top:26px; padding-top:22px; border-top:1px solid var(--border);}
-.mu-about-stats .stat .n{display:block; font-family:"Plus Jakarta Sans"; font-weight:800; font-size:26px; color:var(--emerald);}
-.mu-about-stats .stat .l{font-size:13px; color:var(--muted);}
-.mu-about-timeline{display:flex; flex-direction:column; gap:0;}
-.mu-mile{display:flex; gap:18px; padding:18px 0; border-bottom:1px solid var(--border);}
-.mu-mile:last-child{border-bottom:0;}
-.mu-mile .yr{flex:0 0 auto; font-family:"Plus Jakarta Sans"; font-weight:800; color:var(--emerald); background:var(--emerald-tint); border-radius:10px; padding:6px 12px; height:fit-content; font-size:14px;}
-.mu-mile h3{font-size:16px; margin-bottom:4px;}
-.mu-mile p{font-size:14px; color:var(--muted);}
-.mu-teamcard{text-align:center; display:flex; flex-direction:column; align-items:center;}
-.mu-teamcard .mu-avatar{margin-bottom:14px;}
-.mu-teamcard .role{display:block; font-size:13px; color:var(--emerald); font-weight:600; margin:2px 0 10px;}
-.mu-teamcard p{font-size:14px; color:var(--muted);}
-
-/* ---------- filters (teachers + blog) ---------- */
-.mu-filterbar{display:flex; flex-wrap:wrap; gap:10px; margin-top:26px;}
-.mu-filterchip{border:1px solid var(--border); background:var(--card); color:var(--ink); border-radius:999px; padding:8px 16px; font-size:14px; font-weight:600; cursor:pointer; transition:all .18s ease;}
-.mu-filterchip:hover{border-color:var(--emerald); color:var(--emerald);}
-.mu-filterchip.on{background:var(--emerald); border-color:var(--emerald); color:#fff;}
-.mu-resultcount{margin-top:16px; font-size:13px; color:var(--muted);}
-
-/* ---------- blog ---------- */
-.mu-catpill{display:inline-flex; align-items:center; gap:6px; background:var(--emerald-tint); color:var(--emerald); border-radius:999px; padding:6px 12px; font-size:13px; font-weight:700; width:fit-content;}
-.mu-catpill.sm{padding:4px 10px; font-size:12px;}
-.mu-postmeta{display:flex; align-items:center; gap:9px; font-size:13px; color:var(--muted); margin-top:14px;}
-.mu-postmeta .dot{width:3px; height:3px; border-radius:50%; background:var(--muted); display:inline-block;}
-.mu-feature{display:grid; text-align:left; width:100%; border:1px solid var(--border); background:var(--card); border-radius:var(--rc); box-shadow:var(--sh-sm); overflow:hidden; cursor:pointer; padding:0; transition:transform .25s ease, box-shadow .25s ease;}
-.mu-feature:hover{transform:translateY(-4px); box-shadow:var(--sh-md);}
-.mu-feature-body{padding:30px; display:flex; flex-direction:column; align-items:flex-start; gap:12px;}
-.mu-feature-body h2{font-size:clamp(22px,3vw,30px);}
-.mu-feature-body p{color:var(--muted);}
-.mu-feature-art{position:relative; min-height:220px; background:linear-gradient(135deg,var(--emerald),var(--emerald-mid));}
-.mu-feature-art .mu-photo{position:absolute; inset:0; height:100%; border-radius:0;}
-.mu-postcard{text-align:left; cursor:pointer; padding:0; overflow:hidden; display:flex; flex-direction:column;}
-.mu-postcard-media{border-radius:0; flex:0 0 auto;}
-.mu-postcard-body{padding:22px 26px 26px; display:flex; flex-direction:column; align-items:flex-start; gap:10px; flex:1;}
-.mu-postcard-body h3{font-size:18px; line-height:1.35;}
-.mu-postcard-body p{font-size:14px; color:var(--muted);}
-.mu-postcard-body .mu-textlink{margin-top:auto; padding-top:6px;}
-.mu-posthero{padding-bottom:34px;}
-.mu-article-lead{font-size:clamp(17px,2.2vw,20px); color:var(--muted); line-height:1.7; margin-bottom:26px;}
-.mu-article h2{font-size:clamp(20px,2.6vw,26px); margin:36px 0 12px;}
-.mu-article p{line-height:1.8; margin-bottom:16px; color:#2b3833;}
-.mu-article ul{margin:0 0 18px 20px; display:flex; flex-direction:column; gap:8px;}
-.mu-article li{line-height:1.65; color:#2b3833;}
-.mu-callout{display:flex; gap:14px; background:var(--emerald-tint); border:1px solid #d8e8e0; border-radius:14px; padding:18px 20px; margin:24px 0;}
-.mu-callout .ic{flex:0 0 auto; color:var(--emerald); margin-top:2px;}
-.mu-callout p{margin:0; font-size:15px;}
-.mu-urduex{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px 22px; margin:24px 0; box-shadow:var(--sh-sm);}
-.mu-urduex .ur{display:block; direction:rtl; font-size:26px; line-height:2; color:var(--emerald); margin-bottom:6px;}
-.mu-urduex .tr{display:block; font-style:italic; color:var(--ink); font-weight:600; margin-bottom:2px;}
-.mu-urduex .en{display:block; font-size:14px; color:var(--muted);}
-.mu-verse{border-left:3px solid var(--gold); background:var(--card); border-radius:0 14px 14px 0; padding:22px 24px; margin:26px 0;}
-.mu-verse .ur{display:block; direction:rtl; font-size:22px; line-height:2.2; color:var(--ink);}
-.mu-verse cite{display:block; margin-top:10px; font-style:normal; font-size:13px; color:var(--muted);}
-.mu-post-cta{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:18px; background:var(--emerald-tint); border:1px solid #d8e8e0; border-radius:var(--rc); padding:26px 28px; margin-top:40px;}
-.mu-post-cta h3{font-size:19px; margin-bottom:4px;}
-.mu-post-cta p{color:var(--muted); font-size:14px;}
-
-/* ---------- contact ---------- */
-.mu-contact-grid{display:grid; gap:28px; align-items:start; margin-top:8px;}
-.mu-formcard{padding:30px;}
-.mu-form{display:flex; flex-direction:column; gap:18px;}
-.mu-field{display:flex; flex-direction:column; gap:7px;}
-.mu-field label{font-size:14px; font-weight:600;}
-.mu-field input,.mu-field select,.mu-field textarea{font:inherit; font-size:16px; color:var(--ink); background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:12px 14px; width:100%; transition:border-color .15s ease, box-shadow .15s ease;}
-.mu-field textarea{resize:vertical; min-height:120px;}
-.mu-field input:focus,.mu-field select:focus,.mu-field textarea:focus{outline:none; border-color:var(--emerald); box-shadow:0 0 0 3px rgba(63,86,46,.14);}
-.mu-field.err input,.mu-field.err select,.mu-field.err textarea{border-color:#c04343; box-shadow:0 0 0 3px rgba(192,67,67,.12);}
-.mu-field .hint{font-size:12.5px; color:#c04343;}
-.mu-field .hint-plain{font-size:12.5px; color:var(--muted);}
-.err{font-size:12.5px; color:#c04343;}
-.mu-selectwrap{position:relative;}
-.mu-selectwrap select{appearance:none; padding-right:40px; cursor:pointer;}
-.mu-selectwrap svg{position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--muted); pointer-events:none;}
-.mu-formnote{font-size:13px; color:var(--muted); display:flex; align-items:center; gap:7px;}
-.mu-sent{text-align:center; padding:34px 10px; display:flex; flex-direction:column; align-items:center; gap:10px;}
-.mu-sent .ic{width:56px; height:56px; border-radius:50%; background:var(--emerald-tint); color:var(--emerald); display:grid; place-items:center;}
-.mu-sent p{color:var(--muted); max-width:38ch;}
-.mu-contactinfo{display:flex; flex-direction:column; gap:22px;}
-.mu-contact-photo{box-shadow:var(--sh-sm);}
-.mu-inforow{display:flex; gap:14px; align-items:flex-start; padding:12px 0; border-bottom:1px solid var(--border); color:inherit; text-decoration:none;}
-.mu-inforow:last-of-type{border-bottom:0;}
-.mu-inforow .ic{flex:0 0 auto; width:38px; height:38px; border-radius:11px; background:var(--emerald-tint); color:var(--emerald); display:grid; place-items:center;}
-.mu-inforow .k{display:block; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600;}
-.mu-inforow .v{display:block; font-weight:600; margin-top:2px;}
-a.mu-inforow:hover .v{color:var(--emerald);}
-.mu-infosocials{margin-top:4px;}
-.mu-socials.tight a{background:var(--emerald-tint); border-color:#d8e8e0; color:var(--emerald);}
-.mu-socials.tight a:hover{background:var(--emerald); color:#fff; border-color:var(--emerald);}
-.mu-map{margin-top:2px;}
-.mu-map-inner{border:2px dashed var(--border); border-radius:var(--rc); padding:30px 22px; text-align:center; color:var(--muted); display:flex; flex-direction:column; align-items:center; gap:6px; background:var(--card);}
-.mu-map-inner strong{color:var(--ink);}
-.mu-map-inner span{font-size:13.5px;}
-
-/* ---------- book trial modal ---------- */
-.mu-modal-overlay{position:fixed; inset:0; z-index:120; background:rgba(20,24,17,.55); backdrop-filter:blur(3px); display:flex; align-items:center; justify-content:center; padding:20px; overflow-y:auto;}
-.mu-modal{position:relative; width:100%; max-width:560px; max-height:calc(100vh - 40px); overflow-y:auto; background:var(--card); border-radius:24px; box-shadow:var(--sh-md); padding:34px 30px; margin:auto; animation:mu-modal-in .25s cubic-bezier(.2,.75,.2,1);}
-@keyframes mu-modal-in{from{opacity:0; transform:translateY(14px) scale(.98);} to{opacity:1; transform:none;}}
-.mu-modal-close{position:absolute; top:18px; right:18px; width:36px; height:36px; border-radius:50%; background:var(--paper); border:1px solid var(--border); color:var(--ink); display:flex; align-items:center; justify-content:center; cursor:pointer;}
-.mu-modal-close:hover{background:var(--border);}
-.mu-modal-title{font-size:23px; margin-right:36px;}
-.mu-modal-sub{color:var(--muted); font-size:14.5px; margin:6px 0 22px;}
-.mu-field-row{display:grid; grid-template-columns:1fr; gap:18px;}
-.mu-hp{position:absolute; left:-9999px; width:1px; height:1px; opacity:0; pointer-events:none;}
-@media(min-width:480px){
-  .mu-field-row{grid-template-columns:1fr 1fr;}
-}
-
-/* ---------- floating buttons ---------- */
-.mu-float-stack{position:fixed; right:20px; bottom:20px; z-index:80; display:flex; flex-direction:column-reverse; align-items:flex-end; gap:12px;}
-.mu-totop{display:flex; align-items:center; justify-content:center; width:46px; height:46px; border-radius:50%; background:var(--card); color:var(--emerald); border:1px solid var(--border); box-shadow:var(--sh-md); cursor:pointer; opacity:0; transform:translateY(8px) scale(.9); pointer-events:none; transition:opacity .2s ease, transform .2s ease;}
-.mu-totop.show{opacity:1; transform:none; pointer-events:auto;}
-.mu-totop:hover{background:var(--emerald); color:#fff; border-color:var(--emerald); transform:translateY(-2px);}
-
-/* ---------- chat bot ---------- */
-.mu-chat-root{position:relative;}
-.mu-chat-toggle{display:flex; align-items:center; justify-content:center; width:56px; height:56px; border-radius:50%; border:0; background:var(--emerald); color:#fff; cursor:pointer; box-shadow:0 10px 26px rgba(63,86,46,.4); transition:transform .2s ease, background .2s ease;}
-.mu-chat-toggle:hover{transform:translateY(-2px); background:var(--emerald-mid);}
-.mu-chat-panel{position:absolute; right:0; bottom:68px; width:min(340px, calc(100vw - 40px)); max-height:min(480px, calc(100vh - 140px)); background:var(--card); border:1px solid var(--border); border-radius:18px; box-shadow:var(--sh-md); display:flex; flex-direction:column; overflow:hidden; animation:mu-modal-in .2s ease;}
-.mu-chat-head{display:flex; align-items:center; justify-content:space-between; padding:14px 16px; background:var(--emerald); color:#fff; flex-shrink:0;}
-.mu-chat-head b{display:block; font-size:14.5px;}
-.mu-chat-head span{display:block; font-size:12px; opacity:.8; margin-top:1px;}
-.mu-chat-close{background:rgba(255,255,255,.16); border:0; border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; flex-shrink:0;}
-.mu-chat-list{flex:1; overflow-y:auto; padding:14px 14px 4px; display:flex; flex-direction:column; gap:10px; min-height:160px;}
-.mu-chat-msg{display:flex; flex-direction:column;}
-.mu-chat-msg.user{align-items:flex-end;}
-.mu-chat-msg.bot{align-items:flex-start;}
-.mu-chat-msg p{margin:0; padding:9px 13px; border-radius:14px; font-size:13.5px; line-height:1.5; max-width:85%;}
-.mu-chat-msg.bot p{background:var(--paper); color:var(--ink); border-bottom-left-radius:4px;}
-.mu-chat-msg.user p{background:var(--emerald); color:#fff; border-bottom-right-radius:4px;}
-.mu-chat-actions{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
-.mu-chat-actions button,.mu-chat-actions a{display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:600; padding:7px 12px; border-radius:999px; border:1px solid var(--border); background:var(--card); color:var(--emerald); cursor:pointer; text-decoration:none;}
-.mu-chat-actions button:hover,.mu-chat-actions a:hover{background:var(--emerald-tint);}
-.mu-chat-suggestions{display:flex; flex-direction:column; gap:6px; margin-top:2px;}
-.mu-chat-suggestions button{text-align:left; font-size:12.5px; font-weight:500; padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:var(--paper); color:var(--ink); cursor:pointer;}
-.mu-chat-suggestions button:hover{border-color:var(--emerald); color:var(--emerald);}
-.mu-chat-input{display:flex; gap:8px; padding:12px; border-top:1px solid var(--border); flex-shrink:0;}
-.mu-chat-input input{flex:1; min-width:0; border:1px solid var(--border); border-radius:10px; padding:9px 12px; font-size:13.5px; font:inherit;}
-.mu-chat-input input:focus{outline:none; border-color:var(--emerald);}
-.mu-chat-input button{width:36px; height:36px; flex-shrink:0; border-radius:10px; border:0; background:var(--emerald); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer;}
-.mu-chat-input button:hover{background:var(--emerald-mid);}
-
-/* ---------- responsive ---------- */
-@media(min-width:700px){
-  .mu-grid{grid-template-columns:repeat(2,1fr);}
-  .mu-steps{grid-template-columns:repeat(2,1fr); gap:28px 24px;}
-  .mu-footcols{grid-template-columns:1.4fr 1fr 1fr; gap:44px;}
-  .mu-chip.wk{display:block;}
-}
-@media(min-width:800px){
-  .mu-detail-grid{grid-template-columns:1.6fr .9fr; gap:44px; align-items:start;}
-  .mu-detail-side{position:sticky; top:92px;}
-}
-@media(min-width:900px){
-  .mu-section{padding:104px 0;}
-  .mu-about-split{grid-template-columns:1.05fr .95fr;}
-  .mu-contact-grid{grid-template-columns:1.1fr .9fr;}
-  .mu-feature{grid-template-columns:1.15fr .85fr;}
-  .mu-feature-art{min-height:100%;}
-  .mu-trustbar .grid{grid-template-columns:repeat(4,1fr);}
-  .mu-stat{border-bottom:0 !important;}
-  .mu-stat:last-child{border-right:0;}
-  .mu-pricing-grid{grid-template-columns:repeat(3,1fr);}
-  .mu-pricing-grid.cols2{grid-template-columns:repeat(2,1fr); max-width:720px; margin-left:auto; margin-right:auto;}
-  .mu-pricing-grid.cols4{grid-template-columns:repeat(2,1fr);}
-  .mu-plan.pop{transform:translateY(-14px);}
-  .mu-footcols{grid-template-columns:1.6fr 1fr 1fr 1.3fr;}
-}
-@media(min-width:1000px){
-  .mu-navlinks{display:flex;}
-  .mu-visual-photo{display:block;}
-  .mu-burger{display:none;}
-  .mu-desktop-cta{display:inline-flex;}
-  .mu-grid.cols3{grid-template-columns:repeat(3,1fr);}
-  .mu-pricing-grid.cols4{grid-template-columns:repeat(4,1fr);}
-  .mu-hero-inner{grid-template-columns:1.05fr .95fr; gap:56px;}
-  .mu-steps{grid-template-columns:repeat(5,1fr); gap:20px;}
-  .mu-step{padding-left:0; padding-top:60px;}
-  .mu-steps::before{content:""; position:absolute; left:22px; right:22px; top:22px; height:1.5px; background:linear-gradient(90deg,var(--border),var(--emerald),var(--border)); z-index:0;}
-  .mu-final{padding:80px 48px;}
-}
-@media(prefers-reduced-motion:reduce){
-  .mu-root *{animation:none !important;}
-  .mu-reveal{opacity:1 !important; transform:none !important; transition:none !important;}
-  .mu-testi-track{transition:none !important;}
-  .mu-live .pulse::after{display:none;}
-  .mu-photo img{transition:none !important;}
-  .mu-chat-toggle,.mu-chat-panel,.mu-filterchip,.mu-feature{transition:none !important;}
-}
-`;
 
 /* ================= data ================= */
 const STATS = [
@@ -787,177 +248,6 @@ const FOUNDERS = [
   { initials:"NF", name:"Nadia F.", role:"Lead Teacher-Trainer", line:"Coaches every new ustaad who joins." },
 ];
 
-/* ================= blog ================= */
-const BLOG_CATEGORIES = [
-  "Learn Urdu", "Grammar", "Vocabulary", "Urdu Poetry", "Culture", "Travel", "Kids",
-];
-
-const POSTS = [
-  {
-    slug:"start-learning-urdu-from-zero",
-    title:"How to Start Learning Urdu From Absolute Zero",
-    cat:"Learn Urdu",
-    date:"Jun 28, 2026", read:"6 min",
-    author:{ name:"Ustadha Ayesha K.", initials:"AK" },
-    excerpt:"Never seen the Urdu script before? Here's a calm, realistic first month that takes you from the alphabet to your first sentences.",
-    body:[
-      { type:"p", text:"If Urdu looks like beautiful but unreadable calligraphy right now, you're exactly where almost every one of our students started. The good news: Urdu is remarkably learnable when you follow a clear order instead of jumping around." },
-      { type:"h", text:"Week 1 — Meet the sounds, not the whole alphabet" },
-      { type:"p", text:"Urdu has 39 letters, but you don't memorize them like a list. Start with the most common sounds and the way letters change shape at the beginning, middle, and end of a word. Ten minutes of tracing a day beats an hour of cramming." },
-      { type:"h", text:"Week 2 — Read three-letter words" },
-      { type:"p", text:"Once a handful of letters feel familiar, you'll read your first real words. This is the moment students light up — the squiggles become language." },
-      { type:"urdu", ur:"سلام", tr:"salaam", en:"peace / hello" },
-      { type:"h", text:"Weeks 3–4 — Your first sentences" },
-      { type:"p", text:"With a small set of words plus two or three verbs, you can already introduce yourself and ask simple questions. Speaking early — even badly — is what makes it stick." },
-      { type:"tip", text:"Don't try to learn reading, writing, and speaking all at once from day one. Lead with sounds and speaking; let reading and writing follow. A teacher sequences this for you automatically." },
-      { type:"p", text:"That's the whole secret of a good first month: small daily contact, in the right order, with someone to correct you gently." },
-    ],
-  },
-  {
-    slug:"urdu-alphabet-explained",
-    title:"The Urdu Alphabet, Gently Explained",
-    cat:"Learn Urdu",
-    date:"Jun 20, 2026", read:"7 min",
-    author:{ name:"Ustadha Hina N.", initials:"HN" },
-    excerpt:"Why do letters change shape? What's a nuqta? A friendly tour of the script written for people who've never read right-to-left.",
-    body:[
-      { type:"p", text:"Urdu is written right-to-left in the flowing Nastaliq style. Two ideas make the whole script suddenly make sense." },
-      { type:"h", text:"1. Letters change shape by position" },
-      { type:"p", text:"Most letters have an initial, medial, and final form. They're the same letter — just joined differently depending on where they sit in the word. Once you see it, you can't un-see it." },
-      { type:"h", text:"2. Dots (nuqte) do a lot of work" },
-      { type:"p", text:"Several letters share the same base shape and are told apart only by the number and position of their dots. Learn the base shapes first; the dots come naturally after." },
-      { type:"tip", text:"Practice by writing your own name. It's the single most motivating first exercise there is." },
-    ],
-  },
-  {
-    slug:"urdu-verb-tenses-basics",
-    title:"Urdu Verb Tenses Without the Panic",
-    cat:"Grammar",
-    date:"Jun 12, 2026", read:"8 min",
-    author:{ name:"Ustad Bilal R.", initials:"BR" },
-    excerpt:"Present, past, future — Urdu tenses are more regular than English. Here's the pattern that unlocks all three.",
-    body:[
-      { type:"p", text:"English learners are often relieved to find that Urdu verbs follow tidy patterns. Master one root and you can build a lot." },
-      { type:"h", text:"The core idea: root + ending" },
-      { type:"p", text:"Urdu verbs are built from a root that takes predictable endings for gender, number, and tense. Once the endings are familiar, new verbs slot straight in." },
-      { type:"urdu", ur:"میں پڑھتا ہوں", tr:"main parhta hoon", en:"I read / I am reading (masculine speaker)" },
-      { type:"p", text:"Notice how the verb ending agrees with the speaker. That agreement is the one habit worth drilling early — it shows up everywhere." },
-      { type:"tip", text:"Learn verbs in full short sentences, never as bare dictionary forms. Your brain remembers patterns, not lists." },
-    ],
-  },
-  {
-    slug:"gender-in-urdu-grammar",
-    title:"Grammatical Gender in Urdu: A Practical Guide",
-    cat:"Grammar",
-    date:"May 30, 2026", read:"6 min",
-    author:{ name:"Ustad Tariq F.", initials:"TF" },
-    excerpt:"Every Urdu noun is masculine or feminine, and it changes the words around it. Here's how to stop guessing.",
-    body:[
-      { type:"p", text:"Gender in Urdu isn't about meaning — it's a grammatical category that affects adjectives and verbs. The trick is to learn each noun together with its gender from the start." },
-      { type:"list", items:[
-        "Learn the noun and its gender as one unit, like a single flashcard.",
-        "Watch the adjective ending — it shifts to agree with the noun.",
-        "Read and listen a lot; agreement becomes intuition faster than you'd expect.",
-      ]},
-      { type:"tip", text:"When you meet a new noun, immediately say a tiny phrase with an adjective. The ending will lock the gender into memory." },
-    ],
-  },
-  {
-    slug:"100-everyday-urdu-words",
-    title:"The First 100 Urdu Words Worth Knowing",
-    cat:"Vocabulary",
-    date:"May 22, 2026", read:"5 min",
-    author:{ name:"Ustadha Maria J.", initials:"MJ" },
-    excerpt:"Vocabulary is leverage. These everyday words appear constantly — learn them and you'll understand far more than 100 words' worth.",
-    body:[
-      { type:"p", text:"Not all words are equal. A small core of high-frequency words carries an outsized share of everyday conversation. Start here rather than with random lists." },
-      { type:"h", text:"Greetings and courtesy" },
-      { type:"urdu", ur:"شکریہ", tr:"shukriya", en:"thank you" },
-      { type:"h", text:"People and family" },
-      { type:"p", text:"Family words come up constantly — especially for heritage learners reconnecting with relatives. They're emotional, memorable, and immediately useful." },
-      { type:"tip", text:"Group new words by theme, not alphabetically. Themed clusters stick because your brain links them together." },
-    ],
-  },
-  {
-    slug:"reading-ghalib-for-beginners",
-    title:"Reading Ghalib: An Invitation for Beginners",
-    cat:"Urdu Poetry",
-    date:"May 10, 2026", read:"7 min",
-    author:{ name:"Ustad Tariq F.", initials:"TF" },
-    excerpt:"Classical Urdu poetry can feel intimidating. Start with one line, one image, and let the language do the rest.",
-    body:[
-      { type:"p", text:"Mirza Ghalib (1797–1869) is the poet many learners fall in love with. Because his work is more than a century and a half old, it sits firmly in the public domain — and it's a wonderful, safe place to begin reading real poetry." },
-      { type:"p", text:"You don't need advanced Urdu to feel a couplet. Start with a single, famous line and read it slowly, aloud." },
-      { type:"quote", text:"ہزاروں خواہشیں ایسی کہ ہر خواہش پہ دم نکلے", by:"Mirza Ghalib" },
-      { type:"p", text:"Transliterated: hazaaron khwahishen aisi ke har khwahish pe dam nikle — 'a thousand desires, each one enough to take my breath.' Notice how much feeling rides on a handful of words." },
-      { type:"tip", text:"Read classical couplets out loud before you fully understand them. The rhythm teaches your ear, and meaning follows." },
-      { type:"p", text:"In our Advanced course we read Ghalib and other classical poets line by line — never rushing, always savoring." },
-    ],
-  },
-  {
-    slug:"why-urdu-poetry-matters",
-    title:"Why Urdu Poetry Still Moves Millions",
-    cat:"Urdu Poetry",
-    date:"Apr 28, 2026", read:"6 min",
-    author:{ name:"Ustadha Sana M.", initials:"SM" },
-    excerpt:"From mushairas to song lyrics, poetry is woven into daily life. Understanding a little unlocks a whole culture.",
-    body:[
-      { type:"p", text:"In much of South Asia, poetry isn't a niche hobby — it's everywhere: in conversation, in film songs, in the way people express love and grief. Learning even a little transforms how you hear the language." },
-      { type:"h", text:"The ghazal, briefly" },
-      { type:"p", text:"The ghazal is a form of independent couplets bound by rhyme and refrain. Each couplet can stand alone, which is why single lines travel so well through culture." },
-      { type:"tip", text:"You'll enjoy poetry far sooner if you learn to read the script fluently first. Reading speed is what lets the music come through." },
-    ],
-  },
-  {
-    slug:"urdu-culture-etiquette",
-    title:"Urdu Culture & Etiquette: What Learners Should Know",
-    cat:"Culture",
-    date:"Apr 16, 2026", read:"6 min",
-    author:{ name:"Ustadha Sana M.", initials:"SM" },
-    excerpt:"Language and culture travel together. A few customs around greetings, hospitality, and respect go a long way.",
-    body:[
-      { type:"p", text:"Speaking a language well means understanding the culture behind it. In Urdu-speaking communities, a few small courtesies signal warmth and respect instantly." },
-      { type:"list", items:[
-        "Greetings matter — taking a moment to ask after family is normal and appreciated.",
-        "Hospitality is generous; accepting tea graciously is part of the ritual.",
-        "Respectful address for elders is built right into the grammar itself.",
-      ]},
-      { type:"tip", text:"Ask your teacher about the 'why' behind a custom, not just the 'what.' The stories make the language memorable." },
-    ],
-  },
-  {
-    slug:"urdu-phrases-for-travel",
-    title:"20 Urdu Phrases That Make Travel Easier",
-    cat:"Travel",
-    date:"Apr 4, 2026", read:"5 min",
-    author:{ name:"Ustad Adnan R.", initials:"AR" },
-    excerpt:"Heading to Pakistan or visiting family? A handful of phrases turns nervous gestures into real, warm conversations.",
-    body:[
-      { type:"p", text:"You don't need fluency to travel well — you need the right twenty phrases, said with a smile. Locals respond warmly to any effort to speak Urdu." },
-      { type:"h", text:"The essentials" },
-      { type:"urdu", ur:"یہ کتنے کا ہے؟", tr:"yeh kitne ka hai?", en:"how much is this?" },
-      { type:"p", text:"Add greetings, thanks, and a couple of directions, and you can navigate markets, taxis, and introductions with confidence." },
-      { type:"tip", text:"Practice phrases as whole sounds, not word-by-word. You want them to come out automatically when you're on the spot." },
-    ],
-  },
-  {
-    slug:"teaching-kids-urdu-at-home",
-    title:"Helping Kids Learn Urdu (Without the Battles)",
-    cat:"Kids",
-    date:"Mar 25, 2026", read:"6 min",
-    author:{ name:"Ustadha Zoya K.", initials:"ZK" },
-    excerpt:"For diaspora parents, keeping Urdu alive at home is a gift — and it doesn't have to be a fight. Play beats pressure.",
-    body:[
-      { type:"p", text:"Many parents worry their children are losing the family language. The best approach is almost always the opposite of school-style drilling: short, playful, positive contact." },
-      { type:"list", items:[
-        "Keep sessions short and game-like — five happy minutes beats twenty tense ones.",
-        "Tie Urdu to things kids love: food, cartoons, grandparents, songs.",
-        "Praise effort loudly and correct gently; confidence is the real curriculum.",
-      ]},
-      { type:"tip", text:"Kids thrive with a teacher who makes it fun and a parent who cheers them on. Our Kids course is built entirely around play." },
-    ],
-  },
-];
 
 /* ================= imagery ================= */
 /* Central Unsplash map — swap any URL freely. Each <Photo> degrades to a
@@ -975,15 +265,6 @@ const IMG = {
     "summer-urdu-course": u("1506905925346-21bda4d32df4"),
     "back-to-school-urdu": u("1481627834876-b7833e8f5570"),
   },
-  blog: {
-    "Learn Urdu": u("1481627834876-b7833e8f5570"),
-    "Grammar": u("1455390582262-044cdead277a"),
-    "Vocabulary": u("1509062522246-3755977927d7"),
-    "Urdu Poetry": u("1512820790803-83ca734da794"),
-    "Culture": u("1544787219-7f47ccb76574"),
-    "Travel": u("1506905925346-21bda4d32df4"),
-    "Kids": u("1503454537195-1dcabb73ffb9"),
-  },
   aboutBanner: u("1507842217343-583bb7270b66", 1500),
   contact: u("1544787219-7f47ccb76574"),
 };
@@ -998,15 +279,6 @@ const ART = {
     "read-write-urdu": { word: "پڑھنا", variant: "arch" },
     "summer-urdu-course": { word: "گرمی", variant: "rays" },
     "back-to-school-urdu": { word: "اسکول", variant: "calli" },
-  },
-  blog: {
-    "Learn Urdu": { word: "سیکھیں", variant: "arch" },
-    "Grammar": { word: "قواعد", variant: "geo" },
-    "Vocabulary": { word: "الفاظ", variant: "star" },
-    "Urdu Poetry": { word: "شاعری", variant: "calli" },
-    "Culture": { word: "ثقافت", variant: "arch" },
-    "Travel": { word: "سفر", variant: "waves" },
-    "Kids": { word: "بچے", variant: "star" },
   },
   aboutBanner: { word: "ہماری کہانی", variant: "calli" },
   contact: { word: "رابطہ", variant: "rays" },
@@ -1025,33 +297,38 @@ const NAV = [
   { label:"Courses", type:"route", target:"courses" },
   { label:"Pricing", type:"route", target:"pricing" },
   { label:"How to Pay", type:"route", target:"payment" },
-  { label:"Blog", type:"route", target:"blog" },
+  { label:"Blog", type:"external", target:"/blog" },
   { label:"About", type:"route", target:"about" },
   { label:"Contact", type:"route", target:"contact" },
 ];
 
-/* ================= routing ================= */
+/* ================= routing ================= *
+ * The blog lives outside this router entirely — /blog and /blog/<slug> are
+ * PHP pages rendered straight from the database (see public/blog.php),
+ * intercepted by Apache before they ever reach this SPA. That's what lets a
+ * client publish a post from /admin.php and have it live immediately,
+ * without a rebuild. See NAV above: the Blog link is a real page load. */
 const Nav = createContext(null);
 const useNav = () => useContext(Nav);
 
-function parseHash() {
-  const h = (typeof window !== "undefined" ? window.location.hash : "") || "";
-  if (h.startsWith("#/courses/")) return { name: "course", slug: h.slice("#/courses/".length) };
-  if (h === "#/courses") return { name: "courses" };
-  if (h === "#/pricing") return { name: "pricing" };
-  if (h === "#/payment") return { name: "payment" };
-  if (h === "#/about") return { name: "about" };
-  if (h.startsWith("#/blog/")) return { name: "post", slug: h.slice("#/blog/".length) };
-  if (h === "#/blog") return { name: "blog" };
-  if (h === "#/contact") return { name: "contact" };
+const ROUTE_PATH = { home: "/", courses: "/courses", pricing: "/pricing", payment: "/payment", about: "/about", contact: "/contact" };
+const routePath = (name) => ROUTE_PATH[name] || "/";
+const coursePath = (slug) => `/courses/${slug}`;
+
+function parsePath(pathname) {
+  const p = ((pathname || "/").split("?")[0].split("#")[0]).replace(/\/+$/, "") || "/";
+  if (p.startsWith("/courses/")) return { name: "course", slug: p.slice("/courses/".length) };
+  if (p === "/courses") return { name: "courses" };
+  if (p === "/pricing") return { name: "pricing" };
+  if (p === "/payment") return { name: "payment" };
+  if (p === "/about") return { name: "about" };
+  if (p === "/contact") return { name: "contact" };
   return { name: "home" };
 }
 const reducedMotion = () =>
   typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* ================= primitives ================= */
-function Styles() { return <style dangerouslySetInnerHTML={{ __html: CSS }} />; }
-
 function Pattern() {
   return (
     <svg className="mu-pattern" aria-hidden="true" focusable="false">
@@ -1158,24 +435,31 @@ function Header() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-  const handle = (item) => { setOpen(false); item.type === "route" ? goRoute(item.target) : goSection(item.target); };
+  const handle = (e, item) => {
+    if (item.type === "external") { setOpen(false); return; } // let the browser navigate normally
+    e.preventDefault();
+    setOpen(false);
+    item.type === "route" ? goRoute(item.target) : goSection(item.target);
+  };
   const isActive = (item) =>
     item.type === "route" && (
       route.name === item.target ||
-      (item.target === "courses" && route.name === "course") ||
-      (item.target === "blog" && route.name === "post")
+      (item.target === "courses" && route.name === "course")
     );
+  const hrefFor = (item) => item.type === "route" ? routePath(item.target) : (item.type === "external" ? item.target : "/");
   return (
     <header className={`mu-header ${stuck ? "is-stuck" : ""}`}>
       <div className="mu-wrap">
         <nav className="mu-nav" aria-label="Primary">
-          <button className="mu-brand" onClick={() => { setOpen(false); goHomeTop(); }}>
+          <a className="mu-brand" href="/" onClick={(e) => { e.preventDefault(); setOpen(false); goHomeTop(); }}>
             <img className="mu-brand-full" src={logoFullWhite} alt="Speak in Urdu" width="79" height="44" />
-          </button>
+          </a>
           <div className="mu-navlinks">
             {NAV.map((n) => (
-              <button key={n.label} className={isActive(n) ? "active" : ""} onClick={() => handle(n)}
-                aria-current={isActive(n) ? "page" : undefined}>{n.label}</button>
+              <a key={n.label} className={isActive(n) ? "active" : ""}
+                href={hrefFor(n)}
+                onClick={(e) => handle(e, n)}
+                aria-current={isActive(n) ? "page" : undefined}>{n.label}</a>
             ))}
           </div>
           <div className="mu-navright">
@@ -1186,7 +470,9 @@ function Header() {
           </div>
         </nav>
         <div className={`mu-mobile ${open ? "open" : ""}`}>
-          {NAV.map((n) => <button key={n.label} className="ml" onClick={() => handle(n)}>{n.label}</button>)}
+          {NAV.map((n) => (
+            <a key={n.label} className="ml" href={hrefFor(n)} onClick={(e) => handle(e, n)}>{n.label}</a>
+          ))}
           <button className="mu-btn mu-btn-md mu-btn-gold mu-btn-block" onClick={() => { setOpen(false); goTrial(); }}>Book Free Trial</button>
         </div>
       </div>
@@ -1301,7 +587,7 @@ function Hero() {
             <p className="mu-lead">Read, write, and speak beautiful Urdu with native teachers — structured courses, live classes, and weekly progress you can actually feel.</p>
             <div className="mu-hero-ctas">
               <button className="mu-btn mu-btn-lg mu-btn-primary" onClick={goTrial}>Book a Free Trial <ArrowRight size={18} /></button>
-              <button className="mu-btn mu-btn-lg mu-btn-ghost" onClick={() => goRoute("courses")}>Explore Courses</button>
+              <a className="mu-btn mu-btn-lg mu-btn-ghost" href={routePath("courses")} onClick={(e) => { e.preventDefault(); goRoute("courses"); }}>Explore Courses</a>
             </div>
             <div className="mu-trustrow">
               <span style={{ display:"inline-flex", alignItems:"center", gap:8 }}>
@@ -1417,7 +703,7 @@ function CourseCard({ c, showDetail = true, headingTag = "h3" }) {
           <small className="mu-currency" style={{ display:"inline", textTransform:"none", letterSpacing:0, marginLeft:2 }}> USD{c.unit}</small>
         </span>
         <div className="links">
-          {showDetail && <button className="mu-textlink" onClick={() => goCourse(c.slug)}>Details <ArrowRight size={15} /></button>}
+          {showDetail && <a className="mu-textlink" href={coursePath(c.slug)} onClick={(e) => { e.preventDefault(); goCourse(c.slug); }} aria-label={`Details for ${c.name}`}>Details <ArrowRight size={15} /></a>}
           <button className="mu-btn mu-btn-md mu-btn-ghost" onClick={() => goTrial(c.slug)}>{c.ctaLabel}</button>
         </div>
       </div>
@@ -1441,9 +727,9 @@ function CoursesSection() {
         </div>
         <Reveal className="mu-center" >
           <div style={{ marginTop:34 }}>
-            <button className="mu-btn mu-btn-lg mu-btn-ghost" onClick={() => goRoute("courses")}>
+            <a className="mu-btn mu-btn-lg mu-btn-ghost" href={routePath("courses")} onClick={(e) => { e.preventDefault(); goRoute("courses"); }}>
               View all courses & syllabus <ArrowRight size={18} />
-            </button>
+            </a>
           </div>
         </Reveal>
       </div>
@@ -1540,7 +826,7 @@ function PricingSection() {
         </div>
         <Reveal className="mu-center">
           <div style={{ marginTop:32 }}>
-            <button className="mu-textlink" onClick={() => goRoute("pricing")}>See bundles & compare plans <ArrowRight size={16} /></button>
+            <a className="mu-textlink" href={routePath("pricing")} onClick={(e) => { e.preventDefault(); goRoute("pricing"); }}>See bundles & compare plans <ArrowRight size={16} /></a>
           </div>
         </Reveal>
       </div>
@@ -1615,6 +901,7 @@ function Footer() {
       if (res.ok && data.success !== false) {
         setNewsStatus("done");
         setEmail("");
+        trackEvent("Subscribe");
       } else {
         setNewsStatus("error");
       }
@@ -1636,27 +923,27 @@ function Footer() {
               <a href="https://www.instagram.com/speakinurdu/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><Instagram size={18} /></a>
               <a href="https://www.facebook.com/profile.php?id=61590513969029" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><Facebook size={18} /></a>
               <a href="https://www.youtube.com/@SpeakinUrdu" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><Youtube size={18} /></a>
-              <a href="#/" aria-label="LinkedIn"><Linkedin size={18} /></a>
+              <a href="#" onClick={(e) => e.preventDefault()} aria-label="LinkedIn"><Linkedin size={18} /></a>
             </div>
           </div>
           <div className="mu-footcol">
-            <h4>Courses</h4>
+            <h3>Courses</h3>
             {COURSES.map((c) => (
-              <button key={c.slug} className="fl" onClick={() => goCourse(c.slug)}>{c.name}</button>
+              <a key={c.slug} className="fl" href={coursePath(c.slug)} onClick={(e) => { e.preventDefault(); goCourse(c.slug); }}>{c.name}</a>
             ))}
           </div>
           <div className="mu-footcol">
-            <h4>Academy</h4>
-            <button className="fl" onClick={() => goRoute("about")}>About Us</button>
-            <button className="fl" onClick={() => goRoute("courses")}>All Courses</button>
-            <button className="fl" onClick={() => goRoute("pricing")}>Pricing</button>
-            <button className="fl" onClick={() => goRoute("payment")}>How to Pay</button>
-            <button className="fl" onClick={() => goRoute("blog")}>Blog</button>
-            <button className="fl" onClick={() => goRoute("contact")}>Contact</button>
+            <h3>Academy</h3>
+            <a className="fl" href={routePath("about")} onClick={(e) => { e.preventDefault(); goRoute("about"); }}>About Us</a>
+            <a className="fl" href={routePath("courses")} onClick={(e) => { e.preventDefault(); goRoute("courses"); }}>All Courses</a>
+            <a className="fl" href={routePath("pricing")} onClick={(e) => { e.preventDefault(); goRoute("pricing"); }}>Pricing</a>
+            <a className="fl" href={routePath("payment")} onClick={(e) => { e.preventDefault(); goRoute("payment"); }}>How to Pay</a>
+            <a className="fl" href="/blog">Blog</a>
+            <a className="fl" href={routePath("contact")} onClick={(e) => { e.preventDefault(); goRoute("contact"); }}>Contact</a>
             <button className="fl" onClick={() => goSection("how")}>How It Works</button>
           </div>
           <div className="mu-footcol">
-            <h4>Stay in touch</h4>
+            <h3>Stay in touch</h3>
             <p style={{ color:"#C9C0AE", fontSize:14, margin:0 }}>Study tips and new courses, now and then.</p>
             <div className="mu-news">
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
@@ -1703,11 +990,11 @@ function PageHero({ crumb, eyebrow, title, lead, children }) {
       <Pattern />
       <div className="mu-wrap">
         <div className="mu-crumb">
-          <button onClick={goHomeTop}>Home</button>
+          <a href="/" onClick={(e) => { e.preventDefault(); goHomeTop(); }}>Home</a>
           {crumb.map((c, i) => (
             <React.Fragment key={i}>
               <span className="sep" aria-hidden="true">/</span>
-              {c.onClick ? <button onClick={c.onClick}>{c.label}</button> : <span className="cur" aria-current="page">{c.label}</span>}
+              {c.onClick ? <a href="#" onClick={(e) => { e.preventDefault(); c.onClick(); }}>{c.label}</a> : <span className="cur" aria-current="page">{c.label}</span>}
             </React.Fragment>
           ))}
         </div>
@@ -1757,7 +1044,7 @@ function CourseDetailPage({ slug }) {
           <h1 className="mu-h2">Course not found</h1>
           <p className="mu-lead">We couldn't find that course. Browse the full list instead.</p>
           <div style={{ marginTop:24 }}>
-            <button className="mu-btn mu-btn-lg mu-btn-primary" onClick={() => goRoute("courses")}>View all courses</button>
+            <a className="mu-btn mu-btn-lg mu-btn-primary" href={routePath("courses")} onClick={(e) => { e.preventDefault(); goRoute("courses"); }}>View all courses</a>
           </div>
         </div>
       </section>
@@ -1771,9 +1058,9 @@ function CourseDetailPage({ slug }) {
         <Pattern />
         <div className="mu-wrap">
           <div className="mu-crumb">
-            <button onClick={() => goRoute("home")}>Home</button>
+            <a href={routePath("home")} onClick={(e) => { e.preventDefault(); goRoute("home"); }}>Home</a>
             <span className="sep" aria-hidden="true">/</span>
-            <button onClick={() => goRoute("courses")}>Courses</button>
+            <a href={routePath("courses")} onClick={(e) => { e.preventDefault(); goRoute("courses"); }}>Courses</a>
             <span className="sep" aria-hidden="true">/</span>
             <span className="cur" aria-current="page">{c.name}</span>
           </div>
@@ -1833,11 +1120,11 @@ function CourseDetailPage({ slug }) {
                 </ul>
                 <div className="mu-side-cta">
                   <button className="mu-btn mu-btn-md mu-btn-primary mu-btn-block" onClick={() => goTrial(c.slug)}>{c.ctaLabel}</button>
-                  <button className="mu-btn mu-btn-md mu-btn-ghost mu-btn-block" onClick={() => goRoute("pricing")}>View plans & pricing</button>
+                  <a className="mu-btn mu-btn-md mu-btn-ghost mu-btn-block" href={routePath("pricing")} onClick={(e) => { e.preventDefault(); goRoute("pricing"); }}>View plans & pricing</a>
                 </div>
               </div>
               <div style={{ marginTop:16 }}>
-                <button className="mu-textlink" onClick={() => goRoute("courses")}><ArrowLeft size={16} /> Back to all courses</button>
+                <a className="mu-textlink" href={routePath("courses")} onClick={(e) => { e.preventDefault(); goRoute("courses"); }}><ArrowLeft size={16} /> Back to all courses</a>
               </div>
             </aside>
           </div>
@@ -1871,14 +1158,14 @@ function PricingPage() {
 
       <div className="mu-wrap">
         <Reveal>
-          <button className="mu-paybanner" onClick={() => goRoute("payment")}>
+          <a className="mu-paybanner" href={routePath("payment")} onClick={(e) => { e.preventDefault(); goRoute("payment"); }}>
             <span className="mu-paybanner-icon"><Globe size={22} /></span>
             <span className="mu-paybanner-text">
               <strong>Paying from abroad?</strong>
               <span>See our step-by-step guides for Remitly, Taptap Send &amp; Western Union.</span>
             </span>
             <span className="mu-paybanner-cta">How to pay <ArrowRight size={16} /></span>
-          </button>
+          </a>
         </Reveal>
       </div>
 
@@ -2040,7 +1327,7 @@ function PaymentPage() {
                 <p>For your security, the exact recipient name and account details are shared directly once you book a trial or get in touch — never posted openly on the website.</p>
                 <div className="btns">
                   <button className="mu-btn mu-btn-md mu-btn-primary" onClick={goTrial}>Book a Free Trial</button>
-                  <button className="mu-btn mu-btn-md mu-btn-ghost" onClick={() => goRoute("contact")}>Contact Us</button>
+                  <a className="mu-btn mu-btn-md mu-btn-ghost" href={routePath("contact")} onClick={(e) => { e.preventDefault(); goRoute("contact"); }}>Contact Us</a>
                 </div>
               </div>
             </div>
@@ -2151,207 +1438,6 @@ function AboutPage() {
   );
 }
 
-/* ================= blog ================= */
-function CatPill({ cat, sm }) {
-  return <span className={`mu-catpill ${sm ? "sm" : ""}`}><Tag size={sm ? 11 : 12} /> {cat}</span>;
-}
-
-function PostMeta({ post }) {
-  return (
-    <div className="mu-postmeta">
-      <span className="au"><span className="mu-avatar tiny" aria-hidden="true">{post.author.initials}</span>{post.author.name}</span>
-      <span className="dot" aria-hidden="true">·</span>
-      <span><Calendar size={14} /> {post.date}</span>
-      <span className="dot" aria-hidden="true">·</span>
-      <span><Clock size={14} /> {post.read}</span>
-    </div>
-  );
-}
-
-function PostCard({ p }) {
-  const { goPost } = useNav();
-  return (
-    <button className="mu-card mu-postcard" onClick={() => goPost(p.slug)} aria-label={`Read: ${p.title}`}>
-      <Photo className="mu-postcard-media" src={IMG.blog[p.cat]} art={ART.blog[p.cat]} alt="" ratio="16 / 9" overlay icon={BookOpen} />
-      <div className="mu-postcard-body">
-        <CatPill cat={p.cat} sm />
-        <h3>{p.title}</h3>
-        <p>{p.excerpt}</p>
-        <PostMeta post={p} />
-        <span className="mu-textlink">Read article <ArrowRight size={15} /></span>
-      </div>
-    </button>
-  );
-}
-
-function BlogPage() {
-  const { goPost } = useNav();
-  const [cat, setCat] = useState("All");
-  const list = cat === "All" ? POSTS : POSTS.filter((p) => p.cat === cat);
-  const [featured, ...rest] = list;
-  return (
-    <>
-      <PageHero
-        crumb={[{ label:"Blog" }]}
-        eyebrow="The Academy blog"
-        title="Read, learn, and fall for Urdu."
-        lead="Practical lessons, grammar made friendly, vocabulary, poetry, culture, and travel — written by our teachers."
-      />
-      <section className="mu-section" style={{ paddingTop:56 }}>
-        <div className="mu-wrap">
-          <div className="mu-filterbar" role="group" aria-label="Filter posts by category">
-            {["All", ...BLOG_CATEGORIES].map((c) => (
-              <button key={c} className={`mu-filterchip ${cat === c ? "on" : ""}`}
-                aria-pressed={cat === c} onClick={() => setCat(c)}>{c}</button>
-            ))}
-          </div>
-
-          {list.length === 0 && <p className="mu-resultcount">No posts in this category yet — check back soon.</p>}
-
-          {featured && (
-            <Reveal>
-              <button className="mu-feature" onClick={() => goPost(featured.slug)} aria-label={`Read: ${featured.title}`}>
-                <div className="mu-feature-body">
-                  <CatPill cat={featured.cat} />
-                  <h2>{featured.title}</h2>
-                  <p>{featured.excerpt}</p>
-                  <PostMeta post={featured} />
-                  <span className="mu-textlink" style={{ marginTop:6 }}>Read article <ArrowRight size={15} /></span>
-                </div>
-                <div className="mu-feature-art" aria-hidden="true">
-                  <Photo src={IMG.blog[featured.cat]} art={ART.blog[featured.cat]} alt="" ratio="4 / 3" overlay icon={BookOpen} />
-                </div>
-              </button>
-            </Reveal>
-          )}
-
-          {rest.length > 0 && (
-            <div className="mu-grid cols3" style={{ marginTop:28 }}>
-              {rest.map((p, i) => (
-                <Reveal key={p.slug} delay={(i % 3) * 80}>
-                  <PostCard p={p} />
-                </Reveal>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-      <FinalCta />
-    </>
-  );
-}
-
-function PostBody({ blocks }) {
-  return (
-    <div className="mu-article">
-      {blocks.map((b, i) => {
-        if (b.type === "h") return <h2 key={i}>{b.text}</h2>;
-        if (b.type === "p") return <p key={i}>{b.text}</p>;
-        if (b.type === "list") return (
-          <ul key={i}>{b.items.map((it, j) => <li key={j}>{it}</li>)}</ul>
-        );
-        if (b.type === "tip") return (
-          <aside key={i} className="mu-callout">
-            <span className="ic"><Sparkles size={16} /></span>
-            <p>{b.text}</p>
-          </aside>
-        );
-        if (b.type === "urdu") return (
-          <div key={i} className="mu-urduex">
-            <span className="ur mu-urdu" lang="ur" dir="rtl">{b.ur}</span>
-            <span className="tr">{b.tr}</span>
-            <span className="en">{b.en}</span>
-          </div>
-        );
-        if (b.type === "quote") return (
-          <blockquote key={i} className="mu-verse">
-            <span className="mu-urdu" lang="ur" dir="rtl">{b.text}</span>
-            {b.by && <cite>— {b.by}</cite>}
-          </blockquote>
-        );
-        return null;
-      })}
-    </div>
-  );
-}
-
-function BlogPostPage({ slug }) {
-  const { goRoute, goPost, goTrial } = useNav();
-  const post = POSTS.find((p) => p.slug === slug);
-
-  if (!post) {
-    return (
-      <section className="mu-section" style={{ minHeight:"46vh", display:"grid", placeItems:"center", textAlign:"center" }}>
-        <div className="mu-wrap">
-          <span className="mu-eyebrow" style={{ justifyContent:"center" }}>Not found</span>
-          <h1 className="mu-h2" style={{ marginTop:14 }}>We couldn't find that article.</h1>
-          <p className="mu-lead" style={{ margin:"14px auto 24px" }}>It may have moved. Browse all articles instead.</p>
-          <button className="mu-btn mu-btn-lg mu-btn-primary" onClick={() => goRoute("blog")}>Back to blog</button>
-        </div>
-      </section>
-    );
-  }
-
-  const related = POSTS.filter((p) => p.cat === post.cat && p.slug !== post.slug).slice(0, 3);
-
-  return (
-    <>
-      <section className="mu-pagehero mu-posthero">
-        <Pattern />
-        <div className="mu-wrap mu-narrow">
-          <div className="mu-crumb">
-            <button onClick={() => goRoute("home")}>Home</button>
-            <span className="sep" aria-hidden="true">/</span>
-            <button onClick={() => goRoute("blog")}>Blog</button>
-            <span className="sep" aria-hidden="true">/</span>
-            <span className="cur" aria-current="page">{post.cat}</span>
-          </div>
-          <Reveal>
-            <CatPill cat={post.cat} />
-            <h1 className="mu-h2" style={{ marginTop:14, fontSize:"clamp(28px,4.6vw,44px)" }}>{post.title}</h1>
-            <div style={{ marginTop:18 }}><PostMeta post={post} /></div>
-          </Reveal>
-        </div>
-      </section>
-
-      <article className="mu-section" style={{ paddingTop:8 }}>
-        <div className="mu-wrap mu-narrow">
-          <Photo className="mu-post-banner" src={IMG.blog[post.cat]} art={ART.blog[post.cat]} alt="" ratio="21 / 9" overlay icon={BookOpen} />
-          <Reveal>
-            <p className="mu-article-lead">{post.excerpt}</p>
-            <PostBody blocks={post.body} />
-
-            <div className="mu-post-cta">
-              <div>
-                <h3>Want to actually speak this?</h3>
-                <p>Book a free trial and learn live with a native teacher.</p>
-              </div>
-              <button className="mu-btn mu-btn-lg mu-btn-primary" onClick={goTrial}>Book a Free Trial <ArrowRight size={18} /></button>
-            </div>
-
-            <button className="mu-textlink" style={{ marginTop:28 }} onClick={() => goRoute("blog")}><ArrowLeft size={16} /> Back to all articles</button>
-          </Reveal>
-        </div>
-      </article>
-
-      {related.length > 0 && (
-        <section className="mu-section" style={{ background:"var(--card)", borderTop:"1px solid var(--border)", paddingTop:64 }} aria-labelledby="related-h">
-          <div className="mu-wrap">
-            <h2 className="mu-h2" id="related-h" style={{ fontSize:"clamp(22px,3vw,30px)" }}>More in {post.cat}</h2>
-            <div className="mu-grid cols3" style={{ marginTop:28 }}>
-              {related.map((p, i) => (
-                <Reveal key={p.slug} delay={(i % 3) * 80}>
-                  <PostCard p={p} />
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-    </>
-  );
-}
-
 /* ================= contact ================= */
 const TIMEZONES = [
   "Select your timezone…",
@@ -2422,6 +1508,7 @@ function ContactPage() {
       if (res.ok && data.success !== false) {
         setStatus("sent");
         setForm({ name:"", email:"", phone:"", tz:TIMEZONES[0], message:"", website:"" });
+        trackEvent("Contact");
       } else {
         setStatus("error");
       }
@@ -2529,7 +1616,7 @@ function ContactPage() {
                       <a href="https://www.instagram.com/speakinurdu/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><Instagram size={18} /></a>
                       <a href="https://www.facebook.com/profile.php?id=61590513969029" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><Facebook size={18} /></a>
                       <a href="https://www.youtube.com/@SpeakinUrdu" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><Youtube size={18} /></a>
-                      <a href="#/contact" aria-label="LinkedIn"><Linkedin size={18} /></a>
+                      <a href="#" onClick={(e) => e.preventDefault()} aria-label="LinkedIn"><Linkedin size={18} /></a>
                     </div>
                   </div>
                 </div>
@@ -2650,7 +1737,7 @@ function ChatWidget() {
                 {m.fallback && (
                   <div className="mu-chat-actions">
                     <button onClick={() => { setOpen(false); goTrial(); }}>Book a Free Trial</button>
-                    <button onClick={() => { setOpen(false); goRoute("contact"); }}>Contact us</button>
+                    <a href={routePath("contact")} onClick={(e) => { e.preventDefault(); setOpen(false); goRoute("contact"); }}>Contact us</a>
                     <a href="https://wa.me/923275347525" target="_blank" rel="noopener noreferrer">
                       <WhatsAppIcon size={14} /> WhatsApp
                     </a>
@@ -2710,6 +1797,7 @@ function BookTrialModal({ open, onClose, presetCourseSlug }) {
     setForm({ ...emptyBooking, courseSlug: presetCourseSlug || "" });
     setErrors({});
     setStatus("idle");
+    trackEvent("InitiateCheckout", presetCourseSlug ? { content_name: COURSE_BY_SLUG[presetCourseSlug]?.name, content_ids: [presetCourseSlug] } : undefined);
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const onKey = (e) => { if (e.key === "Escape") onClose(); };
@@ -2768,7 +1856,9 @@ function BookTrialModal({ open, onClose, presetCourseSlug }) {
         body,
       });
       const data = await res.json().catch(() => ({ success: res.ok }));
-      setStatus(res.ok && data.success !== false ? "sent" : "error");
+      const ok = res.ok && data.success !== false;
+      setStatus(ok ? "sent" : "error");
+      if (ok) trackEvent("Lead", { content_name: COURSE_BY_SLUG[form.courseSlug]?.name, content_ids: [form.courseSlug] });
     } catch {
       setStatus("error");
     }
@@ -2891,6 +1981,12 @@ function BookTrialModal({ open, onClose, presetCourseSlug }) {
 const SITE_NAME = "Speak in Urdu";
 const SITE_TAGLINE = "Learn Urdu Online with Native Teachers";
 const SITE_DESC = "Live 1-on-1 online Urdu classes with native teachers. Private lessons for kids and women, plus GCSE exam prep and seasonal Urdu courses, with a free trial class.";
+const SITE_URL = "https://speakinurdu.com";
+
+function routePathFor(route) {
+  if (route.name === "course") return coursePath(route.slug);
+  return routePath(route.name);
+}
 
 function upsertMeta(attr, key, content) {
   let el = document.head.querySelector(`meta[${attr}="${key}"]`);
@@ -2940,19 +2036,6 @@ function seoFor(route) {
       return { title: t("About Us — Our Story & Mission"),
         desc: "Speak in Urdu is a small team of native teachers helping learners in 40+ countries read, write, and speak Urdu with structure and warmth.",
         ld: [orgLD(), { "@type": "AboutPage", name: t("About Us"), about: orgLD() }] };
-    case "blog":
-      return { title: t("Urdu Learning Blog — Tips, Grammar & Poetry"),
-        desc: "Practical guides for learning Urdu: alphabet, grammar, vocabulary, classical poetry, culture, and travel phrases — written by native teachers.",
-        ld: [orgLD(), { "@type": "Blog", name: `${SITE_NAME} Blog`, blogPost: POSTS.map((p) => ({ "@type": "BlogPosting", headline: p.title, articleSection: p.cat })) }] };
-    case "post": {
-      const p = POSTS.find((x) => x.slug === route.slug);
-      if (!p) return { title: t("Article not found"), desc: SITE_DESC, ld: [orgLD()] };
-      let iso; try { iso = new Date(p.date).toISOString().slice(0, 10); } catch { iso = undefined; }
-      return { title: t(p.title), desc: p.excerpt,
-        ld: [orgLD(), { "@type": "BlogPosting", headline: p.title, description: p.excerpt, datePublished: iso,
-          author: { "@type": "Person", name: p.author.name }, articleSection: p.cat,
-          publisher: { "@type": "Organization", name: SITE_NAME } }] };
-    }
     case "contact":
       return { title: t("Contact Us — Book a Free Trial Class"),
         desc: "Questions about learning Urdu? Message us, email info@speakinurdu.com, or book a free trial class. We reply within one business day.",
@@ -2963,9 +2046,29 @@ function seoFor(route) {
   }
 }
 
+function trackEvent(name, params) {
+  if (typeof window !== "undefined" && typeof window.fbq === "function") {
+    window.fbq("track", name, params);
+  }
+}
+
 function useSEO(route) {
+  const isFirstRun = useRef(true);
   useEffect(() => {
+    // The Meta Pixel's own inline snippet (index.html) already fires the
+    // PageView for the initial page load — this only covers client-side
+    // route changes afterward, which a normal page load never triggers.
+    if (isFirstRun.current) {
+      isFirstRun.current = false;
+    } else {
+      trackEvent("PageView");
+    }
+    if (route.name === "course") {
+      const c = COURSE_BY_SLUG[route.slug];
+      if (c) trackEvent("ViewContent", { content_name: c.name, content_category: "course", content_ids: [c.slug] });
+    }
     const { title, desc, ld } = seoFor(route);
+    const canonicalUrl = SITE_URL + (typeof window !== "undefined" ? window.location.pathname : routePathFor(route));
     document.title = title;
     document.documentElement.lang = "en";
     if (!document.head.querySelector('meta[name="viewport"]')) {
@@ -2978,36 +2081,61 @@ function useSEO(route) {
     upsertMeta("property", "og:site_name", SITE_NAME);
     upsertMeta("property", "og:title", title);
     upsertMeta("property", "og:description", desc);
-    upsertMeta("property", "og:type", route.name === "post" ? "article" : "website");
+    upsertMeta("property", "og:url", canonicalUrl);
+    upsertMeta("property", "og:image", `${SITE_URL}/social-share.png`);
+    upsertMeta("property", "og:type", "website");
     upsertMeta("name", "twitter:card", "summary_large_image");
+    upsertMeta("name", "twitter:title", title);
+    upsertMeta("name", "twitter:description", desc);
+    upsertMeta("name", "twitter:image", `${SITE_URL}/social-share.png`);
+    let link = document.head.querySelector('link[rel="canonical"]');
+    if (!link) { link = document.createElement("link"); link.setAttribute("rel", "canonical"); document.head.appendChild(link); }
+    link.setAttribute("href", canonicalUrl);
     let s = document.getElementById("mu-jsonld");
     if (!s) { s = document.createElement("script"); s.id = "mu-jsonld"; s.type = "application/ld+json"; document.head.appendChild(s); }
     s.textContent = JSON.stringify({ "@context": "https://schema.org", "@graph": ld });
   }, [route.name, route.slug]);
 }
 
-export default function App() {
-  const [route, setRoute] = useState(parseHash);
+export default function App({ initialPath } = {}) {
+  const [route, setRoute] = useState(() => parsePath(initialPath ?? (typeof window !== "undefined" ? window.location.pathname : "/")));
   const [pendingScroll, setPendingScroll] = useState(null);
   const [trialOpen, setTrialOpen] = useState(false);
   const [trialCourseSlug, setTrialCourseSlug] = useState("");
 
   useEffect(() => {
-    const on = () => setRoute(parseHash());
-    window.addEventListener("hashchange", on);
-    return () => window.removeEventListener("hashchange", on);
+    const on = () => setRoute(parsePath(window.location.pathname));
+    window.addEventListener("popstate", on);
+    return () => window.removeEventListener("popstate", on);
   }, []);
 
-  const setHash = (h) => {
-    if (window.location.hash === h) setRoute(parseHash());
-    else window.location.hash = h;
-  };
-  const goRoute = useCallback((name) => setHash(name === "home" ? "#/" : `#/${name}`), []);
-  const goCourse = useCallback((slug) => setHash(`#/courses/${slug}`), []);
-  const goPost = useCallback((slug) => setHash(`#/blog/${slug}`), []);
-  const goHomeTop = useCallback(() => { setPendingScroll("__top"); setHash("#/"); }, []);
-  const goSection = useCallback((id) => { setPendingScroll(id); if (parseHash().name !== "home") setHash("#/"); }, []);
+  const navigate = useCallback((path) => {
+    if (typeof window === "undefined") return;
+    if (window.location.pathname === path) { setRoute(parsePath(path)); return; }
+    window.history.pushState({}, "", path);
+    setRoute(parsePath(path));
+  }, []);
+  const goRoute = useCallback((name) => navigate(routePath(name)), [navigate]);
+  const goCourse = useCallback((slug) => navigate(coursePath(slug)), [navigate]);
+  const goHomeTop = useCallback(() => { setPendingScroll("__top"); navigate("/"); }, [navigate]);
+  const goSection = useCallback((id) => {
+    setPendingScroll(id);
+    if (typeof window !== "undefined" && parsePath(window.location.pathname).name !== "home") navigate("/");
+  }, [navigate]);
   const goTrial = useCallback((slug) => { setTrialCourseSlug(slug || ""); setTrialOpen(true); }, []);
+
+  // The PHP-rendered blog (outside this SPA) links "Book Free Trial" to
+  // /?trial=1 since it can't open this React modal itself — pick that up
+  // once we land here, then clean the URL so it doesn't linger/re-open.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("trial") === "1") {
+      setTrialCourseSlug(params.get("course") || "");
+      setTrialOpen(true);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
 
   // handle pending in-page scroll once home is mounted; otherwise scroll to top on route change
   useEffect(() => {
@@ -3034,12 +2162,11 @@ export default function App() {
 
   useSEO(route);
 
-  const ctx = { route, goRoute, goCourse, goPost, goHomeTop, goSection, goTrial };
+  const ctx = { route, goRoute, goCourse, goHomeTop, goSection, goTrial, routePath, coursePath };
 
   return (
     <Nav.Provider value={ctx}>
       <div className="mu-root">
-        <Styles />
         <a className="mu-skip" href="#main-content">Skip to main content</a>
         <Header />
         <main id="main-content" tabIndex={-1}>
@@ -3049,8 +2176,6 @@ export default function App() {
           {route.name === "pricing" && <PricingPage />}
           {route.name === "payment" && <PaymentPage />}
           {route.name === "about" && <AboutPage />}
-          {route.name === "blog" && <BlogPage />}
-          {route.name === "post" && <BlogPostPage slug={route.slug} />}
           {route.name === "contact" && <ContactPage />}
         </main>
         <Footer />
@@ -3063,3 +2188,17 @@ export default function App() {
     </Nav.Provider>
   );
 }
+
+/* ================= prerender support =================
+ * Used only by scripts/prerender.js (build-time, Node) to enumerate every
+ * real route and compute its title/meta tags ahead of rendering — not
+ * imported by the browser bundle's normal runtime path. The blog is
+ * intentionally excluded: it's PHP-rendered straight from the database
+ * (see public/blog.php), not part of this static-generated SPA. */
+export function getAllRoutePaths() {
+  return [
+    "/", "/courses", "/pricing", "/payment", "/about", "/contact",
+    ...COURSES.map((c) => coursePath(c.slug)),
+  ];
+}
+export { seoFor, parsePath, SITE_URL, SITE_NAME };

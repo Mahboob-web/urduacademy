@@ -1,4 +1,6 @@
 node_modules
 dist
+dist-ssr
 public/db.php
 public/admin-config.php
+public/uploads

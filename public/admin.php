@@ -16,6 +16,7 @@ session_start();
 require __DIR__ . "/admin-config.php";
 define("APP_BOOTSTRAP", true);
 require __DIR__ . "/db.php";
+require __DIR__ . "/blog-lib.php";
 
 // ---- login / logout ----
 
@@ -43,6 +44,7 @@ const TABS = [
   "bookings" => ["label" => "Bookings", "cols" => ["created_at", "name", "email", "phone", "age", "gender", "country", "timezone", "class_time", "course"], "search" => ["name", "email", "phone", "course"]],
   "contacts" => ["label" => "Contact Messages", "cols" => ["created_at", "name", "email", "phone", "timezone", "message"], "search" => ["name", "email", "phone", "message"]],
   "newsletter" => ["label" => "Newsletter", "cols" => ["created_at", "email"], "search" => ["email"]],
+  "posts" => ["label" => "Blog Posts"],
 ];
 const TABLE_NAMES = ["bookings" => "bookings", "contacts" => "contacts", "newsletter" => "newsletter_signups"];
 
@@ -51,6 +53,50 @@ if (!isset(TABS[$tab])) {
   $tab = "bookings";
 }
 $q = trim((string)($_GET["q"] ?? ""));
+
+// ---- blog post actions (publish toggle / delete) ----
+
+if ($authed && $tab === "posts" && $_SERVER["REQUEST_METHOD"] === "POST") {
+  $pdo = db_connect();
+  $postId = (int)($_POST["id"] ?? 0);
+  if ($pdo && $postId > 0) {
+    if (($_POST["action"] ?? "") === "toggle_publish") {
+      $stmt = $pdo->prepare("UPDATE posts SET published = 1 - published WHERE id = :id");
+      $stmt->execute([":id" => $postId]);
+    } elseif (($_POST["action"] ?? "") === "delete") {
+      $stmt = $pdo->prepare("SELECT cover_image FROM posts WHERE id = :id");
+      $stmt->execute([":id" => $postId]);
+      $row = $stmt->fetch(PDO::FETCH_ASSOC);
+      if ($row && !empty($row["cover_image"]) && str_starts_with($row["cover_image"], "/uploads/blog/")) {
+        $path = __DIR__ . $row["cover_image"];
+        if (is_file($path)) unlink($path);
+      }
+      $stmt = $pdo->prepare("DELETE FROM posts WHERE id = :id");
+      $stmt->execute([":id" => $postId]);
+    }
+  }
+  header("Location: admin.php?tab=posts");
+  exit;
+}
+
+function fetch_all_posts(?PDO $pdo, string $q): array {
+  if (!$pdo) return [];
+  try {
+    $sql = "SELECT * FROM posts";
+    $params = [];
+    if ($q !== "") {
+      $sql .= " WHERE title LIKE :q OR slug LIKE :q OR category LIKE :q";
+      $params[":q"] = "%$q%";
+    }
+    $sql .= " ORDER BY created_at DESC LIMIT 500";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  } catch (Throwable $e) {
+    error_log("fetch_all_posts failed: " . $e->getMessage());
+    return [];
+  }
+}
 
 function fetch_rows(?PDO $pdo, string $tab, string $q): array {
   if (!$pdo) return [];
@@ -71,7 +117,7 @@ function fetch_rows(?PDO $pdo, string $tab, string $q): array {
 
 // ---- CSV export (before any HTML output) ----
 
-if ($authed && isset($_GET["export"])) {
+if ($authed && $tab !== "posts" && isset($_GET["export"])) {
   $pdo = db_connect();
   $rows = fetch_rows($pdo, $tab, $q);
   header("Content-Type: text/csv; charset=UTF-8");
@@ -87,7 +133,8 @@ if ($authed && isset($_GET["export"])) {
   exit;
 }
 
-$rows = $authed ? fetch_rows(db_connect(), $tab, $q) : [];
+$rows = $authed && $tab !== "posts" ? fetch_rows(db_connect(), $tab, $q) : [];
+$posts = $authed && $tab === "posts" ? fetch_all_posts(db_connect(), $q) : [];
 
 function h(?string $s): string {
   return htmlspecialchars($s ?? "", ENT_QUOTES, "UTF-8");
@@ -148,6 +195,20 @@ function label_for(string $col): string {
   tr:last-child td{border-bottom:0;}
   .empty{padding:40px; text-align:center; color:var(--muted);}
   .count{color:var(--muted); font-size:13px; margin-bottom:12px;}
+
+  .thumb{width:52px; height:36px; object-fit:cover; border-radius:6px; display:block; background:var(--paper);}
+  .thumb-empty{background:linear-gradient(135deg,var(--emerald),var(--emerald-mid));}
+  .muted{color:var(--muted); font-size:12px;}
+  .pill{display:inline-block; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:700;}
+  .pill-live{background:#dcecd8; color:#2c5a2a;}
+  .pill-draft{background:#efe6d3; color:#8a6a1f;}
+  .actions{display:flex; gap:10px; align-items:center; white-space:nowrap;}
+  .actions a{color:var(--emerald); font-weight:600; text-decoration:none; font-size:13px;}
+  .actions a:hover{text-decoration:underline;}
+  .actions form{display:inline;}
+  .linklike{background:none; border:0; padding:0; color:var(--emerald); font-weight:600; font-size:13px; cursor:pointer; font-family:inherit;}
+  .linklike:hover{text-decoration:underline;}
+  .linklike.danger{color:#b23a2e;}
 </style>
 </head>
 <body>
@@ -179,33 +240,82 @@ function label_for(string $col): string {
 
     <form class="toolbar" method="get">
       <input type="hidden" name="tab" value="<?= h($tab) ?>" />
-      <input type="text" name="q" value="<?= h($q) ?>" placeholder="Search name or email…" />
+      <input type="text" name="q" value="<?= h($q) ?>" placeholder="<?= $tab === "posts" ? "Search title or category…" : "Search name or email…" ?>" />
       <button type="submit">Search</button>
-      <a class="export" href="?tab=<?= h($tab) ?>&q=<?= urlencode($q) ?>&export=csv">Export CSV</a>
+      <?php if ($tab === "posts"): ?>
+        <a class="export" href="admin-post-edit.php">+ New Post</a>
+      <?php else: ?>
+        <a class="export" href="?tab=<?= h($tab) ?>&q=<?= urlencode($q) ?>&export=csv">Export CSV</a>
+      <?php endif; ?>
     </form>
 
-    <p class="count"><?= count($rows) ?> result<?= count($rows) === 1 ? "" : "s" ?><?= $q !== "" ? " for \"" . h($q) . "\"" : "" ?></p>
+    <?php if ($tab === "posts"): ?>
+      <p class="count"><?= count($posts) ?> post<?= count($posts) === 1 ? "" : "s" ?><?= $q !== "" ? " for \"" . h($q) . "\"" : "" ?></p>
+      <div class="table-wrap">
+        <?php if (empty($posts)): ?>
+          <div class="empty">No blog posts yet — click "+ New Post" to write the first one.</div>
+        <?php else: ?>
+          <table>
+            <thead>
+              <tr><th></th><th>Title</th><th>Category</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+              <?php foreach ($posts as $p): ?>
+                <tr>
+                  <td>
+                    <?php if (!empty($p["cover_image"])): ?>
+                      <img class="thumb" src="<?= h($p["cover_image"]) ?>" alt="" />
+                    <?php else: ?>
+                      <span class="thumb thumb-empty"></span>
+                    <?php endif; ?>
+                  </td>
+                  <td class="wrap-cell"><strong><?= h($p["title"]) ?></strong><br /><span class="muted">/blog/<?= h($p["slug"]) ?></span></td>
+                  <td><?= h($p["category"]) ?></td>
+                  <td><span class="pill <?= $p["published"] ? "pill-live" : "pill-draft" ?>"><?= $p["published"] ? "Published" : "Draft" ?></span></td>
+                  <td><?= h(format_post_date($p["created_at"])) ?></td>
+                  <td class="actions">
+                    <a href="admin-post-edit.php?id=<?= (int)$p["id"] ?>">Edit</a>
+                    <form method="post" action="?tab=posts">
+                      <input type="hidden" name="id" value="<?= (int)$p["id"] ?>" />
+                      <input type="hidden" name="action" value="toggle_publish" />
+                      <button type="submit" class="linklike"><?= $p["published"] ? "Unpublish" : "Publish" ?></button>
+                    </form>
+                    <form method="post" action="?tab=posts" onsubmit="return confirm('Delete this post? This cannot be undone.');">
+                      <input type="hidden" name="id" value="<?= (int)$p["id"] ?>" />
+                      <input type="hidden" name="action" value="delete" />
+                      <button type="submit" class="linklike danger">Delete</button>
+                    </form>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        <?php endif; ?>
+      </div>
+    <?php else: ?>
+      <p class="count"><?= count($rows) ?> result<?= count($rows) === 1 ? "" : "s" ?><?= $q !== "" ? " for \"" . h($q) . "\"" : "" ?></p>
 
-    <div class="table-wrap">
-      <?php if (empty($rows)): ?>
-        <div class="empty">No submissions yet.</div>
-      <?php else: ?>
-        <table>
-          <thead>
-            <tr><?php foreach (TABS[$tab]["cols"] as $col): ?><th><?= h(label_for($col)) ?></th><?php endforeach; ?></tr>
-          </thead>
-          <tbody>
-            <?php foreach ($rows as $row): ?>
-              <tr>
-                <?php foreach (TABS[$tab]["cols"] as $col): ?>
-                  <td class="<?= $col === "message" ? "wrap-cell" : "" ?>"><?= h((string)($row[$col] ?? "")) ?></td>
-                <?php endforeach; ?>
-              </tr>
-            <?php endforeach; ?>
-          </tbody>
-        </table>
-      <?php endif; ?>
-    </div>
+      <div class="table-wrap">
+        <?php if (empty($rows)): ?>
+          <div class="empty">No submissions yet.</div>
+        <?php else: ?>
+          <table>
+            <thead>
+              <tr><?php foreach (TABS[$tab]["cols"] as $col): ?><th><?= h(label_for($col)) ?></th><?php endforeach; ?></tr>
+            </thead>
+            <tbody>
+              <?php foreach ($rows as $row): ?>
+                <tr>
+                  <?php foreach (TABS[$tab]["cols"] as $col): ?>
+                    <td class="<?= $col === "message" ? "wrap-cell" : "" ?>"><?= h((string)($row[$col] ?? "")) ?></td>
+                  <?php endforeach; ?>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        <?php endif; ?>
+      </div>
+    <?php endif; ?>
   </div>
 <?php endif; ?>
 
